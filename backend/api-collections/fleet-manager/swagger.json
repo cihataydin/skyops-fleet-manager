@@ -1,0 +1,283 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/drones": {
+      "get": {
+        "operationId": "DroneController_getDronesAsync",
+        "summary": "Lists drones",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50,
+              "type": "number"
+            }
+          },
+          {
+            "name": "orderBy",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "createdAt",
+              "type": "string"
+            }
+          },
+          {
+            "name": "direction",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "asc",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "model",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/DroneModel"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/DroneStatus"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The list of drones has been successfully retrieved."
+          }
+        },
+        "tags": [
+          "drones"
+        ]
+      },
+      "post": {
+        "operationId": "DroneController_createDroneAsync",
+        "summary": "Creates a new drone",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "The data for the drone to be created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDroneRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The drone has been successfully created."
+          },
+          "400": {
+            "description": "Invalid request body or missing data."
+          }
+        },
+        "tags": [
+          "drones"
+        ]
+      }
+    },
+    "/drones/{id}": {
+      "get": {
+        "operationId": "DroneController_getDroneAsync",
+        "summary": "Retrieves information about a specific drone",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "The unique ID of the drone",
+            "schema": {
+              "example": "123e4567-e89b-12d3-a456-426614174000",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The drone information has been successfully retrieved."
+          },
+          "404": {
+            "description": "Drone not found."
+          }
+        },
+        "tags": [
+          "drones"
+        ]
+      },
+      "put": {
+        "operationId": "DroneController_updateDroneAsync",
+        "summary": "Updates an existing drone",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "The unique ID of the drone to update",
+            "schema": {
+              "example": "123e4567-e89b-12d3-a456-426614174000",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "The data for the drone to be updated",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateDroneRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The drone has been successfully updated."
+          },
+          "400": {
+            "description": "Invalid request body or missing data."
+          },
+          "404": {
+            "description": "Drone not found."
+          }
+        },
+        "tags": [
+          "drones"
+        ]
+      },
+      "delete": {
+        "operationId": "DroneController_softDeleteDroneAsync",
+        "summary": "Deletes a specific drone (soft delete)",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "The unique ID of the drone to delete",
+            "schema": {
+              "example": "123e4567-e89b-12d3-a456-426614174000",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The drone has been successfully deleted."
+          },
+          "404": {
+            "description": "Drone not found."
+          }
+        },
+        "tags": [
+          "drones"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Fleet Manager API",
+    "description": "API documentation",
+    "version": "1.0.0",
+    "contact": {}
+  },
+  "tags": [
+    {
+      "name": "Fleet Manager",
+      "description": ""
+    }
+  ],
+  "servers": [
+    {
+      "url": "http://localhost:3000"
+    }
+  ],
+  "components": {
+    "schemas": {
+      "DroneModel": {
+        "type": "string",
+        "description": "Serial number of the drone (exactly 13 characters long)",
+        "enum": [
+          "PHANTOM_4",
+          "MATRICE_300",
+          "MAVIC_3_ENTERPRISE"
+        ]
+      },
+      "DroneStatus": {
+        "type": "string",
+        "description": "Status of the drone",
+        "enum": [
+          "AVAILABLE",
+          "IN_MISSION",
+          "MAINTENANCE",
+          "RETIRED"
+        ]
+      },
+      "CreateDroneRequestDto": {
+        "type": "object",
+        "properties": {
+          "serialNumber": {
+            "type": "string",
+            "description": "Serial number of the drone (exactly 13 characters long)",
+            "example": "SKY-1234-5678"
+          },
+          "model": {
+            "type": "string",
+            "description": "Model of the drone",
+            "enum": [
+              "PHANTOM_4",
+              "MATRICE_300",
+              "MAVIC_3_ENTERPRISE"
+            ],
+            "example": "MATRICE_300"
+          }
+        },
+        "required": [
+          "serialNumber",
+          "model"
+        ]
+      },
+      "UpdateDroneRequestDto": {
+        "type": "object",
+        "properties": {
+          "model": {
+            "example": "SKY-1234-5678",
+            "$ref": "#/components/schemas/DroneModel"
+          },
+          "status": {
+            "example": "AVAILABLE",
+            "$ref": "#/components/schemas/DroneStatus"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      }
+    }
+  }
+}

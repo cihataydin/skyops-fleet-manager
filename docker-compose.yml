@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: skyops-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: fleetManagerDB
+    ports:
+      - "5432:5432"
+    volumes:
+      - skyops-db-data:/var/lib/postgresql/data
+    networks:
+      - skyops-network
+  
+  redis:
+    image: redis:7-alpine
+    container_name: skyops-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - skyops-network
+
+volumes:
+  skyops-db-data:
+
+networks:
+  skyops-network:
+    driver: bridge

@@ -1,0 +1,32 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "NestJS: Launch via Webpack",
+      "type": "pwa-node",
+      "request": "launch",
+      "runtimeArgs": ["--nolazy"],
+      "program": "${workspaceFolder}/dist/main.js",
+      "outFiles": [
+        "${workspaceFolder}/dist/**/*.js"
+      ],
+      "sourceMaps": true,
+      "smartStep": true,
+      "internalConsoleOptions": "openOnSessionStart",
+      "console": "integratedTerminal",
+      "preLaunchTask": "npm: build" // Debug'a başlamadan önce otomatik "npm run build" çalıştırır
+    },
+    {
+      "name": "NestJS: Attach to Process",
+      "type": "pwa-node",
+      "request": "attach",
+      "processId": "${command:PickProcess}",
+      "outFiles": [
+        "${workspaceFolder}/dist/**/*.js"
+      ],
+      "sourceMaps": true,
+      "smartStep": true,
+      "internalConsoleOptions": "openOnSessionStart"
+    }
+  ]
+}

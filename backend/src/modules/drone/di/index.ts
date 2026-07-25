@@ -1,0 +1,1 @@
+export const DRONES_SERVICE_TOKEN = Symbol('DronesService');
