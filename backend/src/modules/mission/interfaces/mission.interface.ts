@@ -20,4 +20,6 @@ export interface IMissionService {
   updateMissionAsync(id: string, requestDto: UpdateMissionRequestDto): Promise<UpdateMissionResponseDto>;
 
   softDeleteMissionAsync(id: string): Promise<void>;
+
+  hasUpcomingMissionsAsync(droneId: string): Promise<boolean>;
 }

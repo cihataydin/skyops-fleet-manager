@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Mapper } from '@automapper/core';
@@ -6,12 +6,12 @@ import { InjectMapper } from '@automapper/nestjs';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Drone } from '@/modules/drone/entities';
 import { CreateDroneRequestDto, GetDronesRequestDto, UpdateDroneRequestDto } from '@/modules/drone/dtos/request';
-import { DroneEvent } from '@/modules/drone/enums';
-import { MAINTENANCE_INTERVAL_FLIGHT_HOURS } from '@/shared/constants';
+import { DroneEvent, DroneStatus } from '@/modules/drone/enums';
 import { DroneLogic } from '../logics';
 import { CACHE_TOKEN } from '@/shared/di';
 import { ICacheService } from '@/infra/cache';
 import { PaginationUtil } from '@/shared/utils';
+import { DomainException } from '@/shared/exceptions';
 import {
   GetDronesResponseDto,
   GetDroneResponseDto,
@@ -19,6 +19,8 @@ import {
   UpdateDroneResponseDto,
 } from '@/modules/drone/dtos/response';
 import { IDroneService } from '@/modules/drone/interfaces';
+import { MISSION_SERVICE_TOKEN } from '@/modules/mission/di';
+import { IMissionService } from '@/modules/mission/interfaces';
 import * as _ from 'lodash';
 
 @Injectable()
@@ -30,6 +32,8 @@ export class DroneService implements IDroneService {
     private readonly mapper: Mapper,
     @Inject(CACHE_TOKEN) private readonly cacheService: ICacheService,
     private readonly eventEmitter: EventEmitter2,
+    @Inject(forwardRef(() => MISSION_SERVICE_TOKEN))
+    private readonly missionService: IMissionService,
   ) {}
 
   public async getDronesAsync(
@@ -96,6 +100,12 @@ export class DroneService implements IDroneService {
       throw new NotFoundException(`Drone with ID '${id}' not found`);
     }
 
+    const hasUpcomingMissions = requestDto.status === DroneStatus.RETIRED
+      ? await this.missionService.hasUpcomingMissionsAsync(id)
+      : false;
+
+    DroneLogic.validateRetirement(requestDto.status, hasUpcomingMissions, id);
+
     this.mapper.map(requestDto, UpdateDroneRequestDto, Drone);
 
     const filteredDto = _.omitBy(requestDto, _.isUndefined);
@@ -133,8 +143,7 @@ export class DroneService implements IDroneService {
     await this.cacheService.deleteAsync(`drone_${droneId}`);
   }
 
-  public async softDeleteDroneAsync(id: string): Promise<void>
-  {
+  public async softDeleteDroneAsync(id: string): Promise<void> {
     const result = await this.dronesRepository.softDelete({ id });
 
     if (!result.affected) {

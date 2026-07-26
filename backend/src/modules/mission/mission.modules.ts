@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Mission } from './entities';
 import { MissionController } from '@/modules/mission/controllers';
@@ -13,7 +13,7 @@ import { DroneModule } from '../drone';
   imports: [
     TypeOrmModule.forFeature([Mission, Drone]),
     CacheModule,
-    DroneModule
+    forwardRef(() => DroneModule),
   ],
   controllers: [MissionController],
   providers: [
@@ -23,6 +23,6 @@ import { DroneModule } from '../drone';
       useClass: MissionService,
     },
   ],
+  exports: [MISSION_SERVICE_TOKEN],
 })
-export class MissionModule
-{}
+export class MissionModule {}

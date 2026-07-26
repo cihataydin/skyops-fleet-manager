@@ -1,6 +1,6 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Not, LessThan, MoreThan } from 'typeorm';
+import { Repository, Not, LessThan, MoreThan, In } from 'typeorm';
 import { Mapper } from '@automapper/core';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mission } from '@/modules/mission/entities';
@@ -21,7 +21,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { MissionEvent, MissionStatus } from '@/modules/mission/enums';
 import { DRONE_SERVICE_TOKEN } from '@/modules/drone/di';
 import { IDroneService } from '@/modules/drone/interfaces';
-import { MissionLogic } from '../logics';
+import { MissionLogic } from '@/modules/mission/logics';
 
 @Injectable()
 export class MissionService implements IMissionService {
@@ -31,7 +31,7 @@ export class MissionService implements IMissionService {
     @InjectMapper()
     private readonly mapper: Mapper,
     @Inject(CACHE_TOKEN) private readonly cacheService: ICacheService,
-    @Inject(DRONE_SERVICE_TOKEN) private readonly droneService: IDroneService,
+    @Inject(forwardRef(() =>DRONE_SERVICE_TOKEN)) private readonly droneService: IDroneService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
@@ -167,6 +167,17 @@ export class MissionService implements IMissionService {
     }
 
     await this.cacheService.deleteAsync(`mission_${id}`);
+  }
+
+  public async hasUpcomingMissionsAsync(droneId: string): Promise<boolean> {
+    const upcomingMission = await this.missionsRepository.findOne({
+      where: {
+        droneId,
+        status: Not(In([MissionStatus.COMPLETED, MissionStatus.ABORTED])),
+      },
+    });
+
+    return Boolean(upcomingMission);
   }
 
   private async checkOverlappingMissionAsync(

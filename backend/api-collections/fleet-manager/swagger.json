@@ -701,6 +701,11 @@
           "status": {
             "example": "AVAILABLE",
             "$ref": "#/components/schemas/DroneStatus"
+          },
+          "totalFlightHours": {
+            "type": "number",
+            "description": "Total flight hours of the drone",
+            "example": 45.5
           }
         },
         "required": [
@@ -816,17 +821,27 @@
           },
           "scheduledStartTime": {
             "type": "string",
-            "description": "Scheduled start time of the mission (ISO 8601)",
+            "description": "Scheduled start time of the mission (ISO 8601). Required if scheduledEndTime is provided.",
             "example": "2026-08-01T08:00:00Z"
           },
           "scheduledEndTime": {
             "type": "string",
-            "description": "Scheduled end time of the mission (ISO 8601)",
+            "description": "Scheduled end time of the mission (ISO 8601). Required if scheduledStartTime is provided.",
             "example": "2026-08-01T12:00:00Z"
           },
           "status": {
             "example": "IN_PROGRESS",
             "$ref": "#/components/schemas/MissionStatus"
+          },
+          "flightHoursAtCompletion": {
+            "type": "number",
+            "description": "Flight hours logged upon completion of the mission",
+            "example": 3.5
+          },
+          "abortReason": {
+            "type": "string",
+            "description": "Reason for aborting the mission",
+            "example": "Adverse weather conditions"
           }
         }
       },
