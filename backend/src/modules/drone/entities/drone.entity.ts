@@ -4,6 +4,7 @@ import { MaintenanceLog } from '@/modules/maintenance/entities';
 import { DroneModel, DroneStatus } from '@/modules/drone/enums';
 import { BaseEntity } from '@/infra/db/entities';
 import { AutoMap } from '@automapper/classes';
+import { MAINTENANCE_INTERVAL_MS } from '@/shared/constants';
 
 @Entity('drones')
 export class Drone extends BaseEntity {
@@ -69,7 +70,7 @@ export class Drone extends BaseEntity {
 
   @BeforeInsert()
   public beforeInsertEntity() {
-    this.nextMaintenanceDueDate = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000); // Set next maintenance due date to 90 days from now
+    this.nextMaintenanceDueDate = new Date(Date.now() + MAINTENANCE_INTERVAL_MS);
   }
 
   /*

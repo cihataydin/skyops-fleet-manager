@@ -7,6 +7,8 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Drone } from '@/modules/drone/entities';
 import { CreateDroneRequestDto, GetDronesRequestDto, UpdateDroneRequestDto } from '@/modules/drone/dtos/request';
 import { DroneEvent } from '@/modules/drone/enums';
+import { MAINTENANCE_INTERVAL_FLIGHT_HOURS } from '@/shared/constants';
+import { DroneLogic } from '../logics';
 import { CACHE_TOKEN } from '@/shared/di';
 import { ICacheService } from '@/infra/cache';
 import { PaginationUtil } from '@/shared/utils';
@@ -103,14 +105,32 @@ export class DroneService implements IDroneService {
 
     await this.cacheService.deleteAsync(`drone_${id}`);
 
-    if (Number(updatedDrone.totalFlightHours) > 50) {
-      this.eventEmitter.emit(DroneEvent.FLIGHT_HOURS_EXCEEDED, {
+    if (Number(updatedDrone.totalFlightHours) > MAINTENANCE_INTERVAL_FLIGHT_HOURS) {
+      const event = {
         droneId: updatedDrone.id,
         totalFlightHours: Number(updatedDrone.totalFlightHours),
-      });
+      };
+      this.eventEmitter.emit(DroneEvent.FLIGHT_HOURS_EXCEEDED, event);
     }
 
     return this.mapper.map(updatedDrone, Drone, UpdateDroneResponseDto);
+  }
+
+  public async updateMaintenanceTrackingDatesAsync(
+    droneId: string,
+    performedAt: Date,
+  ): Promise<void> {
+    const drone = await this.dronesRepository.findOne({ where: { id: droneId } });
+
+    if (!drone) {
+      throw new NotFoundException(`Drone with ID '${droneId}' not found`);
+    }
+
+    DroneLogic.updateMaintenanceTrackingDates(drone, performedAt);
+
+    await this.dronesRepository.save(drone);
+
+    await this.cacheService.deleteAsync(`drone_${droneId}`);
   }
 
   public async softDeleteDroneAsync(id: string): Promise<void>

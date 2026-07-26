@@ -19,5 +19,7 @@ export interface IDroneService {
 
   updateDroneAsync(id: string, requestDto: UpdateDroneRequestDto): Promise<UpdateDroneResponseDto>;
 
+  updateMaintenanceTrackingDatesAsync(droneId: string, performedAt: Date): Promise<void>;
+
   softDeleteDroneAsync(id: string): Promise<void>;
 }

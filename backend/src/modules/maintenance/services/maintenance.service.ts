@@ -22,6 +22,8 @@ import { IMaintenanceService } from '@/modules/maintenance/interfaces';
 import * as _ from 'lodash';
 import { DRONE_SERVICE_TOKEN } from '@/modules/drone/di';
 import { IDroneService } from '@/modules/drone/interfaces';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { MaintenanceEvent } from '@/modules/maintenance/enums';
 
 @Injectable()
 export class MaintenanceService implements IMaintenanceService {
@@ -31,7 +33,8 @@ export class MaintenanceService implements IMaintenanceService {
     @InjectMapper()
     private readonly mapper: Mapper,
     @Inject(CACHE_TOKEN) private readonly cacheService: ICacheService,
-    @Inject(DRONE_SERVICE_TOKEN) private readonly droneService: IDroneService
+    @Inject(DRONE_SERVICE_TOKEN) private readonly droneService: IDroneService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   public async getMaintenanceLogsAsync(
@@ -90,6 +93,13 @@ export class MaintenanceService implements IMaintenanceService {
     const createdLog = this.maintenanceLogsRepository.create(log);
 
     await this.maintenanceLogsRepository.save(createdLog);
+
+    const { performedAt, droneId: createdLogDroneId } = createdLog;
+
+    this.eventEmitter.emit(MaintenanceEvent.MAINTENANCE_CREATED, {
+      droneId: createdLogDroneId,
+      performedAt,
+    });
 
     return this.mapper.map(createdLog, MaintenanceLog, CreateMaintenanceLogResponseDto);
   }
