@@ -1,7 +1,7 @@
-import { Injectable, Inject, Logger } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { DroneEvent } from '@/modules/drone/enums';
-import { DroneFlightHoursExceededEvent } from '@/modules/drone/events';
+import { DroneFlightHoursExceededEvent, DroneMaintenanceDueEvent } from '@/modules/drone/events';
 import { MAINTENANCE_SERVICE_TOKEN } from '@/modules/maintenance/di';
 import { IMaintenanceService } from '@/modules/maintenance/interfaces';
 import { MaintenanceType } from '@/modules/maintenance/enums';
@@ -23,20 +23,48 @@ export class DroneMaintenanceListener {
     event: DroneFlightHoursExceededEvent,
   ): Promise<void> {
     const { droneId, totalFlightHours } = event;
+    const notes = `Auto-generated maintenance log: total flight hours reached ${totalFlightHours}h (exceeded threshold 50h).`;
 
-    this.loggerService.log(
-      `Received '${DroneEvent.FLIGHT_HOURS_EXCEEDED}' event for drone '${droneId}' (${totalFlightHours} flight hours).`,
+    await this.processRoutineMaintenanceLogAsync(
+      droneId,
+      totalFlightHours,
+      'System Auto Trigger (50h Exceeded)',
+      notes,
     );
+  }
+
+  @OnEvent(DroneEvent.MAINTENANCE_DUE, { async: true })
+  public async handleDroneMaintenanceDueEvent(
+    event: DroneMaintenanceDueEvent,
+  ): Promise<void> {
+    const { droneId, totalFlightHours, reason, nextMaintenanceDueDate } = event;
+    const notes = `Auto-generated routine maintenance log: 90-day calendar interval reached (due: ${nextMaintenanceDueDate ? new Date(nextMaintenanceDueDate).toISOString() : 'now'}).`;
+
+    await this.processRoutineMaintenanceLogAsync(
+      droneId,
+      totalFlightHours,
+      `System Scheduled Trigger (${reason})`,
+      notes,
+    );
+  }
+
+  private async processRoutineMaintenanceLogAsync(
+    droneId: string,
+    flightHours: number,
+    technicianName: string,
+    notes: string,
+  ): Promise<void> {
+    this.loggerService.log(`Processing automatic routine maintenance log for drone '${droneId}' (${technicianName}).`);
 
     await this.maintenanceService.createMaintenanceLogAsync({
-        droneId,
-        type: MaintenanceType.ROUTINE_CHECK,
-        technicianName: 'System Auto Trigger',
-        notes: `Auto-generated maintenance log: total flight hours reached ${totalFlightHours}h (exceeded threshold 50h).`,
-        performedAt: new Date(),
-        flightHoursAtMaintenance: totalFlightHours,
-      });
+      droneId,
+      type: MaintenanceType.ROUTINE_CHECK,
+      technicianName,
+      notes,
+      performedAt: new Date(),
+      flightHoursAtMaintenance: flightHours,
+    });
 
-    this.loggerService.log(`Automatic maintenance log created for drone '${droneId}'.`);
+    this.loggerService.log(`Automatic maintenance log successfully created for drone '${droneId}'.`);
   }
 }

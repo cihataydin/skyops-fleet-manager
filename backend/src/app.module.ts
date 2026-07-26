@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { ScheduleModule } from '@nestjs/schedule';
 import { DatabaseModule } from '@/infra/db';
 import { LoggerModule } from '@/infra/logger';
 import { SwaggerModule } from '@nestjs/swagger';
@@ -12,6 +13,7 @@ import { MaintenanceModule } from './modules/maintenance';
 @Module({
   imports: [
     EventEmitterModule.forRoot(),
+    ScheduleModule.forRoot(),
     AutomapperModule.forRoot({
       strategyInitializer: classes(),
     }),
