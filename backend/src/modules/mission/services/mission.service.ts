@@ -91,6 +91,8 @@ export class MissionService implements IMissionService {
       throw new NotFoundException(`Drone with ID '${droneId}' not found`);
     }
 
+    MissionLogic.validateDroneAvailability(drone.status, droneId);
+
     // TODO: already date type? why?
     const scheduledStart = new Date(scheduledStartTime);
     const scheduledEnd = new Date(scheduledEndTime);
@@ -121,6 +123,7 @@ export class MissionService implements IMissionService {
       if (!drone) {
         throw new NotFoundException(`Drone with ID '${requestDto.droneId}' not found`);
       }
+      MissionLogic.validateDroneAvailability(drone.status, requestDto.droneId);
     }
 
     const targetDroneId = requestDto.droneId || mission.droneId;

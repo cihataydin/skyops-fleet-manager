@@ -1,5 +1,6 @@
 import { Mission } from '@/modules/mission/entities';
 import { MissionStatus } from '@/modules/mission/enums';
+import { DroneStatus } from '@/modules/drone/enums';
 import { DomainException } from '@/shared/exceptions';
 
 export class MissionLogic {
@@ -10,6 +11,14 @@ export class MissionLogic {
     [MissionStatus.COMPLETED]: [],
     [MissionStatus.ABORTED]: [],
   };
+
+  public static validateDroneAvailability(droneStatus: DroneStatus | string, droneId: string): void {
+    if (droneStatus !== DroneStatus.AVAILABLE) {
+      throw new DomainException(
+        `Drone '${droneId}' cannot be assigned to a mission because its current status is '${droneStatus}'. Only drones with 'AVAILABLE' status can be assigned.`,
+      );
+    }
+  }
 
   public static validateStatusTransition(
     currentStatus: MissionStatus,
