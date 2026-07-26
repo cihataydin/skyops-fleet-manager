@@ -18,6 +18,7 @@ import { IMissionService } from '@/modules/mission/interfaces';
 import * as _ from 'lodash';
 import { DRONE_SERVICE_TOKEN } from '@/modules/drone/di';
 import { IDroneService } from '@/modules/drone/interfaces';
+import { MissionLogic } from '../logics';
 
 @Injectable()
 export class MissionService implements IMissionService {
@@ -103,6 +104,10 @@ export class MissionService implements IMissionService {
 
     if (!mission) {
       throw new NotFoundException(`Mission with ID '${id}' not found`);
+    }
+
+    if (requestDto.status && requestDto.status !== mission.status) {
+      MissionLogic.validateStatusTransition(mission.status, requestDto.status);
     }
 
     this.mapper.map(requestDto, UpdateMissionRequestDto, Mission);

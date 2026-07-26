@@ -85,7 +85,7 @@ export class GetMissionResponseDto {
     description: 'Status of the mission',
     enum: MissionStatus,
     enumName: 'MissionStatus',
-    example: MissionStatus.COMPLETE,
+    example: MissionStatus.COMPLETED,
   })
   @AutoMap()
   status: MissionStatus;

@@ -723,7 +723,7 @@
           "PLANNED",
           "PRE_FLIGHT_CHECK",
           "IN_PROGRESS",
-          "COMPLETE",
+          "COMPLETED",
           "ABORTED"
         ]
       },
