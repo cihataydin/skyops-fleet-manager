@@ -6,6 +6,7 @@ import { DRONE_SERVICE_TOKEN } from '@/modules/drone/di';
 import { IDroneService } from '@/modules/drone/interfaces';
 import { LOGGER_TOKEN } from '@/shared/di';
 import { ILoggerService } from '@/infra/logger';
+import { DroneStatus } from '@/modules/drone/enums';
 
 @Injectable()
 export class MaintenanceListener {
@@ -27,6 +28,8 @@ export class MaintenanceListener {
       `Received '${MaintenanceEvent.MAINTENANCE_CREATED}' event for drone '${droneId}'.`,
     );
 
+    // TODO: should we merge this two service methods?
+    await this.droneService.updateDroneAsync(droneId, { status: DroneStatus.MAINTENANCE});
     await this.droneService.updateMaintenanceTrackingDatesAsync(droneId, performedAt);
 
     this.loggerService.log(

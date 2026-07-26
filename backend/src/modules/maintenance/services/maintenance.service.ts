@@ -24,6 +24,7 @@ import { DRONE_SERVICE_TOKEN } from '@/modules/drone/di';
 import { IDroneService } from '@/modules/drone/interfaces';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { MaintenanceEvent } from '@/modules/maintenance/enums';
+import { MaintenanceLogic } from '@/modules/maintenance/logics';
 
 @Injectable()
 export class MaintenanceService implements IMaintenanceService {
@@ -83,12 +84,18 @@ export class MaintenanceService implements IMaintenanceService {
   public async createMaintenanceLogAsync(
     requestDto: CreateMaintenanceLogRequestDto,
   ): Promise<CreateMaintenanceLogResponseDto> {
-    const { droneId } = requestDto;
+    const { droneId, flightHoursAtMaintenance } = requestDto;
     const drone = await this.droneService.getDroneAsync(droneId);
 
     if (!drone) {
       throw new NotFoundException(`Drone with ID '${droneId}' not found`);
     }
+
+    MaintenanceLogic.validateFlightHoursAtMaintenance(
+      flightHoursAtMaintenance,
+      drone.totalFlightHours,
+    );
+
     const log = this.mapper.map(requestDto, CreateMaintenanceLogRequestDto, MaintenanceLog);
     const createdLog = this.maintenanceLogsRepository.create(log);
 
@@ -104,6 +111,7 @@ export class MaintenanceService implements IMaintenanceService {
     return this.mapper.map(createdLog, MaintenanceLog, CreateMaintenanceLogResponseDto);
   }
 
+  // TODO: bounded update needed for maintenance logs, as we don't want to allow changing the droneId or performedAt date
   public async updateMaintenanceLogAsync(
     id: string,
     requestDto: UpdateMaintenanceLogRequestDto,
