@@ -9,7 +9,7 @@ import { CacheModule } from '@/infra/cache';
 import { LoggerModule } from '@/infra/logger';
 import { Mission } from '@/modules/mission/entities';
 import { MaintenanceLog } from '@/modules/maintenance/entities';
-import { MaintenanceListener } from './listeners';
+import { MaintenanceListener, MissionListener } from '@/modules/drone/listeners';
 
 @Module({
   imports: [
@@ -21,6 +21,7 @@ import { MaintenanceListener } from './listeners';
   providers: [
     DroneProfile,
     MaintenanceListener,
+    MissionListener,
     {
       provide: DRONE_SERVICE_TOKEN,
       useClass: DroneService,

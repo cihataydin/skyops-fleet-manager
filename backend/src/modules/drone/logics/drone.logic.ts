@@ -5,7 +5,7 @@ export class DroneLogic {
   public static updateMaintenanceTrackingDates(
     drone: Drone, 
     performedAt: Date
-): void {
+  ): void {
     drone.lastMaintenanceDate = new Date(performedAt);
     drone.nextMaintenanceDueDate = new Date(
       drone.lastMaintenanceDate.getTime() + MAINTENANCE_INTERVAL_MS,

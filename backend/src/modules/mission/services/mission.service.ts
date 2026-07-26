@@ -16,6 +16,8 @@ import {
 } from '@/modules/mission/dtos/response';
 import { IMissionService } from '@/modules/mission/interfaces';
 import * as _ from 'lodash';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { MissionEvent, MissionStatus } from '@/modules/mission/enums';
 import { DRONE_SERVICE_TOKEN } from '@/modules/drone/di';
 import { IDroneService } from '@/modules/drone/interfaces';
 import { MissionLogic } from '../logics';
@@ -29,6 +31,7 @@ export class MissionService implements IMissionService {
     private readonly mapper: Mapper,
     @Inject(CACHE_TOKEN) private readonly cacheService: ICacheService,
     @Inject(DRONE_SERVICE_TOKEN) private readonly droneService: IDroneService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   public async getMissionsAsync(
@@ -106,8 +109,17 @@ export class MissionService implements IMissionService {
       throw new NotFoundException(`Mission with ID '${id}' not found`);
     }
 
-    if (requestDto.status && requestDto.status !== mission.status) {
-      MissionLogic.validateStatusTransition(mission.status, requestDto.status);
+    const { status: newStatus } = requestDto;
+    const { status } = mission;
+    const isStatusChanged = MissionLogic.isStatusChanged(status, newStatus);
+    const isMissionStarted = MissionLogic.isMissionStarted(status, newStatus);
+
+    if (isStatusChanged) {
+      MissionLogic.validateStatusTransition(status, newStatus);
+    }
+
+    if (isMissionStarted) {
+      MissionLogic.setActualStartTime(mission);
     }
 
     this.mapper.map(requestDto, UpdateMissionRequestDto, Mission);
@@ -118,6 +130,15 @@ export class MissionService implements IMissionService {
     const updatedMission = await this.missionsRepository.save(mission);
 
     await this.cacheService.deleteAsync(`mission_${id}`);
+
+    const { droneId, id: missionId } = updatedMission;
+
+    if (isMissionStarted) {
+      this.eventEmitter.emit(MissionEvent.MISSION_STARTED, {
+        missionId,
+        droneId,
+      });
+    }
 
     return this.mapper.map(updatedMission, Mission, UpdateMissionResponseDto);
   }
