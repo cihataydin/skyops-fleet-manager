@@ -1,4 +1,4 @@
-import { IsEnum, IsOptional, IsString, Length } from 'class-validator';
+import { IsEnum, IsOptional, IsNumber, Min } from 'class-validator';
 import { DroneModel, DroneStatus } from '@/modules/drone/enums';
 import { ApiProperty } from '@nestjs/swagger';
 import { AutoMap } from '@automapper/classes';
@@ -29,4 +29,16 @@ export class UpdateDroneRequestDto {
   @IsOptional()
   @IsEnum(DroneStatus, { message: 'Invalid drone status provided.' })
   status?: DroneStatus;
+
+  @ApiProperty({ 
+    type: Number, 
+    required: false, 
+    description: 'Total flight hours of the drone', 
+    example: 45.5 
+  })
+  @AutoMap()
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  totalFlightHours?: number;
 }

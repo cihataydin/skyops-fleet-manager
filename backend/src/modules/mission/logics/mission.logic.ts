@@ -42,11 +42,24 @@ export class MissionLogic {
     mission.actualStartTime = new Date();
   }
 
+  public static completeMission(mission: Mission, flightHoursAtCompletion?: number): void {
+    if (!flightHoursAtCompletion || Number(flightHoursAtCompletion) <= 0) {
+      throw new DomainException('Completing a mission requires valid flight hours to be logged.');
+    }
+
+    mission.actualEndTime = new Date();
+    mission.flightHoursAtCompletion = Number(flightHoursAtCompletion);
+  }
+
   public static isStatusChanged(status: MissionStatus, newStatus: MissionStatus): boolean {
-    return status && newStatus && newStatus !== status;
+    return Boolean(status && newStatus && newStatus !== status);
   }
 
   public static isMissionStarted(status: MissionStatus, newStatus: MissionStatus): boolean {
     return this.isStatusChanged(status, newStatus) && newStatus === MissionStatus.IN_PROGRESS;
+  }
+
+  public static isMissionCompleted(status: MissionStatus, newStatus: MissionStatus): boolean {
+    return this.isStatusChanged(status, newStatus) && newStatus === MissionStatus.COMPLETED;
   }
 }

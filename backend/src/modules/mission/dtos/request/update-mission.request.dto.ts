@@ -1,4 +1,4 @@
-import { IsEnum, IsOptional, IsString, IsUUID, IsDateString, MaxLength } from 'class-validator';
+import { IsEnum, IsOptional, IsString, IsUUID, IsDateString, MaxLength, IsNumber, Min } from 'class-validator';
 import { MissionType, MissionStatus } from '@/modules/mission/enums';
 import { ApiProperty } from '@nestjs/swagger';
 import { AutoMap } from '@automapper/classes';
@@ -101,4 +101,16 @@ export class UpdateMissionRequestDto {
   @IsOptional()
   @IsEnum(MissionStatus, { message: 'Invalid mission status provided.' })
   status?: MissionStatus;
+
+  @ApiProperty({ 
+    type: Number, 
+    required: false, 
+    description: 'Flight hours logged upon completion of the mission', 
+    example: 3.5 
+  })
+  @AutoMap()
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  flightHoursAtCompletion?: number;
 }

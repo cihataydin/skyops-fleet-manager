@@ -105,7 +105,7 @@ export class DroneService implements IDroneService {
 
     await this.cacheService.deleteAsync(`drone_${id}`);
 
-    if (Number(updatedDrone.totalFlightHours) > MAINTENANCE_INTERVAL_FLIGHT_HOURS) {
+    if (DroneLogic.isFlightHoursExceeded(updatedDrone)) {
       const event = {
         droneId: updatedDrone.id,
         totalFlightHours: Number(updatedDrone.totalFlightHours),

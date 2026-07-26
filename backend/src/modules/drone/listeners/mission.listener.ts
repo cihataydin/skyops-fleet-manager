@@ -1,7 +1,7 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { MissionEvent } from '@/modules/mission/enums';
-import { MissionStartedEvent } from '@/modules/mission/events';
+import { MissionStartedEvent, MissionCompletedEvent } from '@/modules/mission/events';
 import { DRONE_SERVICE_TOKEN } from '@/modules/drone/di';
 import { IDroneService } from '@/modules/drone/interfaces';
 import { DroneStatus } from '@/modules/drone/enums';
@@ -31,5 +31,29 @@ export class MissionListener {
     this.loggerService.log(
       `Drone '${droneId}' status updated to '${DroneStatus.IN_MISSION}'`,
     );
+  }
+
+  @OnEvent(MissionEvent.MISSION_COMPLETED, { async: true })
+  public async handleMissionCompletedEvent(event: MissionCompletedEvent): Promise<void> {
+    const { droneId, missionId, flightHoursLogged } = event;
+
+    this.loggerService.log(
+      `Received '${MissionEvent.MISSION_COMPLETED}' event for mission '${missionId}' (Drone '${droneId}', ${flightHoursLogged}h logged).`,
+    );
+
+    const drone = await this.droneService.getDroneAsync(droneId);
+
+    if (drone) {
+      const newTotalFlightHours = Number(drone.totalFlightHours || 0) + Number(flightHoursLogged);
+
+      await this.droneService.updateDroneAsync(droneId, {
+        totalFlightHours: newTotalFlightHours,
+        status: DroneStatus.AVAILABLE,
+      });
+
+      this.loggerService.log(
+        `Drone '${droneId}' updated with total flight hours ${newTotalFlightHours}h and status set to '${DroneStatus.AVAILABLE}'.`,
+      );
+    }
   }
 }
