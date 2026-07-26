@@ -32,6 +32,19 @@ export class MissionLogic {
     }
   }
 
+  public static validateScheduledDates(scheduledStartTime: Date | string, scheduledEndTime: Date | string): void {
+    const start = new Date(scheduledStartTime);
+    const end = new Date(scheduledEndTime);
+
+    if (start.getTime() < Date.now()) {
+      throw new DomainException('Missions cannot be scheduled in the past.');
+    }
+
+    if (end.getTime() <= start.getTime()) {
+      throw new DomainException('Scheduled end time must be after scheduled start time.');
+    }
+  }
+
   public static setActualStartTime(mission: Mission): void {
     if (mission.actualStartTime) {
       throw new DomainException(
@@ -59,19 +72,42 @@ export class MissionLogic {
     mission.abortReason = abortReason.trim();
   }
 
-  public static isStatusChanged(status: MissionStatus, newStatus: MissionStatus): boolean {
+  public static handleStatusChange(
+    mission: Mission,
+    newStatus?: MissionStatus,
+    flightHoursAtCompletion?: number,
+    abortReason?: string,
+  ): void {
+    const oldStatus = mission.status;
+
+    if (!this.isStatusChanged(oldStatus, newStatus)) {
+      return;
+    }
+
+    this.validateStatusTransition(oldStatus, newStatus);
+
+    if (newStatus === MissionStatus.IN_PROGRESS) {
+      this.setActualStartTime(mission);
+    } else if (newStatus === MissionStatus.COMPLETED) {
+      this.completeMission(mission, flightHoursAtCompletion);
+    } else if (newStatus === MissionStatus.ABORTED) {
+      this.abortMission(mission, abortReason);
+    }
+  }
+
+  public static isStatusChanged(status: MissionStatus, newStatus?: MissionStatus): boolean {
     return Boolean(status && newStatus && newStatus !== status);
   }
 
-  public static isMissionStarted(status: MissionStatus, newStatus: MissionStatus): boolean {
+  public static isMissionStarted(status: MissionStatus, newStatus?: MissionStatus): boolean {
     return this.isStatusChanged(status, newStatus) && newStatus === MissionStatus.IN_PROGRESS;
   }
 
-  public static isMissionCompleted(status: MissionStatus, newStatus: MissionStatus): boolean {
+  public static isMissionCompleted(status: MissionStatus, newStatus?: MissionStatus): boolean {
     return this.isStatusChanged(status, newStatus) && newStatus === MissionStatus.COMPLETED;
   }
 
-  public static isMissionAborted(status: MissionStatus, newStatus: MissionStatus): boolean {
+  public static isMissionAborted(status: MissionStatus, newStatus?: MissionStatus): boolean {
     return this.isStatusChanged(status, newStatus) && newStatus === MissionStatus.ABORTED;
   }
 }

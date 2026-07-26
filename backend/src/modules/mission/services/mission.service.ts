@@ -1,6 +1,6 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Not, LessThan, MoreThan } from 'typeorm';
 import { Mapper } from '@automapper/core';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mission } from '@/modules/mission/entities';
@@ -8,6 +8,7 @@ import { CreateMissionRequestDto, GetMissionsRequestDto, UpdateMissionRequestDto
 import { CACHE_TOKEN } from '@/shared/di';
 import { ICacheService } from '@/infra/cache';
 import { PaginationUtil } from '@/shared/utils';
+import { DomainException } from '@/shared/exceptions';
 import {
   GetMissionsResponseDto,
   GetMissionResponseDto,
@@ -83,13 +84,19 @@ export class MissionService implements IMissionService {
   public async createMissionAsync(
     requestDto: CreateMissionRequestDto,
   ): Promise<CreateMissionResponseDto> {
-    const { droneId } = requestDto;
+    const { droneId, scheduledStartTime, scheduledEndTime } = requestDto;
     
     const drone = await this.droneService.getDroneAsync(droneId);
-
     if (!drone) {
       throw new NotFoundException(`Drone with ID '${droneId}' not found`);
     }
+
+    // TODO: already date type? why?
+    const scheduledStart = new Date(scheduledStartTime);
+    const scheduledEnd = new Date(scheduledEndTime);
+
+    MissionLogic.validateScheduledDates(scheduledStart, scheduledEnd);
+    await this.checkOverlappingMissionAsync(droneId, scheduledStart, scheduledEnd);
 
     const mission = this.mapper.map(requestDto, CreateMissionRequestDto, Mission);
     const createdMission = this.missionsRepository.create(mission);
@@ -109,28 +116,32 @@ export class MissionService implements IMissionService {
       throw new NotFoundException(`Mission with ID '${id}' not found`);
     }
 
-    const { status: newStatus, flightHoursAtCompletion, abortReason } = requestDto;
-    const { status } = mission;
-    const isStatusChanged = MissionLogic.isStatusChanged(status, newStatus);
-    const isMissionStarted = MissionLogic.isMissionStarted(status, newStatus);
-    const isMissionCompleted = MissionLogic.isMissionCompleted(status, newStatus);
-    const isMissionAborted = MissionLogic.isMissionAborted(status, newStatus);
-
-    if (isStatusChanged) {
-      MissionLogic.validateStatusTransition(status, newStatus);
+    if (requestDto.droneId && requestDto.droneId !== mission.droneId) {
+      const drone = await this.droneService.getDroneAsync(requestDto.droneId);
+      if (!drone) {
+        throw new NotFoundException(`Drone with ID '${requestDto.droneId}' not found`);
+      }
     }
 
-    if (isMissionStarted) {
-      MissionLogic.setActualStartTime(mission);
+    const targetDroneId = requestDto.droneId || mission.droneId;
+    const targetStart = requestDto.scheduledStartTime ? new Date(requestDto.scheduledStartTime) : mission.scheduledStartTime;
+    const targetEnd = requestDto.scheduledEndTime ? new Date(requestDto.scheduledEndTime) : mission.scheduledEndTime;
+
+    if (requestDto.scheduledStartTime || requestDto.scheduledEndTime) {
+      MissionLogic.validateScheduledDates(targetStart, targetEnd);
     }
 
-    if (isMissionCompleted) {
-      MissionLogic.completeMission(mission, flightHoursAtCompletion);
+    if (requestDto.droneId || requestDto.scheduledStartTime || requestDto.scheduledEndTime) {
+      await this.checkOverlappingMissionAsync(targetDroneId, targetStart, targetEnd, id);
     }
 
-    if (isMissionAborted) {
-      MissionLogic.abortMission(mission, abortReason);
-    }
+    const oldStatus = mission.status;
+    MissionLogic.handleStatusChange(
+      mission,
+      requestDto.status,
+      requestDto.flightHoursAtCompletion,
+      requestDto.abortReason,
+    );
 
     this.mapper.map(requestDto, UpdateMissionRequestDto, Mission);
 
@@ -138,33 +149,9 @@ export class MissionService implements IMissionService {
     Object.assign(mission, filteredDto);
 
     const updatedMission = await this.missionsRepository.save(mission);
-
     await this.cacheService.deleteAsync(`mission_${id}`);
 
-    const { droneId, id: missionId } = updatedMission;
-
-    if (isMissionStarted) {
-      this.eventEmitter.emit(MissionEvent.MISSION_STARTED, {
-        missionId,
-        droneId,
-      });
-    }
-
-    if (isMissionCompleted) {
-      this.eventEmitter.emit(MissionEvent.MISSION_COMPLETED, {
-        missionId,
-        droneId,
-        flightHoursLogged: Number(updatedMission.flightHoursAtCompletion),
-      });
-    }
-
-    if (isMissionAborted) {
-      this.eventEmitter.emit(MissionEvent.MISSION_ABORTED, {
-        missionId,
-        droneId,
-        abortReason: updatedMission.abortReason,
-      });
-    }
+    this.emitLifecycleEvents(updatedMission, oldStatus);
 
     return this.mapper.map(updatedMission, Mission, UpdateMissionResponseDto);
   }
@@ -177,5 +164,51 @@ export class MissionService implements IMissionService {
     }
 
     await this.cacheService.deleteAsync(`mission_${id}`);
+  }
+
+  private async checkOverlappingMissionAsync(
+    droneId: string,
+    scheduledStart: Date,
+    scheduledEnd: Date,
+    excludeMissionId?: string,
+  ): Promise<void> {
+    const overlappingMission = await this.missionsRepository.findOne({
+      where: {
+        ...(excludeMissionId ? { id: Not(excludeMissionId) } : {}),
+        droneId,
+        status: Not(MissionStatus.ABORTED),
+        scheduledStartTime: LessThan(scheduledEnd),
+        scheduledEndTime: MoreThan(scheduledStart),
+      },
+    });
+
+    if (overlappingMission) {
+      throw new DomainException(
+        `Drone '${droneId}' already has an overlapping mission scheduled during this timeframe.`,
+      );
+    }
+  }
+
+  private emitLifecycleEvents(updatedMission: Mission, oldStatus: MissionStatus): void {
+    const { droneId, id: missionId, status: newStatus } = updatedMission;
+
+    if (MissionLogic.isMissionStarted(oldStatus, newStatus)) {
+      this.eventEmitter.emit(MissionEvent.MISSION_STARTED, {
+        missionId,
+        droneId,
+      });
+    } else if (MissionLogic.isMissionCompleted(oldStatus, newStatus)) {
+      this.eventEmitter.emit(MissionEvent.MISSION_COMPLETED, {
+        missionId,
+        droneId,
+        flightHoursLogged: Number(updatedMission.flightHoursAtCompletion),
+      });
+    } else if (MissionLogic.isMissionAborted(oldStatus, newStatus)) {
+      this.eventEmitter.emit(MissionEvent.MISSION_ABORTED, {
+        missionId,
+        droneId,
+        abortReason: updatedMission.abortReason,
+      });
+    }
   }
 }
