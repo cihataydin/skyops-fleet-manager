@@ -1,7 +1,7 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { MissionEvent } from '@/modules/mission/enums';
-import { MissionStartedEvent, MissionCompletedEvent } from '@/modules/mission/events';
+import { MissionStartedEvent, MissionCompletedEvent, MissionAbortedEvent } from '@/modules/mission/events';
 import { DRONE_SERVICE_TOKEN } from '@/modules/drone/di';
 import { IDroneService } from '@/modules/drone/interfaces';
 import { DroneStatus } from '@/modules/drone/enums';
@@ -55,5 +55,20 @@ export class MissionListener {
         `Drone '${droneId}' updated with total flight hours ${newTotalFlightHours}h and status set to '${DroneStatus.AVAILABLE}'.`,
       );
     }
+  }
+
+  @OnEvent(MissionEvent.MISSION_ABORTED, { async: true })
+  public async handleMissionAbortedEvent(event: MissionAbortedEvent): Promise<void> {
+    const { droneId, missionId, abortReason } = event;
+
+    this.loggerService.log(
+      `Received '${MissionEvent.MISSION_ABORTED}' event for mission '${missionId}' (Drone '${droneId}'). Reason: ${abortReason || 'None'}`,
+    );
+
+    await this.droneService.updateDroneAsync(droneId, { status: DroneStatus.AVAILABLE });
+
+    this.loggerService.log(
+      `Drone '${droneId}' status updated to '${DroneStatus.AVAILABLE}' following mission abort.`,
+    );
   }
 }

@@ -109,11 +109,12 @@ export class MissionService implements IMissionService {
       throw new NotFoundException(`Mission with ID '${id}' not found`);
     }
 
-    const { status: newStatus, flightHoursAtCompletion } = requestDto;
+    const { status: newStatus, flightHoursAtCompletion, abortReason } = requestDto;
     const { status } = mission;
     const isStatusChanged = MissionLogic.isStatusChanged(status, newStatus);
     const isMissionStarted = MissionLogic.isMissionStarted(status, newStatus);
     const isMissionCompleted = MissionLogic.isMissionCompleted(status, newStatus);
+    const isMissionAborted = MissionLogic.isMissionAborted(status, newStatus);
 
     if (isStatusChanged) {
       MissionLogic.validateStatusTransition(status, newStatus);
@@ -125,6 +126,10 @@ export class MissionService implements IMissionService {
 
     if (isMissionCompleted) {
       MissionLogic.completeMission(mission, flightHoursAtCompletion);
+    }
+
+    if (isMissionAborted) {
+      MissionLogic.abortMission(mission, abortReason);
     }
 
     this.mapper.map(requestDto, UpdateMissionRequestDto, Mission);
@@ -150,6 +155,14 @@ export class MissionService implements IMissionService {
         missionId,
         droneId,
         flightHoursLogged: Number(updatedMission.flightHoursAtCompletion),
+      });
+    }
+
+    if (isMissionAborted) {
+      this.eventEmitter.emit(MissionEvent.MISSION_ABORTED, {
+        missionId,
+        droneId,
+        abortReason: updatedMission.abortReason,
       });
     }
 

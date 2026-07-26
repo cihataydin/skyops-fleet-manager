@@ -51,6 +51,14 @@ export class MissionLogic {
     mission.flightHoursAtCompletion = Number(flightHoursAtCompletion);
   }
 
+  public static abortMission(mission: Mission, abortReason?: string): void {
+    if (!abortReason || !abortReason.trim()) {
+      throw new DomainException('Aborting a mission requires an abort reason.');
+    }
+
+    mission.abortReason = abortReason.trim();
+  }
+
   public static isStatusChanged(status: MissionStatus, newStatus: MissionStatus): boolean {
     return Boolean(status && newStatus && newStatus !== status);
   }
@@ -61,5 +69,9 @@ export class MissionLogic {
 
   public static isMissionCompleted(status: MissionStatus, newStatus: MissionStatus): boolean {
     return this.isStatusChanged(status, newStatus) && newStatus === MissionStatus.COMPLETED;
+  }
+
+  public static isMissionAborted(status: MissionStatus, newStatus: MissionStatus): boolean {
+    return this.isStatusChanged(status, newStatus) && newStatus === MissionStatus.ABORTED;
   }
 }

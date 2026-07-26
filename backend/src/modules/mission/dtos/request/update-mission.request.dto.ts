@@ -113,4 +113,16 @@ export class UpdateMissionRequestDto {
   @IsNumber()
   @Min(0)
   flightHoursAtCompletion?: number;
+
+  @ApiProperty({ 
+    type: String, 
+    required: false, 
+    description: 'Reason for aborting the mission', 
+    example: 'Adverse weather conditions' 
+  })
+  @AutoMap()
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  abortReason?: string;
 }
