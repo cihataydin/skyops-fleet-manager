@@ -3,8 +3,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Mapper } from '@automapper/core';
 import { InjectMapper } from '@automapper/nestjs';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Drone } from '@/modules/drone/entities';
 import { CreateDroneRequestDto, GetDronesRequestDto, UpdateDroneRequestDto } from '@/modules/drone/dtos/request';
+import { DroneEvent } from '@/modules/drone/enums';
 import { CACHE_TOKEN } from '@/shared/di';
 import { ICacheService } from '@/infra/cache';
 import { PaginationUtil } from '@/shared/utils';
@@ -25,6 +27,7 @@ export class DroneService implements IDroneService {
     @InjectMapper()
     private readonly mapper: Mapper,
     @Inject(CACHE_TOKEN) private readonly cacheService: ICacheService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   public async getDronesAsync(
@@ -99,6 +102,13 @@ export class DroneService implements IDroneService {
     const updatedDrone = await this.dronesRepository.save(drone);
 
     await this.cacheService.deleteAsync(`drone_${id}`);
+
+    if (Number(updatedDrone.totalFlightHours) > 50) {
+      this.eventEmitter.emit(DroneEvent.FLIGHT_HOURS_EXCEEDED, {
+        droneId: updatedDrone.id,
+        totalFlightHours: Number(updatedDrone.totalFlightHours),
+      });
+    }
 
     return this.mapper.map(updatedDrone, Drone, UpdateDroneResponseDto);
   }
