@@ -2,21 +2,25 @@ import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { Drone } from '@/modules/drone/entities/drone.entity';
 import { MaintenanceType } from '@/modules/maintenance/enums';
 import { BaseEntity } from '@/infra/db/entities';
+import { AutoMap } from '@automapper/classes';
 
 @Entity('maintenance_logs')
 export class MaintenanceLog extends BaseEntity {
+  @AutoMap()
   @Column({ 
     type: 'uuid', 
     name: 'drone_id' 
   })
   droneId: string;
 
+  @AutoMap()
   @Column({ 
     type: 'enum', 
     enum: MaintenanceType 
   })
   type: MaintenanceType;
 
+  @AutoMap()
   @Column({ 
     type: 'varchar',
     name: 'technician_name', 
@@ -24,6 +28,7 @@ export class MaintenanceLog extends BaseEntity {
   })
   technicianName: string;
 
+  @AutoMap()
   @Column({ 
     type: 'varchar', 
     length: 500, 
@@ -31,12 +36,14 @@ export class MaintenanceLog extends BaseEntity {
   })
   notes: string;
 
+  @AutoMap()
   @Column({ 
     type: 'timestamptz', 
     name: 'performed_at' 
   })
   performedAt: Date;
 
+  @AutoMap()
   @Column({ 
     type: 'decimal', 
     name: 'flight_hours_at_maintenance', 

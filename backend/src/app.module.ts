@@ -6,6 +6,7 @@ import { AutomapperModule } from '@automapper/nestjs';
 import { classes } from '@automapper/classes';
 import { DroneModule } from '@/modules/drone';
 import { MissionModule } from './modules/mission';
+import { MaintenanceModule } from './modules/maintenance';
 
 @Module({
   imports: [
@@ -16,7 +17,8 @@ import { MissionModule } from './modules/mission';
     LoggerModule,
     SwaggerModule,
     DroneModule,
-    MissionModule
+    MissionModule,
+    MaintenanceModule,
   ],
   controllers: [],
   providers: [],
