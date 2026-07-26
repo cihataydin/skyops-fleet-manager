@@ -198,6 +198,236 @@
           "drones"
         ]
       }
+    },
+    "/missions": {
+      "get": {
+        "operationId": "MissionController_getMissionsAsync",
+        "summary": "Lists missions",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50,
+              "type": "number"
+            }
+          },
+          {
+            "name": "orderBy",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "createdAt",
+              "type": "string"
+            }
+          },
+          {
+            "name": "direction",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "asc",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "name",
+            "required": false,
+            "in": "query",
+            "description": "Filter missions by name",
+            "schema": {
+              "maxLength": 255,
+              "example": "Alpha Perimeter",
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/MissionType"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/MissionStatus"
+            }
+          },
+          {
+            "name": "droneId",
+            "required": false,
+            "in": "query",
+            "description": "Filter missions by assigned drone ID",
+            "schema": {
+              "example": "123e4567-e89b-12d3-a456-426614174000",
+              "type": "string"
+            }
+          },
+          {
+            "name": "pilotName",
+            "required": false,
+            "in": "query",
+            "description": "Filter missions by pilot name",
+            "schema": {
+              "maxLength": 255,
+              "example": "John Doe",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The list of missions has been successfully retrieved."
+          }
+        },
+        "tags": [
+          "missions"
+        ]
+      },
+      "post": {
+        "operationId": "MissionController_createMissionAsync",
+        "summary": "Creates a new mission",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "description": "The data for the mission to be created",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateMissionRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The mission has been successfully created."
+          },
+          "400": {
+            "description": "Invalid request body or missing data."
+          }
+        },
+        "tags": [
+          "missions"
+        ]
+      }
+    },
+    "/missions/{id}": {
+      "get": {
+        "operationId": "MissionController_getMissionAsync",
+        "summary": "Retrieves information about a specific mission",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "The unique ID of the mission",
+            "schema": {
+              "example": "123e4567-e89b-12d3-a456-426614174000",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The mission information has been successfully retrieved."
+          },
+          "404": {
+            "description": "Mission not found."
+          }
+        },
+        "tags": [
+          "missions"
+        ]
+      },
+      "put": {
+        "operationId": "MissionController_updateMissionAsync",
+        "summary": "Updates an existing mission",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "The unique ID of the mission to update",
+            "schema": {
+              "example": "123e4567-e89b-12d3-a456-426614174000",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "The data for the mission to be updated",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMissionRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The mission has been successfully updated."
+          },
+          "400": {
+            "description": "Invalid request body or missing data."
+          },
+          "404": {
+            "description": "Mission not found."
+          }
+        },
+        "tags": [
+          "missions"
+        ]
+      },
+      "delete": {
+        "operationId": "MissionController_softDeleteMissionAsync",
+        "summary": "Deletes a specific mission (soft delete)",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "The unique ID of the mission to delete",
+            "schema": {
+              "example": "123e4567-e89b-12d3-a456-426614174000",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "The mission has been successfully deleted."
+          },
+          "404": {
+            "description": "Mission not found."
+          }
+        },
+        "tags": [
+          "missions"
+        ]
+      }
     }
   },
   "info": {
@@ -277,6 +507,129 @@
         "required": [
           "status"
         ]
+      },
+      "MissionType": {
+        "type": "string",
+        "description": "Type of the mission",
+        "enum": [
+          "WIND_TURBINE_INSPECTION",
+          "SOLAR_PANEL_SURVEY",
+          "POWER_LINE_PATROL"
+        ]
+      },
+      "MissionStatus": {
+        "type": "string",
+        "description": "Status of the mission",
+        "enum": [
+          "PLANNED",
+          "PRE_FLIGHT_CHECK",
+          "IN_PROGRESS",
+          "COMPLETE",
+          "ABORTED"
+        ]
+      },
+      "CreateMissionRequestDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the mission",
+            "maxLength": 255,
+            "example": "Alpha Perimeter Inspection"
+          },
+          "type": {
+            "type": "string",
+            "description": "Type of the mission",
+            "enum": [
+              "WIND_TURBINE_INSPECTION",
+              "SOLAR_PANEL_SURVEY",
+              "POWER_LINE_PATROL"
+            ],
+            "example": "POWER_LINE_PATROL"
+          },
+          "droneId": {
+            "type": "string",
+            "description": "UUID of the assigned drone",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "pilotName": {
+            "type": "string",
+            "description": "Name of the assigned pilot",
+            "maxLength": 255,
+            "example": "John Doe"
+          },
+          "siteLocation": {
+            "type": "string",
+            "description": "Location or site of the mission",
+            "maxLength": 255,
+            "example": "Site Alpha - Sector 4"
+          },
+          "scheduledStartTime": {
+            "type": "string",
+            "description": "Scheduled start time of the mission (ISO 8601)",
+            "example": "2026-08-01T08:00:00Z"
+          },
+          "scheduledEndTime": {
+            "type": "string",
+            "description": "Scheduled end time of the mission (ISO 8601)",
+            "example": "2026-08-01T12:00:00Z"
+          }
+        },
+        "required": [
+          "name",
+          "type",
+          "droneId",
+          "pilotName",
+          "siteLocation",
+          "scheduledStartTime",
+          "scheduledEndTime"
+        ]
+      },
+      "UpdateMissionRequestDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the mission",
+            "maxLength": 255,
+            "example": "Alpha Perimeter Inspection"
+          },
+          "type": {
+            "example": "POWER_LINE_PATROL",
+            "$ref": "#/components/schemas/MissionType"
+          },
+          "droneId": {
+            "type": "string",
+            "description": "UUID of the assigned drone",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "pilotName": {
+            "type": "string",
+            "description": "Name of the assigned pilot",
+            "maxLength": 255,
+            "example": "John Doe"
+          },
+          "siteLocation": {
+            "type": "string",
+            "description": "Location or site of the mission",
+            "maxLength": 255,
+            "example": "Site Alpha - Sector 4"
+          },
+          "scheduledStartTime": {
+            "type": "string",
+            "description": "Scheduled start time of the mission (ISO 8601)",
+            "example": "2026-08-01T08:00:00Z"
+          },
+          "scheduledEndTime": {
+            "type": "string",
+            "description": "Scheduled end time of the mission (ISO 8601)",
+            "example": "2026-08-01T12:00:00Z"
+          },
+          "status": {
+            "example": "IN_PROGRESS",
+            "$ref": "#/components/schemas/MissionStatus"
+          }
+        }
       }
     }
   }

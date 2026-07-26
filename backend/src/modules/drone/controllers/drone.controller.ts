@@ -26,14 +26,14 @@ import {
   GetDronesRequestDto,
   UpdateDroneRequestDto,
 } from '@/modules/drone/dtos/request';
-import { DRONES_SERVICE_TOKEN } from '@/modules/drone/di'; // Adjust your dependency injection token import as needed
+import { DRONE_SERVICE_TOKEN } from '@/modules/drone/di';
 import { formatResponse } from '@/shared/utils';
 
 @ApiTags('drones')
 @Controller('drones')
 export class DroneController {
   public constructor(
-    @Inject(DRONES_SERVICE_TOKEN)
+    @Inject(DRONE_SERVICE_TOKEN)
     private readonly dronesService: IDroneService,
   ) {}
 

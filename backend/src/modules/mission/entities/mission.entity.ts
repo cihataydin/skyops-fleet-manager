@@ -2,27 +2,32 @@ import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateCol
 import { Drone } from '@/modules/drone/entities/drone.entity';
 import { MissionType, MissionStatus } from '@/modules/mission/enums';
 import { BaseEntity } from '@/infra/db/entities';
+import { AutoMap } from '@automapper/classes';
 
 @Entity('missions')
 export class Mission extends BaseEntity {
+  @AutoMap()
   @Column({ 
     type: 'varchar', 
     length: 255 
   })
   name: string;
 
+  @AutoMap()
   @Column({ 
     type: 'enum', 
     enum: MissionType 
   })
   type: MissionType;
 
+  @AutoMap()
   @Column({ 
     type: 'uuid', 
     name: 'drone_id' 
   })
   droneId: string;
 
+  @AutoMap()
   @Column({ 
     type: 'varchar', 
     name: 'pilot_name', 
@@ -30,6 +35,7 @@ export class Mission extends BaseEntity {
   })
   pilotName: string;
 
+  @AutoMap()
   @Column({ 
     type: 'varchar', 
     name: 'site_location', 
@@ -37,18 +43,21 @@ export class Mission extends BaseEntity {
   })
   siteLocation: string;
 
+  @AutoMap()
   @Column({ 
     type: 'timestamptz', 
     name: 'scheduled_start_time' 
   })
   scheduledStartTime: Date;
 
+  @AutoMap()
   @Column({ 
     type: 'timestamptz', 
     name: 'scheduled_end_time' 
   })
   scheduledEndTime: Date;
 
+  @AutoMap()
   @Column({ 
     type: 'timestamptz', 
     name: 'actual_start_time', 
@@ -56,6 +65,7 @@ export class Mission extends BaseEntity {
   })
   actualStartTime: Date;
 
+  @AutoMap()
   @Column({ 
     type: 'timestamptz', 
     name: 'actual_end_time', 
@@ -63,6 +73,7 @@ export class Mission extends BaseEntity {
   })
   actualEndTime: Date;
 
+  @AutoMap()
   @Column({ 
     type: 'enum', 
     enum: MissionStatus, 
@@ -71,6 +82,7 @@ export class Mission extends BaseEntity {
   status: MissionStatus;
 
   // TODO: upon completion
+  @AutoMap()
   @Column({ 
     type: 'decimal', 
     name: 'flight_hours_at_completion', 
@@ -80,6 +92,7 @@ export class Mission extends BaseEntity {
   })
   flightHoursAtCompletion: number;
 
+  @AutoMap()
   @Column({ 
     type: 'varchar', 
     name: 'abort_reason', 

@@ -1,1 +1,1 @@
-export const DRONES_SERVICE_TOKEN = Symbol('DronesService');
+export const DRONE_SERVICE_TOKEN = Symbol('DroneService');

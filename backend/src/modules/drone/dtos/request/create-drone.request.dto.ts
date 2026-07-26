@@ -6,7 +6,8 @@ import { AutoMap } from '@automapper/classes';
 export class CreateDroneRequestDto {
   @ApiProperty({ 
     type: String, 
-    required: true, description: 'Serial number of the drone (exactly 13 characters long)', 
+    required: true, 
+    description: 'Serial number of the drone (exactly 13 characters long)', 
     example: 'SKY-1234-5678' 
   })
   @AutoMap()
