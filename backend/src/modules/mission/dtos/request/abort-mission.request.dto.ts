@@ -1,4 +1,4 @@
-import { IsString, MaxLength, IsNotEmpty } from 'class-validator';
+import { IsString, MaxLength, IsNotEmpty, IsNumber, Min, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class AbortMissionRequestDto {
@@ -12,4 +12,15 @@ export class AbortMissionRequestDto {
   @IsString()
   @MaxLength(500)
   abortReason: string;
+
+  @ApiProperty({ 
+    type: Number, 
+    required: true, 
+    description: 'Flight hours logged upon aborting the mission', 
+    example: 3.5 
+  })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  flightHoursAtAborting: number;
 }

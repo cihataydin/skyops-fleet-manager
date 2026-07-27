@@ -35,16 +35,31 @@ export class MissionListener {
 
   @OnEvent(MissionEvent.MISSION_COMPLETED, { async: true })
   public async handleMissionCompletedEvent(event: MissionCompletedEvent): Promise<void> {
-    const { droneId, missionId, flightHoursLogged } = event;
+    const { droneId, missionId, flightHours } = event;
 
     this.loggerService.log(
-      `Received '${MissionEvent.MISSION_COMPLETED}' event for mission '${missionId}' (Drone '${droneId}', ${flightHoursLogged}h logged).`,
+      `Received '${MissionEvent.MISSION_COMPLETED}' event for mission '${missionId}' (Drone '${droneId}', ${flightHours}h logged).`,
     );
 
-    const drone = await this.droneService.getDroneAsync(droneId);
+    await this.processMissionEndAsync(droneId, flightHours);
+  }
+
+  @OnEvent(MissionEvent.MISSION_ABORTED, { async: true })
+  public async handleMissionAbortedEvent(event: MissionAbortedEvent): Promise<void> {
+    const { droneId, missionId, abortReason, flightHoursAtAborting } = event;
+
+    this.loggerService.log(
+      `Received '${MissionEvent.MISSION_ABORTED}' event for mission '${missionId}' (Drone '${droneId}'). Reason: ${abortReason || 'None'}`,
+    );
+
+    await this.processMissionEndAsync(droneId, flightHoursAtAborting);
+  }
+
+  private async processMissionEndAsync(droneId: string, addedFlightHours: number = 0): Promise<void> {
+    const drone = await this.droneService.getDroneAsync(droneId);  
 
     if (drone) {
-      const newTotalFlightHours = Number(drone.totalFlightHours || 0) + Number(flightHoursLogged);
+      const newTotalFlightHours = Number(drone.totalFlightHours || 0) + Number(addedFlightHours || 0);
 
       await this.droneService.updateDroneAsync(droneId, {
         totalFlightHours: newTotalFlightHours,
@@ -55,20 +70,5 @@ export class MissionListener {
         `Drone '${droneId}' updated with total flight hours ${newTotalFlightHours}h and status set to '${DroneStatus.AVAILABLE}'.`,
       );
     }
-  }
-
-  @OnEvent(MissionEvent.MISSION_ABORTED, { async: true })
-  public async handleMissionAbortedEvent(event: MissionAbortedEvent): Promise<void> {
-    const { droneId, missionId, abortReason } = event;
-
-    this.loggerService.log(
-      `Received '${MissionEvent.MISSION_ABORTED}' event for mission '${missionId}' (Drone '${droneId}'). Reason: ${abortReason || 'None'}`,
-    );
-
-    await this.droneService.updateDroneAsync(droneId, { status: DroneStatus.AVAILABLE });
-
-    this.loggerService.log(
-      `Drone '${droneId}' status updated to '${DroneStatus.AVAILABLE}' following mission abort.`,
-    );
   }
 }

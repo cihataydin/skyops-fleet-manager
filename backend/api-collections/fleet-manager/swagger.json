@@ -930,10 +930,16 @@
             "type": "string",
             "description": "Reason for aborting the mission",
             "example": "Adverse weather conditions"
+          },
+          "flightHoursAtAborting": {
+            "type": "number",
+            "description": "Flight hours logged upon aborting the mission",
+            "example": 3.5
           }
         },
         "required": [
-          "abortReason"
+          "abortReason",
+          "flightHoursAtAborting"
         ]
       },
       "MaintenanceType": {

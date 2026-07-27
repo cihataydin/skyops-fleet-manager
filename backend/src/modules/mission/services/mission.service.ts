@@ -182,13 +182,15 @@ export class MissionService implements IMissionService {
   }
 
   public async abortMissionAsync(id: string, requestDto: AbortMissionRequestDto): Promise<UpdateMissionResponseDto> {
-    const updatedMission = await this.processMissionChangeAsync(id, MissionStatus.ABORTED, undefined, requestDto.abortReason);
-    const { droneId, id: missionId, abortReason } = updatedMission;
+    const { flightHoursAtAborting, abortReason } = requestDto;
+    const updatedMission = await this.processMissionChangeAsync(id, MissionStatus.ABORTED, undefined, abortReason);
+    const { droneId, id: missionId } = updatedMission;
 
     this.eventEmitter.emit(MissionEvent.MISSION_ABORTED, {
       missionId,
       droneId,
-      abortReason: abortReason,
+      abortReason,
+      flightHoursAtAborting,
     });
 
     return updatedMission;
