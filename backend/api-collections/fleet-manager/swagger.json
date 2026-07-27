@@ -429,6 +429,122 @@
         ]
       }
     },
+    "/missions/{id}/pre-flight": {
+      "patch": {
+        "operationId": "MissionController_startPreFlightMissionAsync",
+        "summary": "Starts pre-flight check for a mission",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "missions"
+        ]
+      }
+    },
+    "/missions/{id}/start": {
+      "patch": {
+        "operationId": "MissionController_startMissionAsync",
+        "summary": "Starts a mission (IN_PROGRESS)",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "missions"
+        ]
+      }
+    },
+    "/missions/{id}/complete": {
+      "patch": {
+        "operationId": "MissionController_completeMissionAsync",
+        "summary": "Completes a mission",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompleteMissionRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "missions"
+        ]
+      }
+    },
+    "/missions/{id}/abort": {
+      "patch": {
+        "operationId": "MissionController_abortMissionAsync",
+        "summary": "Aborts a mission",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AbortMissionRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "missions"
+        ]
+      }
+    },
     "/maintenance": {
       "get": {
         "operationId": "MaintenanceController_getMaintenanceLogsAsync",
@@ -723,7 +839,6 @@
       },
       "MissionStatus": {
         "type": "string",
-        "description": "Status of the mission",
         "enum": [
           "PLANNED",
           "PRE_FLIGHT_CHECK",
@@ -828,22 +943,34 @@
             "type": "string",
             "description": "Scheduled end time of the mission (ISO 8601). Required if scheduledStartTime is provided.",
             "example": "2026-08-01T12:00:00Z"
-          },
-          "status": {
-            "example": "IN_PROGRESS",
-            "$ref": "#/components/schemas/MissionStatus"
-          },
+          }
+        }
+      },
+      "CompleteMissionRequestDto": {
+        "type": "object",
+        "properties": {
           "flightHoursAtCompletion": {
             "type": "number",
             "description": "Flight hours logged upon completion of the mission",
             "example": 3.5
-          },
+          }
+        },
+        "required": [
+          "flightHoursAtCompletion"
+        ]
+      },
+      "AbortMissionRequestDto": {
+        "type": "object",
+        "properties": {
           "abortReason": {
             "type": "string",
             "description": "Reason for aborting the mission",
             "example": "Adverse weather conditions"
           }
-        }
+        },
+        "required": [
+          "abortReason"
+        ]
       },
       "MaintenanceType": {
         "type": "string",

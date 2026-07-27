@@ -4,7 +4,7 @@ import { Repository, Not, LessThan, MoreThan, In } from 'typeorm';
 import { Mapper } from '@automapper/core';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mission } from '@/modules/mission/entities';
-import { CreateMissionRequestDto, GetMissionsRequestDto, UpdateMissionRequestDto } from '@/modules/mission/dtos/request';
+import { CreateMissionRequestDto, GetMissionsRequestDto, UpdateMissionRequestDto, CompleteMissionRequestDto, AbortMissionRequestDto } from '@/modules/mission/dtos/request';
 import { CACHE_TOKEN } from '@/shared/di';
 import { ICacheService } from '@/infra/cache';
 import { PaginationUtil } from '@/shared/utils';
@@ -31,7 +31,7 @@ export class MissionService implements IMissionService {
     @InjectMapper()
     private readonly mapper: Mapper,
     @Inject(CACHE_TOKEN) private readonly cacheService: ICacheService,
-    @Inject(forwardRef(() =>DRONE_SERVICE_TOKEN)) private readonly droneService: IDroneService,
+    @Inject(forwardRef(() => DRONE_SERVICE_TOKEN)) private readonly droneService: IDroneService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
@@ -129,22 +129,15 @@ export class MissionService implements IMissionService {
     const targetDroneId = requestDto.droneId || mission.droneId;
     const targetStart = requestDto.scheduledStartTime ? new Date(requestDto.scheduledStartTime) : mission.scheduledStartTime;
     const targetEnd = requestDto.scheduledEndTime ? new Date(requestDto.scheduledEndTime) : mission.scheduledEndTime;
+    const isTimeScheduled = requestDto.scheduledStartTime || requestDto.scheduledEndTime;
 
-    if (requestDto.scheduledStartTime || requestDto.scheduledEndTime) {
+    if (isTimeScheduled) {
       MissionLogic.validateScheduledDates(targetStart, targetEnd);
     }
 
-    if (requestDto.droneId || requestDto.scheduledStartTime || requestDto.scheduledEndTime) {
+    if (requestDto.droneId || isTimeScheduled) {
       await this.checkOverlappingMissionAsync(targetDroneId, targetStart, targetEnd, id);
     }
-
-    const oldStatus = mission.status;
-    MissionLogic.handleStatusChange(
-      mission,
-      requestDto.status,
-      requestDto.flightHoursAtCompletion,
-      requestDto.abortReason,
-    );
 
     this.mapper.map(requestDto, UpdateMissionRequestDto, Mission);
 
@@ -154,9 +147,23 @@ export class MissionService implements IMissionService {
     const updatedMission = await this.missionsRepository.save(mission);
     await this.cacheService.deleteAsync(`mission_${id}`);
 
-    this.emitLifecycleEvents(updatedMission, oldStatus);
-
     return this.mapper.map(updatedMission, Mission, UpdateMissionResponseDto);
+  }
+
+  public async startPreFlightMissionAsync(id: string): Promise<UpdateMissionResponseDto> {
+    return this.processStatusChangeAsync(id, MissionStatus.PRE_FLIGHT_CHECK);
+  }
+
+  public async startMissionAsync(id: string): Promise<UpdateMissionResponseDto> {
+    return this.processStatusChangeAsync(id, MissionStatus.IN_PROGRESS);
+  }
+
+  public async completeMissionAsync(id: string, requestDto: CompleteMissionRequestDto): Promise<UpdateMissionResponseDto> {
+    return this.processStatusChangeAsync(id, MissionStatus.COMPLETED, requestDto.flightHoursAtCompletion);
+  }
+
+  public async abortMissionAsync(id: string, requestDto: AbortMissionRequestDto): Promise<UpdateMissionResponseDto> {
+    return this.processStatusChangeAsync(id, MissionStatus.ABORTED, undefined, requestDto.abortReason);
   }
 
   public async softDeleteMissionAsync(id: string): Promise<void> {
@@ -224,5 +231,24 @@ export class MissionService implements IMissionService {
         abortReason: updatedMission.abortReason,
       });
     }
+  }
+
+  private async processStatusChangeAsync(
+    id: string,
+    targetStatus: MissionStatus,
+    flightHours?: number,
+    abortReason?: string,
+  ): Promise<UpdateMissionResponseDto> {
+    const mission = await this.missionsRepository.findOne({ where: { id } });
+    if (!mission) throw new NotFoundException(`Mission with ID '${id}' not found`);
+
+    const oldStatus = mission.status;
+    MissionLogic.handleStatusChange(mission, targetStatus, flightHours, abortReason);
+
+    const updatedMission = await this.missionsRepository.save(mission);
+    await this.cacheService.deleteAsync(`mission_${id}`);
+    
+    this.emitLifecycleEvents(updatedMission, oldStatus);
+    return this.mapper.map(updatedMission, Mission, UpdateMissionResponseDto);
   }
 }

@@ -89,40 +89,4 @@ export class UpdateMissionRequestDto {
   @IsDateString({}, { message: 'Scheduled end time must be a valid ISO date string and must be provided if scheduledStartTime is updated.' })
   scheduledEndTime?: string;
 
-  @ApiProperty({ 
-    type: String, 
-    required: false, 
-    description: 'Status of the mission', 
-    enum: MissionStatus, 
-    enumName: 'MissionStatus',
-    example: MissionStatus.IN_PROGRESS 
-  })
-  @AutoMap()
-  @IsOptional()
-  @IsEnum(MissionStatus, { message: 'Invalid mission status provided.' })
-  status?: MissionStatus;
-
-  @ApiProperty({ 
-    type: Number, 
-    required: false, 
-    description: 'Flight hours logged upon completion of the mission', 
-    example: 3.5 
-  })
-  @AutoMap()
-  @IsOptional()
-  @IsNumber()
-  @Min(0)
-  flightHoursAtCompletion?: number;
-
-  @ApiProperty({ 
-    type: String, 
-    required: false, 
-    description: 'Reason for aborting the mission', 
-    example: 'Adverse weather conditions' 
-  })
-  @AutoMap()
-  @IsOptional()
-  @IsString()
-  @MaxLength(500)
-  abortReason?: string;
 }

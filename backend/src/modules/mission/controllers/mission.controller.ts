@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Put,
+  Patch,
   Delete,
   Body,
   Param,
@@ -24,6 +25,8 @@ import {
   CreateMissionRequestDto,
   GetMissionsRequestDto,
   UpdateMissionRequestDto,
+  CompleteMissionRequestDto,
+  AbortMissionRequestDto,
 } from '@/modules/mission/dtos/request';
 import { MISSION_SERVICE_TOKEN } from '@/modules/mission/di';
 import { formatResponse } from '@/shared/utils';
@@ -141,6 +144,44 @@ export class MissionController {
       updateMissionDto,
     );
 
+    return formatResponse(responseDto);
+  }
+
+  @Patch(':id/pre-flight')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Starts pre-flight check for a mission' })
+  public async startPreFlightMissionAsync(@Param('id', ParseUUIDPipe) id: string) {
+    const responseDto = await this.missionsService.startPreFlightMissionAsync(id);
+    return formatResponse(responseDto);
+  }
+
+  @Patch(':id/start')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Starts a mission (IN_PROGRESS)' })
+  public async startMissionAsync(@Param('id', ParseUUIDPipe) id: string) {
+    const responseDto = await this.missionsService.startMissionAsync(id);
+    return formatResponse(responseDto);
+  }
+
+  @Patch(':id/complete')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Completes a mission' })
+  public async completeMissionAsync(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() completeMissionDto: CompleteMissionRequestDto,
+  ) {
+    const responseDto = await this.missionsService.completeMissionAsync(id, completeMissionDto);
+    return formatResponse(responseDto);
+  }
+
+  @Patch(':id/abort')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Aborts a mission' })
+  public async abortMissionAsync(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() abortMissionDto: AbortMissionRequestDto,
+  ) {
+    const responseDto = await this.missionsService.abortMissionAsync(id, abortMissionDto);
     return formatResponse(responseDto);
   }
 

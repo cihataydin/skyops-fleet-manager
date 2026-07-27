@@ -87,7 +87,7 @@ export class MissionLogic {
     flightHoursAtCompletion?: number,
     abortReason?: string,
   ): void {
-    const oldStatus = mission.status;
+    const { status: oldStatus } = mission;
 
     if (!this.isStatusChanged(oldStatus, newStatus)) {
       return;

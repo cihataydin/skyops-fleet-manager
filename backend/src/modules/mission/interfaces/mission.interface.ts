@@ -2,6 +2,8 @@ import {
   CreateMissionRequestDto,
   UpdateMissionRequestDto,
   GetMissionsRequestDto,
+  CompleteMissionRequestDto,
+  AbortMissionRequestDto,
 } from '@/modules/mission/dtos/request';
 import {
   GetMissionsResponseDto,
@@ -18,6 +20,14 @@ export interface IMissionService {
   createMissionAsync(requestDto: CreateMissionRequestDto): Promise<CreateMissionResponseDto>;
 
   updateMissionAsync(id: string, requestDto: UpdateMissionRequestDto): Promise<UpdateMissionResponseDto>;
+
+  startPreFlightMissionAsync(id: string): Promise<UpdateMissionResponseDto>;
+
+  startMissionAsync(id: string): Promise<UpdateMissionResponseDto>;
+
+  completeMissionAsync(id: string, requestDto: CompleteMissionRequestDto): Promise<UpdateMissionResponseDto>;
+
+  abortMissionAsync(id: string, requestDto: AbortMissionRequestDto): Promise<UpdateMissionResponseDto>;
 
   softDeleteMissionAsync(id: string): Promise<void>;
 

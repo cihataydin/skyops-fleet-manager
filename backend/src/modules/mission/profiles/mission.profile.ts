@@ -61,10 +61,6 @@ export class MissionProfile extends AutomapperProfile {
           (d) => d.type,
           mapFrom((s) => s.type),
         ),
-        forMember(
-          (d) => d.status,
-          mapFrom((s) => s.status),
-        ),
       );
     };
   }
