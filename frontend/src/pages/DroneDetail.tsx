@@ -56,6 +56,16 @@ export const DroneDetail: React.FC = () => {
     }
   };
 
+  const sendToMaintenance = async () => {
+    try {
+      await api.put(`/drones/${id}`, { status: 'MAINTENANCE' });
+      message.success('Drone sent to maintenance');
+      fetchDetails();
+    } catch (error: any) {
+      message.error(error.response?.data?.message || 'Failed to send to maintenance');
+    }
+  };
+
   if (loading || !drone) return <div>Loading...</div>;
 
   return (
@@ -63,7 +73,15 @@ export const DroneDetail: React.FC = () => {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <Title level={2} style={{ margin: 0 }}>Drone Details: {drone.serialNumber}</Title>
         <Space>
-          <Button onClick={() => setIsMaintModalVisible(true)}>Log Maintenance</Button>
+          {drone.status === 'AVAILABLE' && (
+            <Button danger onClick={sendToMaintenance}>Send to Maintenance</Button>
+          )}
+          <Button 
+            onClick={() => setIsMaintModalVisible(true)} 
+            disabled={drone.status !== 'MAINTENANCE'}
+          >
+            Log Maintenance
+          </Button>
           <Button type="primary" onClick={() => setIsModalVisible(true)} disabled={drone.status !== 'AVAILABLE'}>
             Schedule Mission
           </Button>

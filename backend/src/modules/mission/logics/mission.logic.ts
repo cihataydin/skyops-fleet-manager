@@ -91,7 +91,9 @@ export class MissionLogic {
     const { status: oldStatus } = mission;
 
     if (!this.isStatusChanged(oldStatus, newStatus)) {
-      return;
+      throw new DomainException(
+        `Mission with ID '${mission.id}' is already in status '${oldStatus}'. No status change detected.`,
+      );
     }
 
     this.validateStatusTransition(oldStatus, newStatus);

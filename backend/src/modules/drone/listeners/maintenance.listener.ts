@@ -29,11 +29,11 @@ export class MaintenanceListener {
     );
 
     // TODO: should we merge this two service methods?
-    await this.droneService.updateDroneAsync(droneId, { status: DroneStatus.MAINTENANCE});
+    await this.droneService.updateDroneAsync(droneId, { status: DroneStatus.AVAILABLE});
     await this.droneService.updateMaintenanceTrackingDatesAsync(droneId, performedAt);
 
     this.loggerService.log(
-      `Drone '${droneId}' maintenance tracking dates updated successfully.`,
+      `Drone '${droneId}' maintenance tracking dates updated and status set to AVAILABLE.`,
     );
   }
 }

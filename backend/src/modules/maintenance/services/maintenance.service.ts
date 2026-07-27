@@ -1,5 +1,6 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { DroneStatus } from '@/modules/drone/enums';
 import { Repository } from 'typeorm';
 import { Mapper } from '@automapper/core';
 import { InjectMapper } from '@automapper/nestjs';
@@ -89,6 +90,10 @@ export class MaintenanceService implements IMaintenanceService {
 
     if (!drone) {
       throw new NotFoundException(`Drone with ID '${droneId}' not found`);
+    }
+
+    if (drone.status !== DroneStatus.MAINTENANCE) {
+      throw new BadRequestException(`Drone with ID '${droneId}' must be in MAINTENANCE status to create a maintenance log. Send it to maintenance first.`);
     }
 
     MaintenanceLogic.validateFlightHoursAtMaintenance(

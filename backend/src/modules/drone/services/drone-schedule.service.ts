@@ -1,7 +1,7 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Not, LessThanOrEqual } from 'typeorm';
+import { Repository, LessThanOrEqual } from 'typeorm';
 import { Drone } from '@/modules/drone/entities';
 import { DroneStatus, DroneEvent } from '@/modules/drone/enums';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -25,7 +25,7 @@ export class DroneScheduleService {
 
     const dueDrones = await this.dronesRepository.find({
       where: {
-        status: Not(DroneStatus.MAINTENANCE),
+        status: DroneStatus.AVAILABLE,
         nextMaintenanceDueDate: LessThanOrEqual(new Date()),
       },
     });
