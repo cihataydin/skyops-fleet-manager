@@ -7,9 +7,9 @@ import { SwaggerModule } from '@nestjs/swagger';
 import { AutomapperModule } from '@automapper/nestjs';
 import { classes } from '@automapper/classes';
 import { DroneModule } from '@/modules/drone';
-import { MissionModule } from './modules/mission';
-import { MaintenanceModule } from './modules/maintenance';
-import { ReportModule } from './modules/report/report.module';
+import { MissionModule } from '@/modules/mission';
+import { MaintenanceModule } from '@/modules/maintenance';
+import { ReportModule } from '@/modules/report';
 
 @Module({
   imports: [

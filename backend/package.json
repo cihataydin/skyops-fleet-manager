@@ -21,7 +21,8 @@
     "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js -d ./src/infra/db/data-source.ts",
     "migration:run": "NODE_ENV=development npm run typeorm -- migration:run",
     "migration:generate": "NODE_ENV=development npm run typeorm -- migration:generate src/shared/migrations/migrate",
-    "migration:revert": "NODE_ENV=development npm run typeorm -- migration:revert"
+    "migration:revert": "NODE_ENV=development npm run typeorm -- migration:revert",
+    "seed": "ts-node -r tsconfig-paths/register src/shared/seeds/seed.ts"
   },
   "dependencies": {
     "@automapper/classes": "^8.8.1",
