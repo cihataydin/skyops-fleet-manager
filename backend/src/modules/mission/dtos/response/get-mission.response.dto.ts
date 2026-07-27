@@ -121,4 +121,11 @@ export class GetMissionResponseDto {
   })
   @AutoMap()
   updatedAt: Date;
+
+  @ApiProperty({
+    description: 'Row version for optimistic locking',
+    example: 1,
+  })
+  @AutoMap()
+  version: number;
 }

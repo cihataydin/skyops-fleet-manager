@@ -131,6 +131,21 @@ export class DroneService implements IDroneService {
     return this.mapper.map(updatedDrone, Drone, UpdateDroneResponseDto);
   }
 
+  public async incrementFlightHoursAtomicAsync(droneId: string, addedHours: number): Promise<void> {
+    if (addedHours <= 0) return;
+
+    await this.dronesRepository
+      .createQueryBuilder()
+      .update(Drone)
+      .set({
+        totalFlightHours: () => `"totalFlightHours" + ${addedHours}`
+      })
+      .where("id = :id", { id: droneId })
+      .execute();
+      
+    await this.cacheService.deleteAsync(`drone_${droneId}`);
+  }
+
   public async updateMaintenanceTrackingDatesAsync(
     droneId: string,
     performedAt: Date,

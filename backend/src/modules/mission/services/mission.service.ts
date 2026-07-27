@@ -1,4 +1,4 @@
-import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Not, LessThan, MoreThan, In, Between } from 'typeorm';
 import { Mapper } from '@automapper/core';
@@ -116,6 +116,10 @@ export class MissionService implements IMissionService {
 
     if (!mission) {
       throw new NotFoundException(`Mission with ID '${id}' not found`);
+    }
+
+    if (mission.status !== MissionStatus.PLANNED) {
+      throw new BadRequestException("You can only update the details of a 'PLANNED' mission. Once started or completed, its history is immutable.");
     }
 
     const { droneId, scheduledStartTime, scheduledEndTime } = requestDto;

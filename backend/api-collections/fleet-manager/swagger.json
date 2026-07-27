@@ -786,10 +786,16 @@
             "type": "number",
             "description": "Total flight hours of the drone",
             "example": 45.5
+          },
+          "version": {
+            "type": "number",
+            "description": "Current row version for optimistic locking",
+            "example": 1
           }
         },
         "required": [
-          "status"
+          "status",
+          "version"
         ]
       },
       "MissionType": {
@@ -907,8 +913,16 @@
             "type": "string",
             "description": "Scheduled end time of the mission (ISO 8601). Required if scheduledStartTime is provided.",
             "example": "2026-08-01T12:00:00Z"
+          },
+          "version": {
+            "type": "number",
+            "description": "Current row version for optimistic locking",
+            "example": 1
           }
-        }
+        },
+        "required": [
+          "version"
+        ]
       },
       "CompleteMissionRequestDto": {
         "type": "object",
@@ -917,10 +931,16 @@
             "type": "number",
             "description": "Flight hours logged upon completion of the mission",
             "example": 3.5
+          },
+          "version": {
+            "type": "number",
+            "description": "Current row version for optimistic locking",
+            "example": 1
           }
         },
         "required": [
-          "flightHoursAtCompletion"
+          "flightHoursAtCompletion",
+          "version"
         ]
       },
       "AbortMissionRequestDto": {
@@ -935,11 +955,17 @@
             "type": "number",
             "description": "Flight hours logged upon aborting the mission",
             "example": 3.5
+          },
+          "version": {
+            "type": "number",
+            "description": "Current row version for optimistic locking",
+            "example": 1
           }
         },
         "required": [
           "abortReason",
-          "flightHoursAtAborting"
+          "flightHoursAtAborting",
+          "version"
         ]
       },
       "MaintenanceType": {
@@ -1064,6 +1090,11 @@
             "type": "string",
             "description": "Record update timestamp",
             "example": "2026-06-01T10:00:00.000Z"
+          },
+          "version": {
+            "type": "number",
+            "description": "Row version for optimistic locking",
+            "example": 1
           }
         },
         "required": [
@@ -1075,7 +1106,8 @@
           "lastMaintenanceDate",
           "nextMaintenanceDueDate",
           "createdAt",
-          "updatedAt"
+          "updatedAt",
+          "version"
         ]
       },
       "FleetHealthReportResponseDto": {

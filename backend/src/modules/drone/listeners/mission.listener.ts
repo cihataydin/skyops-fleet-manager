@@ -56,19 +56,14 @@ export class MissionListener {
   }
 
   private async processMissionEndAsync(droneId: string, addedFlightHours: number = 0): Promise<void> {
-    const drone = await this.droneService.getDroneAsync(droneId);  
+    await this.droneService.incrementFlightHoursAtomicAsync(droneId, addedFlightHours);   
 
-    if (drone) {
-      const newTotalFlightHours = Number(drone.totalFlightHours || 0) + Number(addedFlightHours || 0);
+    await this.droneService.updateDroneAsync(droneId, {
+      status: DroneStatus.AVAILABLE,
+    });
 
-      await this.droneService.updateDroneAsync(droneId, {
-        totalFlightHours: newTotalFlightHours,
-        status: DroneStatus.AVAILABLE,
-      });
-
-      this.loggerService.log(
-        `Drone '${droneId}' updated with total flight hours ${newTotalFlightHours}h and status set to '${DroneStatus.AVAILABLE}'.`,
-      );
-    }
+    this.loggerService.log(
+      `Drone '${droneId}' updated with ${addedFlightHours}h flight hours and status set to '${DroneStatus.AVAILABLE}'.`,
+    );
   }
 }

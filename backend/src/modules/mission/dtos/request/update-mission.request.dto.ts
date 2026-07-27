@@ -1,4 +1,4 @@
-import { IsEnum, IsOptional, IsString, IsUUID, IsDateString, MaxLength, IsNumber, Min, ValidateIf } from 'class-validator';
+import { IsEnum, IsOptional, IsString, IsUUID, IsDateString, MaxLength, IsNumber, Min, ValidateIf, IsNotEmpty } from 'class-validator';
 import { MissionType, MissionStatus } from '@/modules/mission/enums';
 import { ApiProperty } from '@nestjs/swagger';
 import { AutoMap } from '@automapper/classes';
@@ -89,4 +89,14 @@ export class UpdateMissionRequestDto {
   @IsDateString({}, { message: 'Scheduled end time must be a valid ISO date string and must be provided if scheduledStartTime is updated.' })
   scheduledEndTime?: string;
 
+  @ApiProperty({ 
+    type: Number, 
+    required: true, 
+    description: 'Current row version for optimistic locking', 
+    example: 1 
+  })
+  @AutoMap()
+  @IsNotEmpty()
+  @IsNumber()
+  version?: number;
 }
