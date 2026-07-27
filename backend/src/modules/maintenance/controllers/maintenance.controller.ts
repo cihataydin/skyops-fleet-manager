@@ -2,8 +2,6 @@ import {
   Controller,
   Get,
   Post,
-  Put,
-  Delete,
   Body,
   Param,
   HttpStatus,
@@ -23,7 +21,6 @@ import { IMaintenanceService } from '@/modules/maintenance/interfaces';
 import {
   CreateMaintenanceLogRequestDto,
   GetMaintenanceLogsRequestDto,
-  UpdateMaintenanceLogRequestDto,
 } from '@/modules/maintenance/dtos/request';
 import { MAINTENANCE_SERVICE_TOKEN } from '@/modules/maintenance/di';
 import { formatResponse } from '@/shared/utils';
@@ -104,64 +101,5 @@ export class MaintenanceController {
     );
 
     return formatResponse(responseDto);
-  }
-
-  @Put(':id')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Updates an existing maintenance log' })
-  @ApiParam({
-    name: 'id',
-    description: 'The unique ID of the maintenance log to update',
-    type: String,
-    example: '123e4567-e89b-12d3-a456-426614174000',
-  })
-  @ApiBody({
-    type: UpdateMaintenanceLogRequestDto,
-    description: 'The data for the maintenance log to be updated',
-    required: true,
-  })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'The maintenance log has been successfully updated.',
-  })
-  @ApiResponse({
-    status: HttpStatus.NOT_FOUND,
-    description: 'Maintenance log not found.',
-  })
-  @ApiResponse({
-    status: HttpStatus.BAD_REQUEST,
-    description: 'Invalid request body or missing data.',
-  })
-  public async updateMaintenanceLogAsync(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateMaintenanceLogDto: UpdateMaintenanceLogRequestDto,
-  ) {
-    const responseDto = await this.maintenanceService.updateMaintenanceLogAsync(
-      id,
-      updateMaintenanceLogDto,
-    );
-
-    return formatResponse(responseDto);
-  }
-
-  @Delete(':id')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Deletes a specific maintenance log (soft delete)' })
-  @ApiParam({
-    name: 'id',
-    description: 'The unique ID of the maintenance log to delete',
-    type: String,
-    example: '123e4567-e89b-12d3-a456-426614174000',
-  })
-  @ApiResponse({
-    status: HttpStatus.NO_CONTENT,
-    description: 'The maintenance log has been successfully deleted.',
-  })
-  @ApiResponse({
-    status: HttpStatus.NOT_FOUND,
-    description: 'Maintenance log not found.',
-  })
-  public async softDeleteMaintenanceLogAsync(@Param('id', ParseUUIDPipe) id: string) {
-    await this.maintenanceService.softDeleteMaintenanceLogAsync(id);
   }
 }

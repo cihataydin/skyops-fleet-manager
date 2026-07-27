@@ -674,74 +674,6 @@
         "tags": [
           "maintenance"
         ]
-      },
-      "put": {
-        "operationId": "MaintenanceController_updateMaintenanceLogAsync",
-        "summary": "Updates an existing maintenance log",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "description": "The unique ID of the maintenance log to update",
-            "schema": {
-              "example": "123e4567-e89b-12d3-a456-426614174000",
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "description": "The data for the maintenance log to be updated",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateMaintenanceLogRequestDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "The maintenance log has been successfully updated."
-          },
-          "400": {
-            "description": "Invalid request body or missing data."
-          },
-          "404": {
-            "description": "Maintenance log not found."
-          }
-        },
-        "tags": [
-          "maintenance"
-        ]
-      },
-      "delete": {
-        "operationId": "MaintenanceController_softDeleteMaintenanceLogAsync",
-        "summary": "Deletes a specific maintenance log (soft delete)",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "description": "The unique ID of the maintenance log to delete",
-            "schema": {
-              "example": "123e4567-e89b-12d3-a456-426614174000",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "The maintenance log has been successfully deleted."
-          },
-          "404": {
-            "description": "Maintenance log not found."
-          }
-        },
-        "tags": [
-          "maintenance"
-        ]
       }
     },
     "/reports/fleet-health": {
@@ -1006,7 +938,6 @@
       },
       "MaintenanceType": {
         "type": "string",
-        "description": "Type of maintenance performed",
         "enum": [
           "ROUTINE_CHECK",
           "BATTERY_REPLACEMENT",
@@ -1063,40 +994,6 @@
           "performedAt",
           "flightHoursAtMaintenance"
         ]
-      },
-      "UpdateMaintenanceLogRequestDto": {
-        "type": "object",
-        "properties": {
-          "droneId": {
-            "type": "string",
-            "description": "ID of the drone being maintained",
-            "example": "123e4567-e89b-12d3-a456-426614174000"
-          },
-          "type": {
-            "example": "ROUTINE_CHECK",
-            "$ref": "#/components/schemas/MaintenanceType"
-          },
-          "technicianName": {
-            "type": "string",
-            "description": "Name of the technician performing maintenance",
-            "example": "John Doe"
-          },
-          "notes": {
-            "type": "string",
-            "description": "Additional notes or remarks",
-            "example": "Replaced left rotor and updated firmware."
-          },
-          "performedAt": {
-            "type": "string",
-            "description": "Timestamp when maintenance was performed",
-            "example": "2026-07-26T10:00:00.000Z"
-          },
-          "flightHoursAtMaintenance": {
-            "type": "number",
-            "description": "Drone flight hours at the time of maintenance",
-            "example": 45.5
-          }
-        }
       },
       "GetDroneResponseDto": {
         "type": "object",

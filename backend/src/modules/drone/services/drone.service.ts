@@ -11,7 +11,6 @@ import { DroneLogic } from '../logics';
 import { CACHE_TOKEN } from '@/shared/di';
 import { ICacheService } from '@/infra/cache';
 import { PaginationUtil } from '@/shared/utils';
-import { DomainException } from '@/shared/exceptions';
 import {
   GetDronesResponseDto,
   GetDroneResponseDto,
@@ -102,11 +101,13 @@ export class DroneService implements IDroneService {
       throw new NotFoundException(`Drone with ID '${id}' not found`);
     }
 
-    const hasUpcomingMissions = requestDto.status === DroneStatus.RETIRED
+    const { status } = requestDto;
+
+    const hasUpcomingMissions = status === DroneStatus.RETIRED
       ? await this.missionService.hasUpcomingMissionsAsync(id)
       : false;
 
-    DroneLogic.validateRetirement(requestDto.status, hasUpcomingMissions, id);
+    DroneLogic.validateRetirement(status, hasUpcomingMissions, id);
 
     this.mapper.map(requestDto, UpdateDroneRequestDto, Drone);
 
@@ -117,10 +118,12 @@ export class DroneService implements IDroneService {
 
     await this.cacheService.deleteAsync(`drone_${id}`);
 
+    const{ id: updatedDroneId, totalFlightHours } = updatedDrone;
+
     if (DroneLogic.isFlightHoursExceeded(updatedDrone)) {
       const event = {
-        droneId: updatedDrone.id,
-        totalFlightHours: Number(updatedDrone.totalFlightHours),
+        droneId: updatedDroneId,
+        totalFlightHours: Number(totalFlightHours),
       };
       this.eventEmitter.emit(DroneEvent.FLIGHT_HOURS_EXCEEDED, event);
     }

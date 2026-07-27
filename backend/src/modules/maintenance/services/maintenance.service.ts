@@ -8,7 +8,6 @@ import { MaintenanceLog } from '@/modules/maintenance/entities';
 import {
   CreateMaintenanceLogRequestDto,
   GetMaintenanceLogsRequestDto,
-  UpdateMaintenanceLogRequestDto,
 } from '@/modules/maintenance/dtos/request';
 import { CACHE_TOKEN } from '@/shared/di';
 import { ICacheService } from '@/infra/cache';
@@ -17,7 +16,6 @@ import {
   GetMaintenanceLogsResponseDto,
   GetMaintenanceLogResponseDto,
   CreateMaintenanceLogResponseDto,
-  UpdateMaintenanceLogResponseDto,
 } from '@/modules/maintenance/dtos/response';
 import { IMaintenanceService } from '@/modules/maintenance/interfaces';
 import * as _ from 'lodash';
@@ -96,9 +94,11 @@ export class MaintenanceService implements IMaintenanceService {
       throw new BadRequestException(`Drone with ID '${droneId}' must be in MAINTENANCE status to create a maintenance log. Send it to maintenance first.`);
     }
 
+    const { totalFlightHours } = drone;
+
     MaintenanceLogic.validateFlightHoursAtMaintenance(
       flightHoursAtMaintenance,
-      drone.totalFlightHours,
+      totalFlightHours,
     );
 
     const log = this.mapper.map(requestDto, CreateMaintenanceLogRequestDto, MaintenanceLog);
@@ -114,38 +114,5 @@ export class MaintenanceService implements IMaintenanceService {
     });
 
     return this.mapper.map(createdLog, MaintenanceLog, CreateMaintenanceLogResponseDto);
-  }
-
-  // TODO: bounded update needed for maintenance logs, as we don't want to allow changing the droneId or performedAt date
-  public async updateMaintenanceLogAsync(
-    id: string,
-    requestDto: UpdateMaintenanceLogRequestDto,
-  ): Promise<UpdateMaintenanceLogResponseDto> {
-    const log = await this.maintenanceLogsRepository.findOne({ where: { id } });
-
-    if (!log) {
-      throw new NotFoundException(`Maintenance log with ID '${id}' not found`);
-    }
-
-    this.mapper.map(requestDto, UpdateMaintenanceLogRequestDto, MaintenanceLog);
-
-    const filteredDto = _.omitBy(requestDto, _.isUndefined);
-    Object.assign(log, filteredDto);
-
-    const updatedLog = await this.maintenanceLogsRepository.save(log);
-
-    await this.cacheService.deleteAsync(`maintenance_${id}`);
-
-    return this.mapper.map(updatedLog, MaintenanceLog, UpdateMaintenanceLogResponseDto);
-  }
-
-  public async softDeleteMaintenanceLogAsync(id: string): Promise<void> {
-    const result = await this.maintenanceLogsRepository.softDelete({ id });
-
-    if (!result.affected) {
-      throw new NotFoundException(`Maintenance log with id ${id} not found!`);
-    }
-
-    await this.cacheService.deleteAsync(`maintenance_${id}`);
   }
 }

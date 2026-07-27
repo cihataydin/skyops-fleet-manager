@@ -5,11 +5,9 @@ import { MaintenanceLog } from '@/modules/maintenance/entities';
 import {
   GetMaintenanceLogResponseDto,
   CreateMaintenanceLogResponseDto,
-  UpdateMaintenanceLogResponseDto,
 } from '@/modules/maintenance/dtos/response';
 import {
   CreateMaintenanceLogRequestDto,
-  UpdateMaintenanceLogRequestDto,
 } from '@/modules/maintenance/dtos/request';
 
 @Injectable()
@@ -32,19 +30,7 @@ export class MaintenanceProfile extends AutomapperProfile {
           mapFrom((s) => s.type),
         ),
       );
-      createMap(mapper, MaintenanceLog, UpdateMaintenanceLogResponseDto,
-        forMember(
-          (d) => d.type,
-          mapFrom((s) => s.type),
-        ),
-      );
       createMap(mapper, CreateMaintenanceLogRequestDto, MaintenanceLog,
-        forMember(
-          (d) => d.type,
-          mapFrom((s) => s.type),
-        ),
-      );
-      createMap(mapper, UpdateMaintenanceLogRequestDto, MaintenanceLog,
         forMember(
           (d) => d.type,
           mapFrom((s) => s.type),

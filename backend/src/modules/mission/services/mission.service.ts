@@ -118,24 +118,26 @@ export class MissionService implements IMissionService {
       throw new NotFoundException(`Mission with ID '${id}' not found`);
     }
 
-    if (requestDto.droneId && requestDto.droneId !== mission.droneId) {
-      const drone = await this.droneService.getDroneAsync(requestDto.droneId);
+    const { droneId, scheduledStartTime, scheduledEndTime } = requestDto;
+
+    if (droneId && droneId !== mission.droneId) {
+      const drone = await this.droneService.getDroneAsync(droneId);
       if (!drone) {
-        throw new NotFoundException(`Drone with ID '${requestDto.droneId}' not found`);
+        throw new NotFoundException(`Drone with ID '${droneId}' not found`);
       }
-      MissionLogic.validateDroneAvailability(drone.status, requestDto.droneId);
+      MissionLogic.validateDroneAvailability(drone.status, droneId);
     }
 
-    const targetDroneId = requestDto.droneId || mission.droneId;
-    const targetStart = requestDto.scheduledStartTime ? new Date(requestDto.scheduledStartTime) : mission.scheduledStartTime;
-    const targetEnd = requestDto.scheduledEndTime ? new Date(requestDto.scheduledEndTime) : mission.scheduledEndTime;
-    const isTimeScheduled = requestDto.scheduledStartTime || requestDto.scheduledEndTime;
+    const targetDroneId = droneId || mission.droneId;
+    const targetStart = scheduledStartTime ? new Date(scheduledStartTime) : mission.scheduledStartTime;
+    const targetEnd = scheduledEndTime ? new Date(scheduledEndTime) : mission.scheduledEndTime;
+    const isTimeScheduled = scheduledStartTime || scheduledEndTime;
 
     if (isTimeScheduled) {
       MissionLogic.validateScheduledDates(targetStart, targetEnd);
     }
 
-    if (requestDto.droneId || isTimeScheduled) {
+    if (droneId || isTimeScheduled) {
       await this.checkOverlappingMissionAsync(targetDroneId, targetStart, targetEnd, id);
     }
 
@@ -151,19 +153,45 @@ export class MissionService implements IMissionService {
   }
 
   public async startPreFlightMissionAsync(id: string): Promise<UpdateMissionResponseDto> {
-    return this.processStatusChangeAsync(id, MissionStatus.PRE_FLIGHT_CHECK);
+    return this.processMissionChangeAsync(id, MissionStatus.PRE_FLIGHT_CHECK);
   }
 
   public async startMissionAsync(id: string): Promise<UpdateMissionResponseDto> {
-    return this.processStatusChangeAsync(id, MissionStatus.IN_PROGRESS);
+    const updatedMission = await this.processMissionChangeAsync(id, MissionStatus.IN_PROGRESS);
+    const { droneId, id: missionId } = updatedMission;
+
+    this.eventEmitter.emit(MissionEvent.MISSION_STARTED, {
+      missionId,
+      droneId,
+    });
+
+    return updatedMission;
   }
 
   public async completeMissionAsync(id: string, requestDto: CompleteMissionRequestDto): Promise<UpdateMissionResponseDto> {
-    return this.processStatusChangeAsync(id, MissionStatus.COMPLETED, requestDto.flightHoursAtCompletion);
+    const updatedMission = await this.processMissionChangeAsync(id, MissionStatus.COMPLETED, requestDto.flightHoursAtCompletion);
+    const { droneId, id: missionId, flightHoursAtCompletion } = updatedMission;
+
+    this.eventEmitter.emit(MissionEvent.MISSION_COMPLETED, {
+      missionId,
+      droneId,
+      flightHoursLogged: Number(flightHoursAtCompletion),
+    });
+    
+    return updatedMission;
   }
 
   public async abortMissionAsync(id: string, requestDto: AbortMissionRequestDto): Promise<UpdateMissionResponseDto> {
-    return this.processStatusChangeAsync(id, MissionStatus.ABORTED, undefined, requestDto.abortReason);
+    const updatedMission = await this.processMissionChangeAsync(id, MissionStatus.ABORTED, undefined, requestDto.abortReason);
+    const { droneId, id: missionId, abortReason } = updatedMission;
+
+    this.eventEmitter.emit(MissionEvent.MISSION_ABORTED, {
+      missionId,
+      droneId,
+      abortReason: abortReason,
+    });
+
+    return updatedMission;
   }
 
   public async softDeleteMissionAsync(id: string): Promise<void> {
@@ -207,7 +235,7 @@ export class MissionService implements IMissionService {
       where: {
         ...(excludeMissionId ? { id: Not(excludeMissionId) } : {}),
         droneId,
-        status: Not(MissionStatus.ABORTED),
+        status: Not(In([MissionStatus.ABORTED, MissionStatus.COMPLETED])),
         scheduledStartTime: LessThan(scheduledEnd),
         scheduledEndTime: MoreThan(scheduledStart),
       },
@@ -220,30 +248,7 @@ export class MissionService implements IMissionService {
     }
   }
 
-  private emitLifecycleEvents(updatedMission: Mission, oldStatus: MissionStatus): void {
-    const { droneId, id: missionId, status: newStatus } = updatedMission;
-
-    if (MissionLogic.isMissionStarted(oldStatus, newStatus)) {
-      this.eventEmitter.emit(MissionEvent.MISSION_STARTED, {
-        missionId,
-        droneId,
-      });
-    } else if (MissionLogic.isMissionCompleted(oldStatus, newStatus)) {
-      this.eventEmitter.emit(MissionEvent.MISSION_COMPLETED, {
-        missionId,
-        droneId,
-        flightHoursLogged: Number(updatedMission.flightHoursAtCompletion),
-      });
-    } else if (MissionLogic.isMissionAborted(oldStatus, newStatus)) {
-      this.eventEmitter.emit(MissionEvent.MISSION_ABORTED, {
-        missionId,
-        droneId,
-        abortReason: updatedMission.abortReason,
-      });
-    }
-  }
-
-  private async processStatusChangeAsync(
+  private async processMissionChangeAsync(
     id: string,
     targetStatus: MissionStatus,
     flightHours?: number,
@@ -252,13 +257,11 @@ export class MissionService implements IMissionService {
     const mission = await this.missionsRepository.findOne({ where: { id } });
     if (!mission) throw new NotFoundException(`Mission with ID '${id}' not found`);
 
-    const oldStatus = mission.status;
     MissionLogic.handleStatusChange(mission, targetStatus, flightHours, abortReason);
 
     const updatedMission = await this.missionsRepository.save(mission);
     await this.cacheService.deleteAsync(`mission_${id}`);
     
-    this.emitLifecycleEvents(updatedMission, oldStatus);
     return this.mapper.map(updatedMission, Mission, UpdateMissionResponseDto);
   }
 }
