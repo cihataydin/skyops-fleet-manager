@@ -1,6 +1,6 @@
 import { Inject, Injectable, NotFoundException, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, LessThan } from 'typeorm';
 import { Mapper } from '@automapper/core';
 import { InjectMapper } from '@automapper/nestjs';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -141,6 +141,26 @@ export class DroneService implements IDroneService {
     await this.dronesRepository.save(drone);
 
     await this.cacheService.deleteAsync(`drone_${droneId}`);
+  }
+
+  public async getDroneStatusBreakdownAsync(): Promise<{ total: number; breakdown: Record<string, number> }> {
+    const drones = await this.dronesRepository.find();
+    const breakdown = DroneLogic.calculateStatusBreakdown(drones);
+    return { total: drones.length, breakdown };
+  }
+
+  public async getOverdueMaintenanceDronesAsync(): Promise<GetDroneResponseDto[]> {
+    const overdueDrones = await this.dronesRepository.find({
+      where: {
+        nextMaintenanceDueDate: LessThan(new Date()),
+      },
+    });
+    return this.mapper.mapArray(overdueDrones, Drone, GetDroneResponseDto);
+  }
+
+  public async getAverageFlightHoursAsync(): Promise<number> {
+    const drones = await this.dronesRepository.find();
+    return DroneLogic.calculateAverageFlightHours(drones);
   }
 
   public async softDeleteDroneAsync(id: string): Promise<void> {

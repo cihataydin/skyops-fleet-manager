@@ -743,6 +743,28 @@
           "maintenance"
         ]
       }
+    },
+    "/reports/fleet-health": {
+      "get": {
+        "operationId": "ReportController_getFleetHealthReportAsync",
+        "summary": "Retrieves the fleet health report summary",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The fleet health report has been successfully retrieved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FleetHealthReportResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "reports"
+        ]
+      }
     }
   },
   "info": {
@@ -1065,6 +1087,118 @@
             "example": 45.5
           }
         }
+      },
+      "GetDroneResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier of the drone",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "serialNumber": {
+            "type": "string",
+            "description": "Drone unique serial number (Format: SKY-XXXX-XXXX)",
+            "example": "SKY-AB12-CD34"
+          },
+          "model": {
+            "type": "string",
+            "description": "Drone model",
+            "enum": [
+              "PHANTOM_4",
+              "MATRICE_300",
+              "MAVIC_3_ENTERPRISE"
+            ],
+            "example": "MATRICE_300"
+          },
+          "status": {
+            "type": "string",
+            "description": "Current status of the drone",
+            "enum": [
+              "AVAILABLE",
+              "IN_MISSION",
+              "MAINTENANCE",
+              "RETIRED"
+            ],
+            "example": "AVAILABLE"
+          },
+          "totalFlightHours": {
+            "type": "number",
+            "description": "Total flight hours accumulated",
+            "example": 12.5
+          },
+          "lastMaintenanceDate": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Date of the last maintenance",
+            "nullable": true,
+            "example": "2026-06-01T10:00:00.000Z"
+          },
+          "nextMaintenanceDueDate": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Due date for the next maintenance",
+            "example": "2026-08-30T10:00:00.000Z"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Record creation timestamp",
+            "example": "2026-01-01T00:00:00.000Z"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Record update timestamp",
+            "example": "2026-06-01T10:00:00.000Z"
+          }
+        },
+        "required": [
+          "id",
+          "serialNumber",
+          "model",
+          "status",
+          "totalFlightHours",
+          "lastMaintenanceDate",
+          "nextMaintenanceDueDate",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "FleetHealthReportResponseDto": {
+        "type": "object",
+        "properties": {
+          "totalDroneCount": {
+            "type": "number",
+            "description": "Total number of drones in the fleet"
+          },
+          "statusBreakdown": {
+            "type": "object",
+            "description": "Breakdown of drones by their current status"
+          },
+          "overdueMaintenanceDrones": {
+            "description": "List of drones that have overdue maintenance",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GetDroneResponseDto"
+            }
+          },
+          "missionsNext24Hours": {
+            "type": "number",
+            "description": "Number of missions scheduled in the next 24 hours"
+          },
+          "averageFlightHours": {
+            "type": "number",
+            "description": "Average flight hours across the entire fleet"
+          }
+        },
+        "required": [
+          "totalDroneCount",
+          "statusBreakdown",
+          "overdueMaintenanceDrones",
+          "missionsNext24Hours",
+          "averageFlightHours"
+        ]
       }
     }
   }

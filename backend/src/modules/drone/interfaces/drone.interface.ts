@@ -22,4 +22,10 @@ export interface IDroneService {
   updateMaintenanceTrackingDatesAsync(droneId: string, performedAt: Date): Promise<void>;
 
   softDeleteDroneAsync(id: string): Promise<void>;
+
+  getDroneStatusBreakdownAsync(): Promise<{ total: number; breakdown: Record<string, number> }>;
+  
+  getOverdueMaintenanceDronesAsync(): Promise<GetDroneResponseDto[]>;
+  
+  getAverageFlightHoursAsync(): Promise<number>;
 }

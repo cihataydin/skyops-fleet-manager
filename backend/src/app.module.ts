@@ -9,6 +9,7 @@ import { classes } from '@automapper/classes';
 import { DroneModule } from '@/modules/drone';
 import { MissionModule } from './modules/mission';
 import { MaintenanceModule } from './modules/maintenance';
+import { ReportModule } from './modules/report/report.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { MaintenanceModule } from './modules/maintenance';
     DroneModule,
     MissionModule,
     MaintenanceModule,
+    ReportModule,
   ],
   controllers: [],
   providers: [],

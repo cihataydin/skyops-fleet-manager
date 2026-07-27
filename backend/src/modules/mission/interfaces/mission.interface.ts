@@ -32,4 +32,6 @@ export interface IMissionService {
   softDeleteMissionAsync(id: string): Promise<void>;
 
   hasUpcomingMissionsAsync(droneId: string): Promise<boolean>;
+
+  getUpcomingMissionsCountAsync(hours: number): Promise<number>;
 }

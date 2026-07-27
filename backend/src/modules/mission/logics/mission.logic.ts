@@ -2,6 +2,7 @@ import { Mission } from '@/modules/mission/entities';
 import { MissionStatus } from '@/modules/mission/enums';
 import { DroneStatus } from '@/modules/drone/enums';
 import { DomainException } from '@/shared/exceptions';
+import { MS_PER_HOUR } from '@/shared/constants';
 
 export class MissionLogic {
   private static readonly ALLOWED_TRANSITIONS: Record<MissionStatus, MissionStatus[]> = {
@@ -118,5 +119,10 @@ export class MissionLogic {
 
   public static isMissionAborted(status: MissionStatus, newStatus?: MissionStatus): boolean {
     return this.isStatusChanged(status, newStatus) && newStatus === MissionStatus.ABORTED;
+  }
+
+  public static calculateFutureDate(hoursToAdd: number): Date {
+    const now = new Date();
+    return new Date(now.getTime() + hoursToAdd * MS_PER_HOUR);
   }
 }

@@ -1,6 +1,6 @@
 import { forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Not, LessThan, MoreThan, In } from 'typeorm';
+import { Repository, Not, LessThan, MoreThan, In, Between } from 'typeorm';
 import { Mapper } from '@automapper/core';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mission } from '@/modules/mission/entities';
@@ -185,6 +185,16 @@ export class MissionService implements IMissionService {
     });
 
     return Boolean(upcomingMission);
+  }
+
+  public async getUpcomingMissionsCountAsync(hours: number): Promise<number> {
+    const now = new Date();
+    const future = MissionLogic.calculateFutureDate(hours);
+    return this.missionsRepository.count({
+      where: {
+        scheduledStartTime: Between(now, future),
+      },
+    });
   }
 
   private async checkOverlappingMissionAsync(

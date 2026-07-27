@@ -1,0 +1,1 @@
+export const REPORT_SERVICE_TOKEN = Symbol('REPORT_SERVICE_TOKEN');

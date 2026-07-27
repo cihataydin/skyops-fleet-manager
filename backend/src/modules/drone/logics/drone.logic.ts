@@ -29,4 +29,17 @@ export class DroneLogic {
   public static isFlightHoursExceeded(drone: Drone): boolean {
     return Number(drone.totalFlightHours) > MAINTENANCE_INTERVAL_FLIGHT_HOURS;
   }
+
+  public static calculateStatusBreakdown(drones: Drone[]): Record<string, number> {
+    return drones.reduce((acc, drone) => {
+      acc[drone.status] = (acc[drone.status] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+  }
+
+  public static calculateAverageFlightHours(drones: Drone[]): number {
+    if (drones.length === 0) return 0;
+    const totalHours = drones.reduce((sum, drone) => sum + Number(drone.totalFlightHours || 0), 0);
+    return totalHours / drones.length;
+  }
 }
