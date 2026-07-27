@@ -1,4 +1,4 @@
-import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, IsDateString, Min } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, Min, MaxLength, IsDate } from 'class-validator';
 import { MaintenanceType } from '@/modules/maintenance/enums';
 import { ApiProperty } from '@nestjs/swagger';
 import { AutoMap } from '@automapper/classes';
@@ -8,7 +8,7 @@ export class CreateMaintenanceLogRequestDto {
     type: String,
     required: true,
     description: 'ID of the drone being maintained',
-    example: '123e4567-e89b-12d3-a456-426614174000',
+    example: '123e4567-e89b-42d3-a456-426614174000',
   })
   @AutoMap()
   @IsNotEmpty()
@@ -16,15 +16,16 @@ export class CreateMaintenanceLogRequestDto {
   droneId: string;
 
   @ApiProperty({
-    type: String,
+    type: MaintenanceType,
     required: true,
-    description: 'Type of maintenance performed',
     enum: MaintenanceType,
+    enumName: 'MaintenanceType',
+    description: 'Type of maintenance performed',
     example: MaintenanceType.ROUTINE_CHECK,
   })
   @AutoMap()
   @IsNotEmpty()
-  @IsEnum(MaintenanceType, { message: 'Invalid maintenance type provided.' })
+  @IsEnum(MaintenanceType, { message: `Invalid maintenance type provided. It must be one of the allowed values: ${Object.values(MaintenanceType).join(', ')}` })
   type: MaintenanceType;
 
   @ApiProperty({
@@ -36,6 +37,7 @@ export class CreateMaintenanceLogRequestDto {
   @AutoMap()
   @IsNotEmpty()
   @IsString()
+  @MaxLength(255, { message: 'Technician name must not exceed 255 characters.' })
   technicianName: string;
 
   @ApiProperty({
@@ -47,17 +49,18 @@ export class CreateMaintenanceLogRequestDto {
   @AutoMap()
   @IsOptional()
   @IsString()
+  @MaxLength(500, { message: 'Notes must not exceed 500 characters.' })
   notes?: string;
 
   @ApiProperty({
-    type: String,
+    type: Date,
     required: true,
     description: 'Timestamp when maintenance was performed',
     example: '2026-07-26T10:00:00.000Z',
   })
   @AutoMap()
   @IsNotEmpty()
-  @IsDateString()
+  @IsDate()
   performedAt: Date;
 
   @ApiProperty({

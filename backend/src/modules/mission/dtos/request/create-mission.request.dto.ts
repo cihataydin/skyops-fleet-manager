@@ -1,7 +1,8 @@
-import { IsEnum, IsNotEmpty, IsString, IsUUID, IsDateString, MaxLength } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsString, IsUUID, MaxLength, IsDate } from 'class-validator';
 import { MissionType } from '@/modules/mission/enums';
 import { ApiProperty } from '@nestjs/swagger';
 import { AutoMap } from '@automapper/classes';
+import { IsAfterDate, IsFutureDate } from '@/modules/mission/decorators';
 
 export class CreateMissionRequestDto {
   @ApiProperty({ 
@@ -18,22 +19,23 @@ export class CreateMissionRequestDto {
   name: string;
 
   @ApiProperty({ 
-    type: String, 
-    required: true, 
+    type: MissionType, 
+    required: true,  
+    enum: MissionType,
+    enumName: 'MissionType',
     description: 'Type of the mission', 
-    enum: MissionType, 
     example: MissionType.POWER_LINE_PATROL 
   })
   @AutoMap()
   @IsNotEmpty()
-  @IsEnum(MissionType, { message: 'Invalid mission type provided.' })
+  @IsEnum(MissionType, { message: `Invalid mission type provided. It must be one of the allowed values: ${Object.values(MissionType).join(', ')}` })
   type: MissionType;
 
   @ApiProperty({ 
     type: String, 
     required: true, 
     description: 'UUID of the assigned drone', 
-    example: '123e4567-e89b-12d3-a456-426614174000' 
+    example: '123e4567-e89b-42d3-a456-426614174000' 
   })
   @AutoMap()
   @IsNotEmpty()
@@ -67,24 +69,26 @@ export class CreateMissionRequestDto {
   siteLocation: string;
 
   @ApiProperty({ 
-    type: String, 
+    type: Date, 
     required: true, 
     description: 'Scheduled start time of the mission (ISO 8601)', 
     example: '2026-08-01T08:00:00Z' 
   })
   @AutoMap()
   @IsNotEmpty()
-  @IsDateString({}, { message: 'Scheduled start time must be a valid ISO date string.' })
-  scheduledStartTime: string;
+  @IsDate({ message: 'Scheduled start time must be a valid ISO date string. For instance: 2026-08-01T08:00:00Z' })
+  @IsFutureDate({ message: 'Scheduled start time must be in the future.' })
+  scheduledStartTime: Date;
 
   @ApiProperty({ 
-    type: String, 
+    type: Date, 
     required: true, 
     description: 'Scheduled end time of the mission (ISO 8601)', 
     example: '2026-08-01T12:00:00Z' 
   })
   @AutoMap()
   @IsNotEmpty()
-  @IsDateString({}, { message: 'Scheduled end time must be a valid ISO date string.' })
-  scheduledEndTime: string;
+  @IsDate({ message: 'Scheduled end time must be a valid ISO date string. For instance: 2026-08-01T12:00:00Z' })
+  @IsAfterDate('scheduledStartTime', { message: 'Scheduled end time must be after the scheduled start time.' })
+  scheduledEndTime: Date;
 }

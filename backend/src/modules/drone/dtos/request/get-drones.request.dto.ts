@@ -6,24 +6,26 @@ import { DroneModel, DroneStatus } from '@/modules/drone/enums';
 
 export class GetDronesRequestDto extends BaseFilterRequestDto {
   @ApiProperty({ 
-    type: DroneModel, 
+    type: DroneModel,
+    required: false, 
     enum: DroneModel, 
     enumName: 'DroneModel',
-    required: false 
+    description: 'Filter by drone model',
   })
   @AutoMap()
-  @IsEnum(DroneModel, { message: 'Invalid drone model provided.' })
+  @IsEnum(DroneModel, { message: `Invalid drone model provided. It must be one of the allowed values: ${Object.values(DroneModel).join(', ')}` })
   @IsOptional()
   model?: DroneModel;
 
   @ApiProperty({ 
-    type: DroneStatus, 
+    type: DroneStatus,
+    required: false,  
     enum: DroneStatus, 
-    enumName: 'DroneStatus', 
-    required: false 
+    enumName: 'DroneStatus',
+    description: 'Filter by drone status', 
   })
   @AutoMap()
-  @IsEnum(DroneStatus, { message: 'Invalid drone status provided.' })
+  @IsEnum(DroneStatus, { message: `Invalid drone status provided. It must be one of the allowed values: ${Object.values(DroneStatus).join(', ')}` })
   @IsOptional()
   status?: DroneStatus;
 }

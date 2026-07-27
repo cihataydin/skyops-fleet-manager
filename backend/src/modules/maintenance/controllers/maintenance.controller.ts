@@ -24,6 +24,7 @@ import {
 } from '@/modules/maintenance/dtos/request';
 import { MAINTENANCE_SERVICE_TOKEN } from '@/modules/maintenance/di';
 import { formatResponse } from '@/shared/utils';
+import { CreateMaintenanceLogResponseDto, GetMaintenanceLogResponseDto } from '@/modules/maintenance/dtos';
 
 @ApiTags('maintenance')
 @Controller('maintenance')
@@ -65,6 +66,7 @@ export class MaintenanceController {
   })
   @ApiResponse({
     status: HttpStatus.OK,
+    type: GetMaintenanceLogResponseDto,
     description: 'The maintenance log information has been successfully retrieved.',
   })
   @ApiResponse({
@@ -87,6 +89,7 @@ export class MaintenanceController {
   })
   @ApiResponse({
     status: HttpStatus.CREATED,
+    type: CreateMaintenanceLogResponseDto,
     description: 'The maintenance log has been successfully created.',
   })
   @ApiResponse({

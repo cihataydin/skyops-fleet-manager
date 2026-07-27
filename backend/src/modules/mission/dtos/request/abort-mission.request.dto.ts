@@ -32,5 +32,6 @@ export class AbortMissionRequestDto {
   })
   @IsNotEmpty()
   @IsNumber()
+  @Min(1)
   version?: number;
 }

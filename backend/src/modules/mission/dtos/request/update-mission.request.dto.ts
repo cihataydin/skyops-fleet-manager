@@ -1,7 +1,8 @@
-import { IsEnum, IsOptional, IsString, IsUUID, IsDateString, MaxLength, IsNumber, Min, ValidateIf, IsNotEmpty } from 'class-validator';
-import { MissionType, MissionStatus } from '@/modules/mission/enums';
+import { IsEnum, IsOptional, IsString, IsUUID, MaxLength, IsNumber, Min, ValidateIf, IsNotEmpty, IsDate } from 'class-validator';
+import { MissionType } from '@/modules/mission/enums';
 import { ApiProperty } from '@nestjs/swagger';
 import { AutoMap } from '@automapper/classes';
+import { IsAfterDate, IsFutureDate } from '@/modules/mission/decorators';
 
 export class UpdateMissionRequestDto {
   @ApiProperty({ 
@@ -18,7 +19,7 @@ export class UpdateMissionRequestDto {
   name?: string;
 
   @ApiProperty({ 
-    type: String, 
+    type: MissionType, 
     required: false, 
     description: 'Type of the mission', 
     enum: MissionType, 
@@ -27,14 +28,14 @@ export class UpdateMissionRequestDto {
   })
   @AutoMap()
   @IsOptional()
-  @IsEnum(MissionType, { message: 'Invalid mission type provided.' })
+  @IsEnum(MissionType, { message: `Invalid mission type provided. It must be one of the allowed values: ${Object.values(MissionType).join(', ')}`  })
   type?: MissionType;
 
   @ApiProperty({ 
     type: String, 
     required: false, 
     description: 'UUID of the assigned drone', 
-    example: '123e4567-e89b-12d3-a456-426614174000' 
+    example: '123e4567-e89b-42d3-a456-426614174000' 
   })
   @AutoMap()
   @IsOptional()
@@ -68,26 +69,28 @@ export class UpdateMissionRequestDto {
   siteLocation?: string;
 
   @ApiProperty({ 
-    type: String, 
+    type: Date, 
     required: false, 
     description: 'Scheduled start time of the mission (ISO 8601). Required if scheduledEndTime is provided.', 
     example: '2026-08-01T08:00:00Z' 
   })
   @AutoMap()
   @ValidateIf((o: UpdateMissionRequestDto) => o.scheduledEndTime !== undefined || o.scheduledStartTime !== undefined)
-  @IsDateString({}, { message: 'Scheduled start time must be a valid ISO date string and must be provided if scheduledEndTime is updated.' })
-  scheduledStartTime?: string;
+  @IsDate({ message: 'Scheduled start time must be a valid ISO date and must be provided if scheduledEndTime is updated.' })
+  @IsFutureDate({ message: 'Scheduled start time must be in the future.' })
+  scheduledStartTime?: Date;
 
   @ApiProperty({ 
-    type: String, 
+    type: Date, 
     required: false, 
     description: 'Scheduled end time of the mission (ISO 8601). Required if scheduledStartTime is provided.', 
     example: '2026-08-01T12:00:00Z' 
   })
   @AutoMap()
   @ValidateIf((o: UpdateMissionRequestDto) => o.scheduledStartTime !== undefined || o.scheduledEndTime !== undefined)
-  @IsDateString({}, { message: 'Scheduled end time must be a valid ISO date string and must be provided if scheduledStartTime is updated.' })
-  scheduledEndTime?: string;
+  @IsDate({ message: 'Scheduled start time must be a valid ISO date and must be provided if scheduledStartTime is updated.' })
+  @IsAfterDate('scheduledStartTime', { message: 'Scheduled end time must be after the scheduled start time.' })
+  scheduledEndTime?: Date;
 
   @ApiProperty({ 
     type: Number, 
@@ -98,5 +101,6 @@ export class UpdateMissionRequestDto {
   @AutoMap()
   @IsNotEmpty()
   @IsNumber()
+  @Min(1)
   version?: number;
 }

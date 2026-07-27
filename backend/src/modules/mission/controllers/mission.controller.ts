@@ -30,6 +30,7 @@ import {
 } from '@/modules/mission/dtos/request';
 import { MISSION_SERVICE_TOKEN } from '@/modules/mission/di';
 import { formatResponse } from '@/shared/utils';
+import { CreateMissionResponseDto, GetMissionResponseDto, UpdateMissionResponseDto } from '@/modules/mission/dtos/response';
 
 @ApiTags('missions')
 @Controller('missions')
@@ -71,6 +72,7 @@ export class MissionController {
   })
   @ApiResponse({
     status: HttpStatus.OK,
+    type: GetMissionResponseDto,
     description: 'The mission information has been successfully retrieved.',
   })
   @ApiResponse({
@@ -93,6 +95,7 @@ export class MissionController {
   })
   @ApiResponse({
     status: HttpStatus.CREATED,
+    type: CreateMissionResponseDto,
     description: 'The mission has been successfully created.',
   })
   @ApiResponse({
@@ -125,6 +128,7 @@ export class MissionController {
   })
   @ApiResponse({
     status: HttpStatus.OK,
+    type: UpdateMissionResponseDto,
     description: 'The mission has been successfully updated.',
   })
   @ApiResponse({

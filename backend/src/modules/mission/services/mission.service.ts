@@ -1,6 +1,6 @@
 import { BadRequestException, forwardRef, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Not, LessThan, MoreThan, In, Between } from 'typeorm';
+import { Repository, Not, LessThan, MoreThan, In, Between, LessThanOrEqual, MoreThanOrEqual, FindOptionsWhere } from 'typeorm';
 import { Mapper } from '@automapper/core';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mission } from '@/modules/mission/entities';
@@ -38,14 +38,22 @@ export class MissionService implements IMissionService {
   public async getMissionsAsync(
     requestDto: GetMissionsRequestDto,
   ): Promise<GetMissionsResponseDto> {
-    const { limit, page, direction, orderBy, name, type, status, droneId, pilotName } = requestDto;
-    const where = {
+    const { limit, page, direction, orderBy, name, type, status, droneId, pilotName, startDate, endDate } = requestDto;
+    const where: FindOptionsWhere<Mission> = {
       ...(name ? { name } : {}),
       ...(type ? { type } : {}),
       ...(status ? { status } : {}),
       ...(droneId ? { droneId } : {}),
       ...(pilotName ? { pilotName } : {}),
     };
+
+    if (startDate && endDate) {
+      where.scheduledStartTime = Between(new Date(startDate), new Date(endDate));
+    } else if (startDate) {
+      where.scheduledStartTime = MoreThanOrEqual(new Date(startDate));
+    } else if (endDate) {
+      where.scheduledStartTime = LessThanOrEqual(new Date(endDate));
+    }
     const [missionEntities, count] = await this.missionsRepository.findAndCount({
       where,
       skip: PaginationUtil.calculateSkip(page, limit),
@@ -97,7 +105,6 @@ export class MissionService implements IMissionService {
     const scheduledStart = new Date(scheduledStartTime);
     const scheduledEnd = new Date(scheduledEndTime);
 
-    MissionLogic.validateScheduledDates(scheduledStart, scheduledEnd);
     await this.checkOverlappingMissionAsync(droneId, scheduledStart, scheduledEnd);
 
     const mission = this.mapper.map(requestDto, CreateMissionRequestDto, Mission);
@@ -136,10 +143,6 @@ export class MissionService implements IMissionService {
     const targetStart = scheduledStartTime ? new Date(scheduledStartTime) : mission.scheduledStartTime;
     const targetEnd = scheduledEndTime ? new Date(scheduledEndTime) : mission.scheduledEndTime;
     const isTimeScheduled = scheduledStartTime || scheduledEndTime;
-
-    if (isTimeScheduled) {
-      MissionLogic.validateScheduledDates(targetStart, targetEnd);
-    }
 
     if (droneId || isTimeScheduled) {
       await this.checkOverlappingMissionAsync(targetDroneId, targetStart, targetEnd, id);

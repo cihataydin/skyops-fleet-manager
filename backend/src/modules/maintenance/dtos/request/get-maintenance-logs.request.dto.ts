@@ -17,12 +17,13 @@ export class GetMaintenanceLogsRequestDto extends BaseFilterRequestDto {
 
   @ApiProperty({
     type: MaintenanceType,
+    required: false,
     enum: MaintenanceType,
     enumName: 'MaintenanceType',
-    required: false,
+    description: 'Filter by maintenance type',
   })
   @AutoMap()
-  @IsEnum(MaintenanceType, { message: 'Invalid maintenance type provided.' })
   @IsOptional()
+  @IsEnum(MaintenanceType, { message: `Invalid maintenance type provided. It must be one of the allowed values: ${Object.values(MaintenanceType).join(', ')}` })
   type?: MaintenanceType;
 }

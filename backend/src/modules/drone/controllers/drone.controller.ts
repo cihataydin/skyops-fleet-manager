@@ -28,6 +28,7 @@ import {
 } from '@/modules/drone/dtos/request';
 import { DRONE_SERVICE_TOKEN } from '@/modules/drone/di';
 import { formatResponse } from '@/shared/utils';
+import { CreateDroneResponseDto, GetDroneResponseDto, UpdateDroneResponseDto } from '@/modules/drone/dtos/response';
 
 @ApiTags('drones')
 @Controller('drones')
@@ -70,6 +71,7 @@ export class DroneController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'The drone information has been successfully retrieved.',
+    type: GetDroneResponseDto,
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
@@ -92,6 +94,7 @@ export class DroneController {
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'The drone has been successfully created.',
+    type: CreateDroneResponseDto,
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
@@ -124,6 +127,7 @@ export class DroneController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'The drone has been successfully updated.',
+    type: UpdateDroneResponseDto,
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,

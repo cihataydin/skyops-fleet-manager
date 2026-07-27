@@ -21,5 +21,6 @@ export class CompleteMissionRequestDto {
   })
   @IsNotEmpty()
   @IsNumber()
+  @Min(1)
   version?: number;
 }

@@ -52,6 +52,7 @@
             "name": "model",
             "required": false,
             "in": "query",
+            "description": "Filter by drone model",
             "schema": {
               "$ref": "#/components/schemas/DroneModel"
             }
@@ -60,6 +61,7 @@
             "name": "status",
             "required": false,
             "in": "query",
+            "description": "Filter by drone status",
             "schema": {
               "$ref": "#/components/schemas/DroneStatus"
             }
@@ -91,7 +93,14 @@
         },
         "responses": {
           "201": {
-            "description": "The drone has been successfully created."
+            "description": "The drone has been successfully created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateDroneResponseDto"
+                }
+              }
+            }
           },
           "400": {
             "description": "Invalid request body or missing data."
@@ -120,7 +129,14 @@
         ],
         "responses": {
           "200": {
-            "description": "The drone information has been successfully retrieved."
+            "description": "The drone information has been successfully retrieved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetDroneResponseDto"
+                }
+              }
+            }
           },
           "404": {
             "description": "Drone not found."
@@ -158,7 +174,14 @@
         },
         "responses": {
           "200": {
-            "description": "The drone has been successfully updated."
+            "description": "The drone has been successfully updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateDroneResponseDto"
+                }
+              }
+            }
           },
           "400": {
             "description": "Invalid request body or missing data."
@@ -253,7 +276,6 @@
             "description": "Filter missions by name",
             "schema": {
               "maxLength": 255,
-              "example": "Alpha Perimeter",
               "type": "string"
             }
           },
@@ -279,7 +301,6 @@
             "in": "query",
             "description": "Filter missions by assigned drone ID",
             "schema": {
-              "example": "123e4567-e89b-12d3-a456-426614174000",
               "type": "string"
             }
           },
@@ -290,7 +311,26 @@
             "description": "Filter missions by pilot name",
             "schema": {
               "maxLength": 255,
-              "example": "John Doe",
+              "type": "string"
+            }
+          },
+          {
+            "name": "startDate",
+            "required": false,
+            "in": "query",
+            "description": "Filter missions scheduled on or after this date (ISO 8601)",
+            "schema": {
+              "format": "date-time",
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "required": false,
+            "in": "query",
+            "description": "Filter missions scheduled on or before this date (ISO 8601)",
+            "schema": {
+              "format": "date-time",
               "type": "string"
             }
           }
@@ -605,6 +645,7 @@
             "name": "type",
             "required": false,
             "in": "query",
+            "description": "Filter by maintenance type",
             "schema": {
               "$ref": "#/components/schemas/MaintenanceType"
             }
@@ -730,7 +771,7 @@
     "schemas": {
       "DroneModel": {
         "type": "string",
-        "description": "Serial number of the drone (exactly 13 characters long)",
+        "description": "Model of the drone",
         "enum": [
           "PHANTOM_4",
           "MATRICE_300",
@@ -747,23 +788,89 @@
           "RETIRED"
         ]
       },
+      "GetDroneResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier of the drone"
+          },
+          "serialNumber": {
+            "type": "string",
+            "description": "Drone unique serial number (Format: SKY-XXXX-XXXX)"
+          },
+          "model": {
+            "type": "string",
+            "description": "Drone model",
+            "enum": [
+              "PHANTOM_4",
+              "MATRICE_300",
+              "MAVIC_3_ENTERPRISE"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "description": "Current status of the drone",
+            "enum": [
+              "AVAILABLE",
+              "IN_MISSION",
+              "MAINTENANCE",
+              "RETIRED"
+            ]
+          },
+          "totalFlightHours": {
+            "type": "number",
+            "description": "Total flight hours accumulated"
+          },
+          "lastMaintenanceDate": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Date of the last maintenance"
+          },
+          "nextMaintenanceDueDate": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Due date for the next maintenance"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Record creation timestamp"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Record update timestamp"
+          },
+          "version": {
+            "type": "number",
+            "description": "Row version for optimistic locking"
+          }
+        },
+        "required": [
+          "id",
+          "serialNumber",
+          "model",
+          "status",
+          "totalFlightHours",
+          "lastMaintenanceDate",
+          "nextMaintenanceDueDate",
+          "createdAt",
+          "updatedAt",
+          "version"
+        ]
+      },
       "CreateDroneRequestDto": {
         "type": "object",
         "properties": {
           "serialNumber": {
             "type": "string",
             "description": "Serial number of the drone (exactly 13 characters long)",
-            "example": "SKY-1234-5678"
+            "example": "SKY-AB12-CD34"
           },
           "model": {
-            "type": "string",
-            "description": "Model of the drone",
-            "enum": [
-              "PHANTOM_4",
-              "MATRICE_300",
-              "MAVIC_3_ENTERPRISE"
-            ],
-            "example": "MATRICE_300"
+            "example": "MATRICE_300",
+            "$ref": "#/components/schemas/DroneModel"
           }
         },
         "required": [
@@ -771,11 +878,72 @@
           "model"
         ]
       },
+      "CreateDroneResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier of the drone"
+          },
+          "serialNumber": {
+            "type": "string",
+            "description": "Drone unique serial number (Format: SKY-XXXX-XXXX)"
+          },
+          "model": {
+            "type": "string",
+            "description": "Drone model",
+            "enum": [
+              "PHANTOM_4",
+              "MATRICE_300",
+              "MAVIC_3_ENTERPRISE"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "description": "Current status of the drone",
+            "enum": [
+              "AVAILABLE",
+              "IN_MISSION",
+              "MAINTENANCE",
+              "RETIRED"
+            ]
+          },
+          "totalFlightHours": {
+            "type": "number",
+            "description": "Total flight hours accumulated"
+          },
+          "lastMaintenanceDate": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Date of the last maintenance"
+          },
+          "nextMaintenanceDueDate": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Due date for the next maintenance"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Record creation timestamp"
+          }
+        },
+        "required": [
+          "id",
+          "serialNumber",
+          "model",
+          "status",
+          "totalFlightHours",
+          "lastMaintenanceDate",
+          "nextMaintenanceDueDate",
+          "createdAt"
+        ]
+      },
       "UpdateDroneRequestDto": {
         "type": "object",
         "properties": {
           "model": {
-            "example": "SKY-1234-5678",
+            "example": "MATRICE_300",
             "$ref": "#/components/schemas/DroneModel"
           },
           "status": {
@@ -794,8 +962,74 @@
           }
         },
         "required": [
-          "status",
           "version"
+        ]
+      },
+      "UpdateDroneResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier of the drone"
+          },
+          "serialNumber": {
+            "type": "string",
+            "description": "Drone unique serial number (Format: SKY-XXXX-XXXX)"
+          },
+          "model": {
+            "type": "string",
+            "description": "Drone model",
+            "enum": [
+              "PHANTOM_4",
+              "MATRICE_300",
+              "MAVIC_3_ENTERPRISE"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "description": "Current status of the drone",
+            "enum": [
+              "AVAILABLE",
+              "IN_MISSION",
+              "MAINTENANCE",
+              "RETIRED"
+            ]
+          },
+          "totalFlightHours": {
+            "type": "number",
+            "description": "Total flight hours accumulated"
+          },
+          "lastMaintenanceDate": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Date of the last maintenance"
+          },
+          "nextMaintenanceDueDate": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Due date for the next maintenance"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Record creation timestamp"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Record update timestamp"
+          }
+        },
+        "required": [
+          "id",
+          "serialNumber",
+          "model",
+          "status",
+          "totalFlightHours",
+          "lastMaintenanceDate",
+          "nextMaintenanceDueDate",
+          "createdAt",
+          "updatedAt"
         ]
       },
       "MissionType": {
@@ -827,19 +1061,13 @@
             "example": "Alpha Perimeter Inspection"
           },
           "type": {
-            "type": "string",
-            "description": "Type of the mission",
-            "enum": [
-              "WIND_TURBINE_INSPECTION",
-              "SOLAR_PANEL_SURVEY",
-              "POWER_LINE_PATROL"
-            ],
-            "example": "POWER_LINE_PATROL"
+            "example": "POWER_LINE_PATROL",
+            "$ref": "#/components/schemas/MissionType"
           },
           "droneId": {
             "type": "string",
             "description": "UUID of the assigned drone",
-            "example": "123e4567-e89b-12d3-a456-426614174000"
+            "example": "123e4567-e89b-42d3-a456-426614174000"
           },
           "pilotName": {
             "type": "string",
@@ -854,11 +1082,13 @@
             "example": "Site Alpha - Sector 4"
           },
           "scheduledStartTime": {
+            "format": "date-time",
             "type": "string",
             "description": "Scheduled start time of the mission (ISO 8601)",
             "example": "2026-08-01T08:00:00Z"
           },
           "scheduledEndTime": {
+            "format": "date-time",
             "type": "string",
             "description": "Scheduled end time of the mission (ISO 8601)",
             "example": "2026-08-01T12:00:00Z"
@@ -890,7 +1120,7 @@
           "droneId": {
             "type": "string",
             "description": "UUID of the assigned drone",
-            "example": "123e4567-e89b-12d3-a456-426614174000"
+            "example": "123e4567-e89b-42d3-a456-426614174000"
           },
           "pilotName": {
             "type": "string",
@@ -905,11 +1135,13 @@
             "example": "Site Alpha - Sector 4"
           },
           "scheduledStartTime": {
+            "format": "date-time",
             "type": "string",
             "description": "Scheduled start time of the mission (ISO 8601). Required if scheduledEndTime is provided.",
             "example": "2026-08-01T08:00:00Z"
           },
           "scheduledEndTime": {
+            "format": "date-time",
             "type": "string",
             "description": "Scheduled end time of the mission (ISO 8601). Required if scheduledStartTime is provided.",
             "example": "2026-08-01T12:00:00Z"
@@ -970,6 +1202,7 @@
       },
       "MaintenanceType": {
         "type": "string",
+        "description": "Type of maintenance performed",
         "enum": [
           "ROUTINE_CHECK",
           "BATTERY_REPLACEMENT",
@@ -984,19 +1217,11 @@
           "droneId": {
             "type": "string",
             "description": "ID of the drone being maintained",
-            "example": "123e4567-e89b-12d3-a456-426614174000"
+            "example": "123e4567-e89b-42d3-a456-426614174000"
           },
           "type": {
-            "type": "string",
-            "description": "Type of maintenance performed",
-            "enum": [
-              "ROUTINE_CHECK",
-              "BATTERY_REPLACEMENT",
-              "MOTOR_REPAIR",
-              "FIRMWARE_UPDATE",
-              "FULL_OVERHAUL"
-            ],
-            "example": "ROUTINE_CHECK"
+            "example": "ROUTINE_CHECK",
+            "$ref": "#/components/schemas/MaintenanceType"
           },
           "technicianName": {
             "type": "string",
@@ -1009,6 +1234,7 @@
             "example": "Replaced left rotor and updated firmware."
           },
           "performedAt": {
+            "format": "date-time",
             "type": "string",
             "description": "Timestamp when maintenance was performed",
             "example": "2026-07-26T10:00:00.000Z"
@@ -1025,89 +1251,6 @@
           "technicianName",
           "performedAt",
           "flightHoursAtMaintenance"
-        ]
-      },
-      "GetDroneResponseDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "Unique identifier of the drone",
-            "example": "123e4567-e89b-12d3-a456-426614174000"
-          },
-          "serialNumber": {
-            "type": "string",
-            "description": "Drone unique serial number (Format: SKY-XXXX-XXXX)",
-            "example": "SKY-AB12-CD34"
-          },
-          "model": {
-            "type": "string",
-            "description": "Drone model",
-            "enum": [
-              "PHANTOM_4",
-              "MATRICE_300",
-              "MAVIC_3_ENTERPRISE"
-            ],
-            "example": "MATRICE_300"
-          },
-          "status": {
-            "type": "string",
-            "description": "Current status of the drone",
-            "enum": [
-              "AVAILABLE",
-              "IN_MISSION",
-              "MAINTENANCE",
-              "RETIRED"
-            ],
-            "example": "AVAILABLE"
-          },
-          "totalFlightHours": {
-            "type": "number",
-            "description": "Total flight hours accumulated",
-            "example": 12.5
-          },
-          "lastMaintenanceDate": {
-            "format": "date-time",
-            "type": "string",
-            "description": "Date of the last maintenance",
-            "nullable": true,
-            "example": "2026-06-01T10:00:00.000Z"
-          },
-          "nextMaintenanceDueDate": {
-            "format": "date-time",
-            "type": "string",
-            "description": "Due date for the next maintenance",
-            "example": "2026-08-30T10:00:00.000Z"
-          },
-          "createdAt": {
-            "format": "date-time",
-            "type": "string",
-            "description": "Record creation timestamp",
-            "example": "2026-01-01T00:00:00.000Z"
-          },
-          "updatedAt": {
-            "format": "date-time",
-            "type": "string",
-            "description": "Record update timestamp",
-            "example": "2026-06-01T10:00:00.000Z"
-          },
-          "version": {
-            "type": "number",
-            "description": "Row version for optimistic locking",
-            "example": 1
-          }
-        },
-        "required": [
-          "id",
-          "serialNumber",
-          "model",
-          "status",
-          "totalFlightHours",
-          "lastMaintenanceDate",
-          "nextMaintenanceDueDate",
-          "createdAt",
-          "updatedAt",
-          "version"
         ]
       },
       "FleetHealthReportResponseDto": {
