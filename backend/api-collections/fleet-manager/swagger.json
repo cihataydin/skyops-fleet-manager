@@ -748,7 +748,17 @@
       "get": {
         "operationId": "ReportController_getFleetHealthReportAsync",
         "summary": "Retrieves the fleet health report summary",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "daysThreshold",
+            "required": false,
+            "in": "query",
+            "description": "Number of days to check for upcoming maintenance alerts (default: 7)",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "The fleet health report has been successfully retrieved.",

@@ -23,6 +23,8 @@ import { MISSION_SERVICE_TOKEN } from '@/modules/mission/di';
 import { IMissionService } from '@/modules/mission/interfaces';
 import * as _ from 'lodash';
 
+import { MS_PER_DAY } from '@/shared/constants';
+
 @Injectable()
 export class DroneService implements IDroneService {
   public constructor(
@@ -149,10 +151,11 @@ export class DroneService implements IDroneService {
     return { total: drones.length, breakdown };
   }
 
-  public async getOverdueMaintenanceDronesAsync(): Promise<GetDroneResponseDto[]> {
+  public async getMaintenanceAlertDronesAsync(daysThreshold: number): Promise<GetDroneResponseDto[]> {
+    const alertThreshold = new Date(Date.now() + daysThreshold * MS_PER_DAY);
     const overdueDrones = await this.dronesRepository.find({
       where: {
-        nextMaintenanceDueDate: LessThan(new Date()),
+        nextMaintenanceDueDate: LessThan(alertThreshold),
       },
     });
     return this.mapper.mapArray(overdueDrones, Drone, GetDroneResponseDto);

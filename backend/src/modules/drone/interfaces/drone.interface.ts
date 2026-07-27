@@ -25,7 +25,7 @@ export interface IDroneService {
 
   getDroneStatusBreakdownAsync(): Promise<{ total: number; breakdown: Record<string, number> }>;
   
-  getOverdueMaintenanceDronesAsync(): Promise<GetDroneResponseDto[]>;
+  getMaintenanceAlertDronesAsync(daysThreshold: number): Promise<GetDroneResponseDto[]>;
   
   getAverageFlightHoursAsync(): Promise<number>;
 }
