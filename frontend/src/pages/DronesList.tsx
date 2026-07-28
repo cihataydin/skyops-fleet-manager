@@ -16,11 +16,11 @@ export const DronesList: React.FC = () => {
     setLoading(true);
     try {
       const res = await api.get(`/drones?page=${page}&limit=${limit}`);
-      setDrones(res.data.data);
+      setDrones(res.data.data.drones || res.data.data);
       setPagination({
-        current: Number(res.data.meta?.page || 1),
-        pageSize: Number(res.data.meta?.limit || 10),
-        total: Number(res.data.meta?.total || 0),
+        current: Number(res.data.data.total?.page || res.data.meta?.page || 1),
+        pageSize: Number(res.data.data.total?.limit || res.data.meta?.limit || 10),
+        total: Number(res.data.data.total?.count || res.data.meta?.total || 0),
       });
     } catch (error) {
       console.error('Failed to fetch drones', error);

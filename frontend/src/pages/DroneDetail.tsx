@@ -25,8 +25,8 @@ export const DroneDetail: React.FC = () => {
         api.get(`/missions?droneId=${id}`)
       ]);
       setDrone(droneRes.data.data);
-      setMaintenance(maintRes.data.data);
-      setMissions(missionsRes.data.data);
+      setMaintenance(maintRes.data.data.logs || maintRes.data.data);
+      setMissions(missionsRes.data.data.missions || missionsRes.data.data);
     } catch (error) {
       console.error('Failed to fetch drone details', error);
     } finally {

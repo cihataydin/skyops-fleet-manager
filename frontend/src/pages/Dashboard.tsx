@@ -19,7 +19,7 @@ export const Dashboard: React.FC = () => {
           api.get('/missions?limit=5') // Recent 5 missions
         ]);
         setHealth(healthRes.data.data);
-        setMissions(missionsRes.data.data);
+        setMissions(missionsRes.data.data.missions || missionsRes.data.data);
       } catch (error) {
         console.error('Failed to fetch dashboard data', error);
       } finally {

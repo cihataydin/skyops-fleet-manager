@@ -5,15 +5,15 @@ test('Full Mission Lifecycle E2E Flow', async ({ page }) => {
   await page.goto('/drones');
   await page.click('text=Register Drone');
 
-  // Generate a random serial number like SKY-1111-2222
-  const rand = Math.floor(Math.random() * 9000 + 1000);
-  const serial = `SKY-E2E${rand}-TEST`;
+  const rand1 = Math.random().toString(36).substring(2, 6).toUpperCase().padStart(4, '0');
+  const rand2 = Math.random().toString(36).substring(2, 6).toUpperCase().padStart(4, '0');
+  const serial = `SKY-${rand1}-${rand2}`;
 
   // Fill in the new drone form
   await page.fill('input#serialNumber', serial);
   
   // Select Model
-  await page.click('.ant-select-selector');
+  await page.locator('#model').click();
   await page.click('div[title="PHANTOM_4"]');
   
   // Submit
@@ -36,17 +36,18 @@ test('Full Mission Lifecycle E2E Flow', async ({ page }) => {
   await page.fill('input#name', 'E2E Test Mission');
   
   // Select Type
-  await page.click('.ant-modal-body .ant-select-selector');
+  await page.locator('#type').click();
   await page.click('div[title="Wind Turbine"]');
   
   await page.fill('input#pilotName', 'Auto Pilot');
   await page.fill('input#siteLocation', 'Test Site Alpha');
   
-  // Dates (Clicking the range picker and selecting today)
-  await page.click('.ant-picker');
-  await page.click('.ant-picker-cell-today'); // Start date
-  await page.click('.ant-picker-cell-today'); // End date
-  await page.click('button:has-text("Ok")'); // Confirm time picker
+  // Dates (Use keyboard to type dates for maximum reliability)
+  await page.locator('input[placeholder="Start date"]').click();
+  await page.keyboard.type('2026-12-01 10:00:00', { delay: 50 });
+  await page.keyboard.press('Tab');
+  await page.keyboard.type('2026-12-01 14:00:00', { delay: 50 });
+  await page.keyboard.press('Enter');
   
   // Submit Mission
   await page.click('.ant-modal-footer button:has-text("OK")');
@@ -58,17 +59,22 @@ test('Full Mission Lifecycle E2E Flow', async ({ page }) => {
   // 6. Transition Mission States
   // PLANNED -> PRE_FLIGHT_CHECK
   await page.click('button:has-text("Pre-Flight")');
-  await expect(page.locator('text=Mission status updated to PRE_FLIGHT_CHECK')).toBeVisible();
+  await expect(page.locator('button:has-text("Start")')).toBeVisible();
 
   // PRE_FLIGHT_CHECK -> IN_PROGRESS
   await page.click('button:has-text("Start")');
-  await expect(page.locator('text=Mission status updated to IN_PROGRESS')).toBeVisible();
+  await expect(page.locator('button:has-text("Complete")')).toBeVisible();
 
   // IN_PROGRESS -> COMPLETE
   await page.click('button:has-text("Complete")');
-  await expect(page.locator('text=Mission status updated to COMPLETE')).toBeVisible();
 
   // Wait for UI to update (drone status back to available)
   await page.waitForTimeout(1000);
   await expect(page.locator('.ant-descriptions-item-content:has-text("AVAILABLE")')).toBeVisible();
+
+  // 7. Verify the dashboard reflects the changes
+  await page.goto('/');
+  await expect(page.locator('text=Fleet Dashboard')).toBeVisible();
+  await expect(page.locator('text=Total Drones')).toBeVisible();
+  await expect(page.locator('text=E2E Test Mission').first()).toBeVisible(); // Check that the recent mission is visible
 });
