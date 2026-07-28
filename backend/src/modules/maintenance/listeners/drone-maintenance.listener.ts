@@ -21,17 +21,25 @@ export class DroneMaintenanceListener {
   public async handleDroneFlightHoursExceededEvent(
     event: DroneFlightHoursExceededEvent,
   ): Promise<void> {
-    const { droneId, totalFlightHours } = event;
-    this.loggerService.log(`Drone '${droneId}' exceeded flight hours (${totalFlightHours}h). Putting to maintenance.`);
-    await this.droneService.updateDroneAsync(droneId, { status: DroneStatus.MAINTENANCE });
+    try {
+      const { droneId, totalFlightHours } = event;
+      this.loggerService.log(`Drone '${droneId}' exceeded flight hours (${totalFlightHours}h). Putting to maintenance.`);
+      await this.droneService.updateDroneAsync(droneId, { status: DroneStatus.MAINTENANCE });
+    } catch (error) {
+      this.loggerService.error(`Failed to handle FLIGHT_HOURS_EXCEEDED for drone '${event.droneId}'`, undefined, (error as Error).stack);
+    }
   }
 
   @OnEvent(DroneEvent.MAINTENANCE_DUE, { async: true })
   public async handleDroneMaintenanceDueEvent(
     event: DroneMaintenanceDueEvent,
   ): Promise<void> {
-    const { droneId, reason } = event;
-    this.loggerService.log(`Drone '${droneId}' is due for maintenance (${reason}). Putting to maintenance.`);
-    await this.droneService.updateDroneAsync(droneId, { status: DroneStatus.MAINTENANCE });
+    try {
+      const { droneId, reason } = event;
+      this.loggerService.log(`Drone '${droneId}' is due for maintenance (${reason}). Putting to maintenance.`);
+      await this.droneService.updateDroneAsync(droneId, { status: DroneStatus.MAINTENANCE });
+    } catch (error) {
+      this.loggerService.error(`Failed to handle MAINTENANCE_DUE for drone '${event.droneId}'`, undefined, (error as Error).stack);
+    }
   }
 }

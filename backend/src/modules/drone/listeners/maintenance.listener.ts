@@ -22,18 +22,22 @@ export class MaintenanceListener {
   public async handleMaintenanceCreatedEvent(
     event: MaintenanceCreatedEvent,
   ): Promise<void> {
-    const { droneId, performedAt, flightHoursAtMaintenance } = event;
+    try {
+      const { droneId, performedAt, flightHoursAtMaintenance } = event;
 
-    this.loggerService.log(
-      `Received '${MaintenanceEvent.MAINTENANCE_CREATED}' event for drone '${droneId}'.`,
-    );
+      this.loggerService.log(
+        `Received '${MaintenanceEvent.MAINTENANCE_CREATED}' event for drone '${droneId}'.`,
+      );
 
-    // TODO: should we merge this two service methods?
-    await this.droneService.updateDroneAsync(droneId, { status: DroneStatus.AVAILABLE, flightHoursAtLastMaintenance: flightHoursAtMaintenance});
-    await this.droneService.updateMaintenanceTrackingDatesAsync(droneId, performedAt);
+      // TODO: should we merge this two service methods?
+      await this.droneService.updateDroneAsync(droneId, { status: DroneStatus.AVAILABLE, flightHoursAtLastMaintenance: flightHoursAtMaintenance});
+      await this.droneService.updateMaintenanceTrackingDatesAsync(droneId, performedAt);
 
-    this.loggerService.log(
-      `Drone '${droneId}' maintenance tracking dates updated and status set to AVAILABLE.`,
-    );
+      this.loggerService.log(
+        `Drone '${droneId}' maintenance tracking dates updated and status set to AVAILABLE.`,
+      );
+    } catch (error) {
+      this.loggerService.error(`Failed to handle MAINTENANCE_CREATED for drone '${event.droneId}'`, undefined, (error as Error).stack);
+    }
   }
 }
