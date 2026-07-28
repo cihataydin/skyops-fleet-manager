@@ -1,4 +1,4 @@
-import { IsEnum, IsOptional, IsString, IsUUID, MaxLength, IsNumber, Min, ValidateIf, IsNotEmpty, IsDate } from 'class-validator';
+import { IsEnum, IsString, IsUUID, MaxLength, IsNumber, Min, ValidateIf, IsNotEmpty, IsDate } from 'class-validator';
 import { MissionType } from '@/modules/mission/enums';
 import { ApiProperty } from '@nestjs/swagger';
 import { AutoMap } from '@automapper/classes';
@@ -14,7 +14,7 @@ export class UpdateMissionRequestDto {
     example: 'Alpha Perimeter Inspection' 
   })
   @AutoMap()
-  @IsOptional()
+  @ValidateIf((_, v) => v !== undefined)
   @IsString()
   @MaxLength(255)
   name?: string;
@@ -28,7 +28,7 @@ export class UpdateMissionRequestDto {
     example: MissionType.POWER_LINE_PATROL 
   })
   @AutoMap()
-  @IsOptional()
+  @ValidateIf((_, v) => v !== undefined)
   @IsEnum(MissionType, { message: `Invalid mission type provided. It must be one of the allowed values: ${Object.values(MissionType).join(', ')}`  })
   type?: MissionType;
 
@@ -39,7 +39,7 @@ export class UpdateMissionRequestDto {
     example: '123e4567-e89b-42d3-a456-426614174000' 
   })
   @AutoMap()
-  @IsOptional()
+  @ValidateIf((_, v) => v !== undefined)
   @IsUUID('4', { message: 'Drone ID must be a valid UUID.' })
   droneId?: string;
 
@@ -51,7 +51,7 @@ export class UpdateMissionRequestDto {
     example: 'John Doe' 
   })
   @AutoMap()
-  @IsOptional()
+  @ValidateIf((_, v) => v !== undefined)
   @IsString()
   @MaxLength(255)
   pilotName?: string;
@@ -64,7 +64,7 @@ export class UpdateMissionRequestDto {
     example: 'Site Alpha - Sector 4' 
   })
   @AutoMap()
-  @IsOptional()
+  @ValidateIf((_, v) => v !== undefined)
   @IsString()
   @MaxLength(255)
   siteLocation?: string;

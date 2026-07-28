@@ -14,7 +14,7 @@
       "smartStep": true,
       "internalConsoleOptions": "openOnSessionStart",
       "console": "integratedTerminal",
-      "preLaunchTask": "npm: build" // Debug'a başlamadan önce otomatik "npm run build" çalıştırır
+      "preLaunchTask": "npm: build"
     },
     {
       "name": "NestJS: Attach to Process",
