@@ -10,6 +10,8 @@ import { DroneModule } from '@/modules/drone';
 import { MissionModule } from '@/modules/mission';
 import { MaintenanceModule } from '@/modules/maintenance';
 import { ReportModule } from '@/modules/report';
+import { APP_FILTER } from '@nestjs/core';
+import { GlobalExceptionFilter, TypeOrmExceptionFilter } from '@/shared/filters';
 
 @Module({
   imports: [
@@ -27,6 +29,15 @@ import { ReportModule } from '@/modules/report';
     ReportModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_FILTER,
+      useClass: GlobalExceptionFilter,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: TypeOrmExceptionFilter,
+    },
+  ],
 })
 export class AppModule {}
