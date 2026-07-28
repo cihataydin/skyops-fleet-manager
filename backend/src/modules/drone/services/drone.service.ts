@@ -119,31 +119,37 @@ export class DroneService implements IDroneService {
 
     await this.cacheService.deleteAsync(`drone_${id}`);
 
-    const{ id: updatedDroneId, totalFlightHours, flightHoursAtLastMaintenance } = updatedDrone;
-
-    if (DroneLogic.isFlightHoursExceeded(totalFlightHours, flightHoursAtLastMaintenance)) {
-      this.eventEmitter.emit(DroneEvent.FLIGHT_HOURS_EXCEEDED, {
-        droneId: updatedDroneId,
-        totalFlightHours: Number(totalFlightHours),
-      } as DroneFlightHoursExceededEvent);
-    }
-
     return this.mapper.map(updatedDrone, Drone, UpdateDroneResponseDto);
   }
 
-  public async incrementFlightHoursAtomicAsync(droneId: string, addedHours: number): Promise<void> {
+  public async recordFlightHoursAsync(droneId: string, addedHours: number): Promise<void> {
     if (addedHours <= 0) return;
 
-    await this.dronesRepository
+    const result = await this.dronesRepository
       .createQueryBuilder()
       .update(Drone)
       .set({
         totalFlightHours: () => `"total_flight_hours" + ${addedHours}`
       })
       .where("id = :id", { id: droneId })
+      .returning('*')
       .execute();
       
     await this.cacheService.deleteAsync(`drone_${droneId}`);
+
+    const rawDrone = result.raw[0];
+    if (
+      rawDrone &&
+      DroneLogic.isFlightHoursExceeded(
+        Number(rawDrone.total_flight_hours),
+        Number(rawDrone.flight_hours_at_last_maintenance)
+      )
+    ) {
+      this.eventEmitter.emit(DroneEvent.FLIGHT_HOURS_EXCEEDED, {
+        droneId: rawDrone.id,
+        totalFlightHours: Number(rawDrone.total_flight_hours),
+      } as DroneFlightHoursExceededEvent);
+    }
   }
 
   public async updateMaintenanceTrackingDatesAsync(

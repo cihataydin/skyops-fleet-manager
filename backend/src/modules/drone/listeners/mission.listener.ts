@@ -56,7 +56,7 @@ export class MissionListener {
   }
 
   private async processMissionEndAsync(droneId: string, addedFlightHours: number = 0): Promise<void> {
-    await this.droneService.incrementFlightHoursAtomicAsync(droneId, addedFlightHours);   
+    await this.droneService.recordFlightHoursAsync(droneId, addedFlightHours);   
 
     await this.droneService.updateDroneAsync(droneId, {
       status: DroneStatus.AVAILABLE,
