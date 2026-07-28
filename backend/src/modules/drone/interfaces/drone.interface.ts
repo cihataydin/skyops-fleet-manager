@@ -9,6 +9,7 @@ import {
   CreateDroneResponseDto,
   UpdateDroneResponseDto,
 } from '@/modules/drone/dtos/response';
+import { UpdateDroneRequestModel } from '@/modules/drone/models/request';
 
 export interface IDroneService {
   getDronesAsync(requestDto: GetDronesRequestDto): Promise<GetDronesResponseDto>;
@@ -17,7 +18,7 @@ export interface IDroneService {
   
   createDroneAsync(requestDto: CreateDroneRequestDto): Promise<CreateDroneResponseDto>;
 
-  updateDroneAsync(id: string, requestDto: UpdateDroneRequestDto): Promise<UpdateDroneResponseDto>;
+  updateDroneAsync(id: string, requestDto: UpdateDroneRequestModel): Promise<UpdateDroneResponseDto>;
 
   recordFlightHoursAsync(droneId: string, addedHours: number): Promise<void>;
 

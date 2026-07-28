@@ -12,6 +12,7 @@ export class UpdateDroneResponseDto {
   @ApiProperty({
     description: 'Drone unique serial number (Format: SKY-XXXX-XXXX)',
   })
+  @AutoMap()
   serialNumber: string;
 
   @ApiProperty({
@@ -33,6 +34,12 @@ export class UpdateDroneResponseDto {
   })
   @AutoMap()
   totalFlightHours: number;
+
+  @ApiProperty({
+    description: 'Flight hours at last maintenance',
+  })
+  @AutoMap()
+  flightHoursAtLastMaintenance: number;
 
   @ApiProperty({
     description: 'Date of the last maintenance',
@@ -57,4 +64,10 @@ export class UpdateDroneResponseDto {
   })
   @AutoMap()
   updatedAt: Date;
+
+  @ApiProperty({
+    description: 'Row version for optimistic locking',
+  })
+  @AutoMap()
+  version: number;
 }

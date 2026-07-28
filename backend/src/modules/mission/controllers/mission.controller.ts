@@ -68,7 +68,6 @@ export class MissionController {
     name: 'id',
     description: 'The unique ID of the mission',
     type: String,
-    example: '123e4567-e89b-12d3-a456-426614174000',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -119,7 +118,6 @@ export class MissionController {
     name: 'id',
     description: 'The unique ID of the mission to update',
     type: String,
-    example: '123e4567-e89b-12d3-a456-426614174000',
   })
   @ApiBody({
     type: UpdateMissionRequestDto,
@@ -197,7 +195,6 @@ export class MissionController {
     name: 'id',
     description: 'The unique ID of the mission to delete',
     type: String,
-    example: '123e4567-e89b-12d3-a456-426614174000',
   })
   @ApiResponse({
     status: HttpStatus.NO_CONTENT,

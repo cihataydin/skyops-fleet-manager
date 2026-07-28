@@ -11,6 +11,7 @@ import {
   CreateDroneRequestDto,
   UpdateDroneRequestDto,
 } from '@/modules/drone/dtos/request';
+import { UpdateDroneRequestModel } from '@/modules/drone/models/request';
 
 @Injectable()
 export class DroneProfile extends AutomapperProfile {
@@ -56,7 +57,17 @@ export class DroneProfile extends AutomapperProfile {
           mapFrom((s) => s.model),
         ),
       );
-      createMap(mapper, UpdateDroneRequestDto, Drone,
+      createMap(mapper, UpdateDroneRequestDto, UpdateDroneRequestModel,
+        forMember(
+          (d) => d.model,
+          mapFrom((s) => s.model),
+        ),
+        forMember(
+          (d) => d.status,
+          mapFrom((s) => s.status),
+        ),
+      );
+      createMap(mapper, UpdateDroneRequestModel, Drone,
         forMember(
           (d) => d.model,
           mapFrom((s) => s.model),

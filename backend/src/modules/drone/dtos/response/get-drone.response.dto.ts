@@ -36,6 +36,12 @@ export class GetDroneResponseDto {
   totalFlightHours: number;
 
   @ApiProperty({
+    description: 'Flight hours at last maintenance',
+  })
+  @AutoMap()
+  flightHoursAtLastMaintenance: number;
+
+  @ApiProperty({
     description: 'Date of the last maintenance',
   })
   @AutoMap()

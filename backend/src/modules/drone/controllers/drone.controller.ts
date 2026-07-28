@@ -29,6 +29,9 @@ import {
 import { DRONE_SERVICE_TOKEN } from '@/modules/drone/di';
 import { formatResponse } from '@/shared/utils';
 import { CreateDroneResponseDto, GetDroneResponseDto, UpdateDroneResponseDto } from '@/modules/drone/dtos/response';
+import { InjectMapper } from '@automapper/nestjs';
+import { Mapper } from '@automapper/core';
+import { UpdateDroneRequestModel } from '@/modules/drone/models/request';
 
 @ApiTags('drones')
 @Controller('drones')
@@ -36,6 +39,8 @@ export class DroneController {
   public constructor(
     @Inject(DRONE_SERVICE_TOKEN)
     private readonly dronesService: IDroneService,
+    @InjectMapper()
+    private readonly mapper: Mapper,
   ) {}
 
   @Get()
@@ -66,7 +71,6 @@ export class DroneController {
     name: 'id',
     description: 'The unique ID of the drone',
     type: String,
-    example: '123e4567-e89b-12d3-a456-426614174000',
   })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -117,7 +121,6 @@ export class DroneController {
     name: 'id',
     description: 'The unique ID of the drone to update',
     type: String,
-    example: '123e4567-e89b-12d3-a456-426614174000',
   })
   @ApiBody({
     type: UpdateDroneRequestDto,
@@ -141,9 +144,10 @@ export class DroneController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateDroneDto: UpdateDroneRequestDto,
   ) {
+    const model = this.mapper.map(updateDroneDto, UpdateDroneRequestDto, UpdateDroneRequestModel);
     const responseDto = await this.dronesService.updateDroneAsync(
       id,
-      updateDroneDto,
+      model,
     );
 
     return formatResponse(responseDto);
@@ -156,7 +160,6 @@ export class DroneController {
     name: 'id',
     description: 'The unique ID of the drone to delete',
     type: String,
-    example: '123e4567-e89b-12d3-a456-426614174000',
   })
   @ApiResponse({
     status: HttpStatus.NO_CONTENT,

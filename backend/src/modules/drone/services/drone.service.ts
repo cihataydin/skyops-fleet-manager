@@ -24,6 +24,7 @@ import * as _ from 'lodash';
 
 import { MS_PER_DAY } from '@/shared/constants';
 import { DroneFlightHoursExceededEvent } from '@/modules/drone/events';
+import { UpdateDroneRequestModel } from '@/modules/drone/models/request';
 
 @Injectable()
 export class DroneService implements IDroneService {
@@ -94,7 +95,7 @@ export class DroneService implements IDroneService {
 
   public async updateDroneAsync(
     id: string,
-    requestDto: UpdateDroneRequestDto,
+    requestModel: UpdateDroneRequestModel,
   ): Promise<UpdateDroneResponseDto> {
     const drone = await this.dronesRepository.findOne({ where: { id } });
 
@@ -102,17 +103,14 @@ export class DroneService implements IDroneService {
       throw new NotFoundException(`Drone with ID '${id}' not found`);
     }
 
-    const { status } = requestDto;
-
+    const { status } = requestModel;
     const hasUpcomingMissions = status === DroneStatus.RETIRED
       ? await this.missionService.hasUpcomingMissionsAsync(id)
       : false;
 
     DroneLogic.validateRetirement(status, hasUpcomingMissions, id);
 
-    this.mapper.map(requestDto, UpdateDroneRequestDto, Drone);
-
-    const filteredDto = _.omitBy(requestDto, _.isUndefined);
+    const filteredDto = _.omitBy(requestModel, _.isUndefined);
     Object.assign(drone, filteredDto);
 
     const updatedDrone = await this.dronesRepository.save(drone);

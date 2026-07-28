@@ -145,8 +145,6 @@ export class MissionService implements IMissionService {
       await this.checkOverlappingMissionAsync(targetDroneId, targetStart, targetEnd, id);
     }
 
-    this.mapper.map(requestDto, UpdateMissionRequestDto, Mission);
-
     const filteredDto = _.omitBy(requestDto, _.isUndefined);
     Object.assign(mission, filteredDto);
 

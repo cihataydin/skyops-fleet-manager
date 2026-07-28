@@ -122,7 +122,6 @@
             "in": "path",
             "description": "The unique ID of the drone",
             "schema": {
-              "example": "123e4567-e89b-12d3-a456-426614174000",
               "type": "string"
             }
           }
@@ -156,7 +155,6 @@
             "in": "path",
             "description": "The unique ID of the drone to update",
             "schema": {
-              "example": "123e4567-e89b-12d3-a456-426614174000",
               "type": "string"
             }
           }
@@ -204,7 +202,6 @@
             "in": "path",
             "description": "The unique ID of the drone to delete",
             "schema": {
-              "example": "123e4567-e89b-12d3-a456-426614174000",
               "type": "string"
             }
           }
@@ -390,7 +387,6 @@
             "in": "path",
             "description": "The unique ID of the mission",
             "schema": {
-              "example": "123e4567-e89b-12d3-a456-426614174000",
               "type": "string"
             }
           }
@@ -424,7 +420,6 @@
             "in": "path",
             "description": "The unique ID of the mission to update",
             "schema": {
-              "example": "123e4567-e89b-12d3-a456-426614174000",
               "type": "string"
             }
           }
@@ -472,7 +467,6 @@
             "in": "path",
             "description": "The unique ID of the mission to delete",
             "schema": {
-              "example": "123e4567-e89b-12d3-a456-426614174000",
               "type": "string"
             }
           }
@@ -727,7 +721,6 @@
             "in": "path",
             "description": "The unique ID of the maintenance log",
             "schema": {
-              "example": "123e4567-e89b-12d3-a456-426614174000",
               "type": "string"
             }
           }
@@ -815,11 +808,8 @@
       },
       "DroneStatus": {
         "type": "string",
-        "description": "Status of the drone",
+        "description": "Status of the drone (Manual update is restricted to RETIRED only)",
         "enum": [
-          "AVAILABLE",
-          "IN_MISSION",
-          "MAINTENANCE",
           "RETIRED"
         ]
       },
@@ -857,6 +847,10 @@
             "type": "number",
             "description": "Total flight hours accumulated"
           },
+          "flightHoursAtLastMaintenance": {
+            "type": "number",
+            "description": "Flight hours at last maintenance"
+          },
           "lastMaintenanceDate": {
             "format": "date-time",
             "type": "string",
@@ -888,6 +882,7 @@
           "model",
           "status",
           "totalFlightHours",
+          "flightHoursAtLastMaintenance",
           "lastMaintenanceDate",
           "nextMaintenanceDueDate",
           "createdAt",
@@ -947,6 +942,10 @@
             "type": "number",
             "description": "Total flight hours accumulated"
           },
+          "flightHoursAtLastMaintenance": {
+            "type": "number",
+            "description": "Flight hours at last maintenance"
+          },
           "lastMaintenanceDate": {
             "format": "date-time",
             "type": "string",
@@ -961,6 +960,10 @@
             "format": "date-time",
             "type": "string",
             "description": "Record creation timestamp"
+          },
+          "version": {
+            "type": "number",
+            "description": "Row version for optimistic locking"
           }
         },
         "required": [
@@ -969,9 +972,11 @@
           "model",
           "status",
           "totalFlightHours",
+          "flightHoursAtLastMaintenance",
           "lastMaintenanceDate",
           "nextMaintenanceDueDate",
-          "createdAt"
+          "createdAt",
+          "version"
         ]
       },
       "UpdateDroneRequestDto": {
@@ -982,18 +987,8 @@
             "$ref": "#/components/schemas/DroneModel"
           },
           "status": {
-            "example": "AVAILABLE",
+            "example": "RETIRED",
             "$ref": "#/components/schemas/DroneStatus"
-          },
-          "totalFlightHours": {
-            "type": "number",
-            "description": "Total flight hours of the drone",
-            "example": 45.5
-          },
-          "flightHoursAtLastMaintenance": {
-            "type": "number",
-            "description": "Flight hours of the drone at last maintenance",
-            "example": 45.5
           },
           "version": {
             "type": "number",
@@ -1039,6 +1034,10 @@
             "type": "number",
             "description": "Total flight hours accumulated"
           },
+          "flightHoursAtLastMaintenance": {
+            "type": "number",
+            "description": "Flight hours at last maintenance"
+          },
           "lastMaintenanceDate": {
             "format": "date-time",
             "type": "string",
@@ -1058,6 +1057,10 @@
             "format": "date-time",
             "type": "string",
             "description": "Record update timestamp"
+          },
+          "version": {
+            "type": "number",
+            "description": "Row version for optimistic locking"
           }
         },
         "required": [
@@ -1066,10 +1069,12 @@
           "model",
           "status",
           "totalFlightHours",
+          "flightHoursAtLastMaintenance",
           "lastMaintenanceDate",
           "nextMaintenanceDueDate",
           "createdAt",
-          "updatedAt"
+          "updatedAt",
+          "version"
         ]
       },
       "MissionType": {
@@ -1324,6 +1329,10 @@
             "format": "date-time",
             "type": "string",
             "description": "Record creation timestamp"
+          },
+          "version": {
+            "type": "number",
+            "description": "Row version for optimistic locking"
           }
         },
         "required": [
@@ -1340,7 +1349,8 @@
           "status",
           "flightHoursAtCompletion",
           "abortReason",
-          "createdAt"
+          "createdAt",
+          "version"
         ]
       },
       "UpdateMissionRequestDto": {
@@ -1475,6 +1485,10 @@
             "format": "date-time",
             "type": "string",
             "description": "Record update timestamp"
+          },
+          "version": {
+            "type": "number",
+            "description": "Row version for optimistic locking"
           }
         },
         "required": [
@@ -1492,7 +1506,8 @@
           "flightHoursAtCompletion",
           "abortReason",
           "createdAt",
-          "updatedAt"
+          "updatedAt",
+          "version"
         ]
       },
       "CompleteMissionRequestDto": {
@@ -1598,6 +1613,10 @@
             "format": "date-time",
             "type": "string",
             "description": "Record update timestamp"
+          },
+          "version": {
+            "type": "number",
+            "description": "Row version for optimistic locking"
           }
         },
         "required": [
@@ -1609,7 +1628,8 @@
           "performedAt",
           "flightHoursAtMaintenance",
           "createdAt",
-          "updatedAt"
+          "updatedAt",
+          "version"
         ]
       },
       "CreateMaintenanceLogRequestDto": {
@@ -1697,6 +1717,10 @@
             "format": "date-time",
             "type": "string",
             "description": "Record creation timestamp"
+          },
+          "version": {
+            "type": "number",
+            "description": "Row version for optimistic locking"
           }
         },
         "required": [
@@ -1707,7 +1731,8 @@
           "notes",
           "performedAt",
           "flightHoursAtMaintenance",
-          "createdAt"
+          "createdAt",
+          "version"
         ]
       },
       "FleetHealthReportResponseDto": {

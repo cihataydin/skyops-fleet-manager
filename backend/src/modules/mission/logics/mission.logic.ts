@@ -68,6 +68,7 @@ export class MissionLogic {
       throw new DomainException('Aborting a mission requires an abort reason.');
     }
 
+    mission.actualEndTime = new Date();
     mission.abortReason = abortReason.trim();
     mission.status = MissionStatus.ABORTED;
   }

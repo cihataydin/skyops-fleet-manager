@@ -36,6 +36,12 @@ export class CreateDroneResponseDto {
   totalFlightHours: number;
 
   @ApiProperty({
+    description: 'Flight hours at last maintenance',
+  })
+  @AutoMap()
+  flightHoursAtLastMaintenance: number;
+
+  @ApiProperty({
     description: 'Date of the last maintenance',
   })
   @AutoMap()
@@ -52,4 +58,10 @@ export class CreateDroneResponseDto {
   })
   @AutoMap()
   createdAt: Date;
+
+  @ApiProperty({
+    description: 'Row version for optimistic locking',
+  })
+  @AutoMap()
+  version: number;
 }
