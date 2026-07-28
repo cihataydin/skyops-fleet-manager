@@ -22,14 +22,14 @@ export class MaintenanceListener {
   public async handleMaintenanceCreatedEvent(
     event: MaintenanceCreatedEvent,
   ): Promise<void> {
-    const { droneId, performedAt } = event;
+    const { droneId, performedAt, flightHoursAtMaintenance } = event;
 
     this.loggerService.log(
       `Received '${MaintenanceEvent.MAINTENANCE_CREATED}' event for drone '${droneId}'.`,
     );
 
     // TODO: should we merge this two service methods?
-    await this.droneService.updateDroneAsync(droneId, { status: DroneStatus.AVAILABLE});
+    await this.droneService.updateDroneAsync(droneId, { status: DroneStatus.AVAILABLE, flightHoursAtLastMaintenance: flightHoursAtMaintenance});
     await this.droneService.updateMaintenanceTrackingDatesAsync(droneId, performedAt);
 
     this.loggerService.log(

@@ -42,9 +42,20 @@ export class UpdateDroneRequestDto {
   @AutoMap()
   @IsOptional()
   @IsNumber()
-  @Max(1000)
   @Min(0)
   totalFlightHours?: number;
+
+  @ApiProperty({ 
+    type: Number, 
+    required: false, 
+    description: 'Flight hours of the drone at last maintenance', 
+    example: 45.5 
+  })
+  @AutoMap()
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  flightHoursAtLastMaintenance?: number;
 
   @ApiProperty({ 
     type: Number, 

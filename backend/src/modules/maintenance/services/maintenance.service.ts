@@ -24,6 +24,7 @@ import { IDroneService } from '@/modules/drone/interfaces';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { MaintenanceEvent } from '@/modules/maintenance/enums';
 import { MaintenanceLogic } from '@/modules/maintenance/logics';
+import { MaintenanceCreatedEvent } from '@/modules/maintenance/events';
 
 @Injectable()
 export class MaintenanceService implements IMaintenanceService {
@@ -111,7 +112,8 @@ export class MaintenanceService implements IMaintenanceService {
     this.eventEmitter.emit(MaintenanceEvent.MAINTENANCE_CREATED, {
       droneId: createdLogDroneId,
       performedAt,
-    });
+      flightHoursAtMaintenance,
+    } as MaintenanceCreatedEvent);
 
     return this.mapper.map(createdLog, MaintenanceLog, CreateMaintenanceLogResponseDto);
   }

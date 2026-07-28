@@ -3,6 +3,7 @@ import { MissionType } from '@/modules/mission/enums';
 import { ApiProperty } from '@nestjs/swagger';
 import { AutoMap } from '@automapper/classes';
 import { IsAfterDate, IsFutureDate } from '@/modules/mission/decorators';
+import { Type } from 'class-transformer';
 
 export class UpdateMissionRequestDto {
   @ApiProperty({ 
@@ -76,8 +77,9 @@ export class UpdateMissionRequestDto {
   })
   @AutoMap()
   @ValidateIf((o: UpdateMissionRequestDto) => o.scheduledEndTime !== undefined || o.scheduledStartTime !== undefined)
-  @IsDate({ message: 'Scheduled start time must be a valid ISO date and must be provided if scheduledEndTime is updated.' })
+  @IsDate()
   @IsFutureDate({ message: 'Scheduled start time must be in the future.' })
+  @Type(() => Date)
   scheduledStartTime?: Date;
 
   @ApiProperty({ 
@@ -88,8 +90,9 @@ export class UpdateMissionRequestDto {
   })
   @AutoMap()
   @ValidateIf((o: UpdateMissionRequestDto) => o.scheduledStartTime !== undefined || o.scheduledEndTime !== undefined)
-  @IsDate({ message: 'Scheduled start time must be a valid ISO date and must be provided if scheduledStartTime is updated.' })
+  @IsDate()
   @IsAfterDate('scheduledStartTime', { message: 'Scheduled end time must be after the scheduled start time.' })
+  @Type(() => Date)
   scheduledEndTime?: Date;
 
   @ApiProperty({ 

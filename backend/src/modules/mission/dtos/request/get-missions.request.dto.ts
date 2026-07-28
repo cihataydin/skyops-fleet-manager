@@ -3,6 +3,7 @@ import { BaseFilterRequestDto } from '@/shared/dtos';
 import { IsEnum, IsOptional, IsString, IsUUID, MaxLength, IsDate } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { MissionType, MissionStatus } from '@/modules/mission/enums';
+import { Type } from 'class-transformer';
 
 export class GetMissionsRequestDto extends BaseFilterRequestDto {
   @ApiProperty({ 
@@ -67,8 +68,9 @@ export class GetMissionsRequestDto extends BaseFilterRequestDto {
     description: 'Filter missions scheduled on or after this date (ISO 8601)', 
   })
   @AutoMap()
-  @IsDate({ message: 'Start date must be a valid ISO date string. For instance: 2026-08-01T12:00:00Z'})
+  @IsDate()
   @IsOptional()
+  @Type(() => Date)
   startDate?: Date;
 
   @ApiProperty({ 
@@ -77,7 +79,8 @@ export class GetMissionsRequestDto extends BaseFilterRequestDto {
     description: 'Filter missions scheduled on or before this date (ISO 8601)', 
   })
   @AutoMap()
-  @IsDate({ message: 'End date must be a valid ISO date string. For instance: 2026-08-01T12:00:00Z'})
+  @IsDate()
   @IsOptional()
+  @Type(() => Date)
   endDate?: Date;
 }

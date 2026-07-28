@@ -2,6 +2,7 @@ import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, Min, MaxLen
 import { MaintenanceType } from '@/modules/maintenance/enums';
 import { ApiProperty } from '@nestjs/swagger';
 import { AutoMap } from '@automapper/classes';
+import { Type } from 'class-transformer';
 
 export class CreateMaintenanceLogRequestDto {
   @ApiProperty({
@@ -61,6 +62,7 @@ export class CreateMaintenanceLogRequestDto {
   @AutoMap()
   @IsNotEmpty()
   @IsDate()
+  @Type(() => Date)
   performedAt: Date;
 
   @ApiProperty({

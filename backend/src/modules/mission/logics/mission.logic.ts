@@ -42,20 +42,7 @@ export class MissionLogic {
     }
   }
 
-  public static validateScheduledDates(scheduledStartTime: Date | string, scheduledEndTime: Date | string): void {
-    const start = new Date(scheduledStartTime);
-    const end = new Date(scheduledEndTime);
-
-    if (start.getTime() < Date.now()) {
-      throw new DomainException('Missions cannot be scheduled in the past.');
-    }
-
-    if (end.getTime() <= start.getTime()) {
-      throw new DomainException('Scheduled end time must be after scheduled start time.');
-    }
-  }
-
-  public static setActualStartTime(mission: Mission): void {
+  public static startMission(mission: Mission): void {
     if (mission.actualStartTime) {
       throw new DomainException(
         `Mission with ID '${mission.id}' already has an actual start time set.`,
@@ -63,6 +50,7 @@ export class MissionLogic {
     }
     
     mission.actualStartTime = new Date();
+    mission.status = MissionStatus.IN_PROGRESS
   }
 
   public static completeMission(mission: Mission, flightHoursAtCompletion?: number): void {
@@ -72,6 +60,7 @@ export class MissionLogic {
 
     mission.actualEndTime = new Date();
     mission.flightHoursAtCompletion = Number(flightHoursAtCompletion);
+    mission.status = MissionStatus.COMPLETED;
   }
 
   public static abortMission(mission: Mission, abortReason?: string): void {
@@ -80,6 +69,12 @@ export class MissionLogic {
     }
 
     mission.abortReason = abortReason.trim();
+    mission.status = MissionStatus.ABORTED;
+  }
+
+  public static preFlightCheckMission(mission: Mission)
+  {
+    mission.status = MissionStatus.PRE_FLIGHT_CHECK;
   }
 
   public static handleStatusChange(
@@ -99,28 +94,18 @@ export class MissionLogic {
     this.validateStatusTransition(oldStatus, newStatus);
 
     if (newStatus === MissionStatus.IN_PROGRESS) {
-      this.setActualStartTime(mission);
+      this.startMission(mission);
     } else if (newStatus === MissionStatus.COMPLETED) {
       this.completeMission(mission, flightHoursAtCompletion);
     } else if (newStatus === MissionStatus.ABORTED) {
       this.abortMission(mission, abortReason);
+    } else if (newStatus === MissionStatus.PRE_FLIGHT_CHECK) {
+      this.preFlightCheckMission(mission);
     }
   }
 
   public static isStatusChanged(status: MissionStatus, newStatus?: MissionStatus): boolean {
     return Boolean(status && newStatus && newStatus !== status);
-  }
-
-  public static isMissionStarted(status: MissionStatus, newStatus?: MissionStatus): boolean {
-    return this.isStatusChanged(status, newStatus) && newStatus === MissionStatus.IN_PROGRESS;
-  }
-
-  public static isMissionCompleted(status: MissionStatus, newStatus?: MissionStatus): boolean {
-    return this.isStatusChanged(status, newStatus) && newStatus === MissionStatus.COMPLETED;
-  }
-
-  public static isMissionAborted(status: MissionStatus, newStatus?: MissionStatus): boolean {
-    return this.isStatusChanged(status, newStatus) && newStatus === MissionStatus.ABORTED;
   }
 
   public static calculateFutureDate(hoursToAdd: number): Date {

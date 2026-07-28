@@ -23,6 +23,7 @@ import { IMissionService } from '@/modules/mission/interfaces';
 import * as _ from 'lodash';
 
 import { MS_PER_DAY } from '@/shared/constants';
+import { DroneFlightHoursExceededEvent } from '@/modules/drone/events';
 
 @Injectable()
 export class DroneService implements IDroneService {
@@ -118,14 +119,13 @@ export class DroneService implements IDroneService {
 
     await this.cacheService.deleteAsync(`drone_${id}`);
 
-    const{ id: updatedDroneId, totalFlightHours } = updatedDrone;
+    const{ id: updatedDroneId, totalFlightHours, flightHoursAtLastMaintenance } = updatedDrone;
 
-    if (DroneLogic.isFlightHoursExceeded(updatedDrone)) {
-      const event = {
+    if (DroneLogic.isFlightHoursExceeded(totalFlightHours, flightHoursAtLastMaintenance)) {
+      this.eventEmitter.emit(DroneEvent.FLIGHT_HOURS_EXCEEDED, {
         droneId: updatedDroneId,
         totalFlightHours: Number(totalFlightHours),
-      };
-      this.eventEmitter.emit(DroneEvent.FLIGHT_HOURS_EXCEEDED, event);
+      } as DroneFlightHoursExceededEvent);
     }
 
     return this.mapper.map(updatedDrone, Drone, UpdateDroneResponseDto);
@@ -138,7 +138,7 @@ export class DroneService implements IDroneService {
       .createQueryBuilder()
       .update(Drone)
       .set({
-        totalFlightHours: () => `"totalFlightHours" + ${addedHours}`
+        totalFlightHours: () => `"total_flight_hours" + ${addedHours}`
       })
       .where("id = :id", { id: droneId })
       .execute();

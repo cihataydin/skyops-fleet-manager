@@ -154,10 +154,11 @@ export class MissionController {
   @Patch(':id/pre-flight')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Starts pre-flight check for a mission' })
-  public async startPreFlightMissionAsync(@Param('id', ParseUUIDPipe) id: string) {
-    const responseDto = await this.missionsService.startPreFlightMissionAsync(id);
+  public async preFlightCheckMissionAsync(@Param('id', ParseUUIDPipe) id: string) {
+    const responseDto = await this.missionsService.preFlightCheckMissionAsync(id);
     return formatResponse(responseDto);
   }
+  
 
   @Patch(':id/start')
   @HttpCode(HttpStatus.OK)

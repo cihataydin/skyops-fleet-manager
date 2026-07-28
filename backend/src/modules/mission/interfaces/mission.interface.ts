@@ -21,7 +21,7 @@ export interface IMissionService {
 
   updateMissionAsync(id: string, requestDto: UpdateMissionRequestDto): Promise<UpdateMissionResponseDto>;
 
-  startPreFlightMissionAsync(id: string): Promise<UpdateMissionResponseDto>;
+  preFlightCheckMissionAsync(id: string): Promise<UpdateMissionResponseDto>;
 
   startMissionAsync(id: string): Promise<UpdateMissionResponseDto>;
 

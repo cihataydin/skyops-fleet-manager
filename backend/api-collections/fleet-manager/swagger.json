@@ -361,7 +361,14 @@
         },
         "responses": {
           "201": {
-            "description": "The mission has been successfully created."
+            "description": "The mission has been successfully created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateMissionResponseDto"
+                }
+              }
+            }
           },
           "400": {
             "description": "Invalid request body or missing data."
@@ -390,7 +397,14 @@
         ],
         "responses": {
           "200": {
-            "description": "The mission information has been successfully retrieved."
+            "description": "The mission information has been successfully retrieved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetMissionResponseDto"
+                }
+              }
+            }
           },
           "404": {
             "description": "Mission not found."
@@ -428,7 +442,14 @@
         },
         "responses": {
           "200": {
-            "description": "The mission has been successfully updated."
+            "description": "The mission has been successfully updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateMissionResponseDto"
+                }
+              }
+            }
           },
           "400": {
             "description": "Invalid request body or missing data."
@@ -471,7 +492,7 @@
     },
     "/missions/{id}/pre-flight": {
       "patch": {
-        "operationId": "MissionController_startPreFlightMissionAsync",
+        "operationId": "MissionController_preFlightCheckMissionAsync",
         "summary": "Starts pre-flight check for a mission",
         "parameters": [
           {
@@ -677,7 +698,14 @@
         },
         "responses": {
           "201": {
-            "description": "The maintenance log has been successfully created."
+            "description": "The maintenance log has been successfully created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateMaintenanceLogResponseDto"
+                }
+              }
+            }
           },
           "400": {
             "description": "Invalid request body or missing data."
@@ -706,7 +734,14 @@
         ],
         "responses": {
           "200": {
-            "description": "The maintenance log information has been successfully retrieved."
+            "description": "The maintenance log information has been successfully retrieved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetMaintenanceLogResponseDto"
+                }
+              }
+            }
           },
           "404": {
             "description": "Maintenance log not found."
@@ -955,6 +990,11 @@
             "description": "Total flight hours of the drone",
             "example": 45.5
           },
+          "flightHoursAtLastMaintenance": {
+            "type": "number",
+            "description": "Flight hours of the drone at last maintenance",
+            "example": 45.5
+          },
           "version": {
             "type": "number",
             "description": "Current row version for optimistic locking",
@@ -1051,6 +1091,111 @@
           "ABORTED"
         ]
       },
+      "GetMissionResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier of the mission"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the mission"
+          },
+          "type": {
+            "type": "string",
+            "description": "Type of the mission",
+            "enum": [
+              "WIND_TURBINE_INSPECTION",
+              "SOLAR_PANEL_SURVEY",
+              "POWER_LINE_PATROL"
+            ]
+          },
+          "droneId": {
+            "type": "string",
+            "description": "UUID of the assigned drone"
+          },
+          "pilotName": {
+            "type": "string",
+            "description": "Name of the assigned pilot"
+          },
+          "siteLocation": {
+            "type": "string",
+            "description": "Location or site of the mission"
+          },
+          "scheduledStartTime": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Scheduled start time of the mission"
+          },
+          "scheduledEndTime": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Scheduled end time of the mission"
+          },
+          "actualStartTime": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Actual start time of the mission"
+          },
+          "actualEndTime": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Actual end time of the mission"
+          },
+          "status": {
+            "type": "string",
+            "description": "Status of the mission",
+            "enum": [
+              "PLANNED",
+              "PRE_FLIGHT_CHECK",
+              "IN_PROGRESS",
+              "COMPLETED",
+              "ABORTED"
+            ]
+          },
+          "flightHoursAtCompletion": {
+            "type": "number",
+            "description": "Flight hours logged at mission completion"
+          },
+          "abortReason": {
+            "type": "string",
+            "description": "Reason for aborting the mission, if applicable"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Record creation timestamp"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Record update timestamp"
+          },
+          "version": {
+            "type": "number",
+            "description": "Row version for optimistic locking"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "type",
+          "droneId",
+          "pilotName",
+          "siteLocation",
+          "scheduledStartTime",
+          "scheduledEndTime",
+          "actualStartTime",
+          "actualEndTime",
+          "status",
+          "flightHoursAtCompletion",
+          "abortReason",
+          "createdAt",
+          "updatedAt",
+          "version"
+        ]
+      },
       "CreateMissionRequestDto": {
         "type": "object",
         "properties": {
@@ -1104,6 +1249,100 @@
           "scheduledEndTime"
         ]
       },
+      "CreateMissionResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier of the mission"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the mission"
+          },
+          "type": {
+            "type": "string",
+            "description": "Type of the mission",
+            "enum": [
+              "WIND_TURBINE_INSPECTION",
+              "SOLAR_PANEL_SURVEY",
+              "POWER_LINE_PATROL"
+            ]
+          },
+          "droneId": {
+            "type": "string",
+            "description": "UUID of the assigned drone"
+          },
+          "pilotName": {
+            "type": "string",
+            "description": "Name of the assigned pilot"
+          },
+          "siteLocation": {
+            "type": "string",
+            "description": "Location or site of the mission"
+          },
+          "scheduledStartTime": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Scheduled start time of the mission"
+          },
+          "scheduledEndTime": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Scheduled end time of the mission"
+          },
+          "actualStartTime": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Actual start time of the mission"
+          },
+          "actualEndTime": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Actual end time of the mission"
+          },
+          "status": {
+            "type": "string",
+            "description": "Status of the mission",
+            "enum": [
+              "PLANNED",
+              "PRE_FLIGHT_CHECK",
+              "IN_PROGRESS",
+              "COMPLETED",
+              "ABORTED"
+            ]
+          },
+          "flightHoursAtCompletion": {
+            "type": "number",
+            "description": "Flight hours logged at mission completion"
+          },
+          "abortReason": {
+            "type": "string",
+            "description": "Reason for aborting the mission, if applicable"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Record creation timestamp"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "type",
+          "droneId",
+          "pilotName",
+          "siteLocation",
+          "scheduledStartTime",
+          "scheduledEndTime",
+          "actualStartTime",
+          "actualEndTime",
+          "status",
+          "flightHoursAtCompletion",
+          "abortReason",
+          "createdAt"
+        ]
+      },
       "UpdateMissionRequestDto": {
         "type": "object",
         "properties": {
@@ -1154,6 +1393,106 @@
         },
         "required": [
           "version"
+        ]
+      },
+      "UpdateMissionResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier of the mission"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the mission"
+          },
+          "type": {
+            "type": "string",
+            "description": "Type of the mission",
+            "enum": [
+              "WIND_TURBINE_INSPECTION",
+              "SOLAR_PANEL_SURVEY",
+              "POWER_LINE_PATROL"
+            ]
+          },
+          "droneId": {
+            "type": "string",
+            "description": "UUID of the assigned drone"
+          },
+          "pilotName": {
+            "type": "string",
+            "description": "Name of the assigned pilot"
+          },
+          "siteLocation": {
+            "type": "string",
+            "description": "Location or site of the mission"
+          },
+          "scheduledStartTime": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Scheduled start time of the mission"
+          },
+          "scheduledEndTime": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Scheduled end time of the mission"
+          },
+          "actualStartTime": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Actual start time of the mission"
+          },
+          "actualEndTime": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Actual end time of the mission"
+          },
+          "status": {
+            "type": "string",
+            "description": "Status of the mission",
+            "enum": [
+              "PLANNED",
+              "PRE_FLIGHT_CHECK",
+              "IN_PROGRESS",
+              "COMPLETED",
+              "ABORTED"
+            ]
+          },
+          "flightHoursAtCompletion": {
+            "type": "number",
+            "description": "Flight hours logged at mission completion"
+          },
+          "abortReason": {
+            "type": "string",
+            "description": "Reason for aborting the mission, if applicable"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Record creation timestamp"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Record update timestamp"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "type",
+          "droneId",
+          "pilotName",
+          "siteLocation",
+          "scheduledStartTime",
+          "scheduledEndTime",
+          "actualStartTime",
+          "actualEndTime",
+          "status",
+          "flightHoursAtCompletion",
+          "abortReason",
+          "createdAt",
+          "updatedAt"
         ]
       },
       "CompleteMissionRequestDto": {
@@ -1211,6 +1550,68 @@
           "FULL_OVERHAUL"
         ]
       },
+      "GetMaintenanceLogResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier of the maintenance log"
+          },
+          "droneId": {
+            "type": "string",
+            "description": "ID of the drone"
+          },
+          "type": {
+            "type": "string",
+            "description": "Type of maintenance performed",
+            "enum": [
+              "ROUTINE_CHECK",
+              "BATTERY_REPLACEMENT",
+              "MOTOR_REPAIR",
+              "FIRMWARE_UPDATE",
+              "FULL_OVERHAUL"
+            ]
+          },
+          "technicianName": {
+            "type": "string",
+            "description": "Technician name"
+          },
+          "notes": {
+            "type": "string",
+            "description": "Maintenance notes"
+          },
+          "performedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Date maintenance was performed"
+          },
+          "flightHoursAtMaintenance": {
+            "type": "number",
+            "description": "Flight hours recorded at maintenance"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Record creation timestamp"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Record update timestamp"
+          }
+        },
+        "required": [
+          "id",
+          "droneId",
+          "type",
+          "technicianName",
+          "notes",
+          "performedAt",
+          "flightHoursAtMaintenance",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
       "CreateMaintenanceLogRequestDto": {
         "type": "object",
         "properties": {
@@ -1251,6 +1652,62 @@
           "technicianName",
           "performedAt",
           "flightHoursAtMaintenance"
+        ]
+      },
+      "CreateMaintenanceLogResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier of the maintenance log"
+          },
+          "droneId": {
+            "type": "string",
+            "description": "ID of the drone"
+          },
+          "type": {
+            "type": "string",
+            "description": "Type of maintenance performed",
+            "enum": [
+              "ROUTINE_CHECK",
+              "BATTERY_REPLACEMENT",
+              "MOTOR_REPAIR",
+              "FIRMWARE_UPDATE",
+              "FULL_OVERHAUL"
+            ]
+          },
+          "technicianName": {
+            "type": "string",
+            "description": "Technician name"
+          },
+          "notes": {
+            "type": "string",
+            "description": "Maintenance notes"
+          },
+          "performedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Date maintenance was performed"
+          },
+          "flightHoursAtMaintenance": {
+            "type": "number",
+            "description": "Flight hours recorded at maintenance"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Record creation timestamp"
+          }
+        },
+        "required": [
+          "id",
+          "droneId",
+          "type",
+          "technicianName",
+          "notes",
+          "performedAt",
+          "flightHoursAtMaintenance",
+          "createdAt"
         ]
       },
       "FleetHealthReportResponseDto": {

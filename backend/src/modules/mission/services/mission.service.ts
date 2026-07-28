@@ -22,6 +22,7 @@ import { MissionEvent, MissionStatus } from '@/modules/mission/enums';
 import { DRONE_SERVICE_TOKEN } from '@/modules/drone/di';
 import { IDroneService } from '@/modules/drone/interfaces';
 import { MissionLogic } from '@/modules/mission/logics';
+import { MissionAbortedEvent, MissionCompletedEvent, MissionStartedEvent } from '@/modules/mission/events';
 
 @Injectable()
 export class MissionService implements IMissionService {
@@ -48,11 +49,11 @@ export class MissionService implements IMissionService {
     };
 
     if (startDate && endDate) {
-      where.scheduledStartTime = Between(new Date(startDate), new Date(endDate));
+      where.scheduledStartTime = Between(startDate, endDate);
     } else if (startDate) {
-      where.scheduledStartTime = MoreThanOrEqual(new Date(startDate));
+      where.scheduledStartTime = MoreThanOrEqual(startDate);
     } else if (endDate) {
-      where.scheduledStartTime = LessThanOrEqual(new Date(endDate));
+      where.scheduledStartTime = LessThanOrEqual(endDate);
     }
     const [missionEntities, count] = await this.missionsRepository.findAndCount({
       where,
@@ -101,11 +102,7 @@ export class MissionService implements IMissionService {
 
     MissionLogic.validateDroneAvailability(drone.status, droneId);
 
-    // TODO: already date type? why?
-    const scheduledStart = new Date(scheduledStartTime);
-    const scheduledEnd = new Date(scheduledEndTime);
-
-    await this.checkOverlappingMissionAsync(droneId, scheduledStart, scheduledEnd);
+    await this.checkOverlappingMissionAsync(droneId, scheduledStartTime, scheduledEndTime);
 
     const mission = this.mapper.map(requestDto, CreateMissionRequestDto, Mission);
     const createdMission = this.missionsRepository.create(mission);
@@ -140,8 +137,8 @@ export class MissionService implements IMissionService {
     }
 
     const targetDroneId = droneId || mission.droneId;
-    const targetStart = scheduledStartTime ? new Date(scheduledStartTime) : mission.scheduledStartTime;
-    const targetEnd = scheduledEndTime ? new Date(scheduledEndTime) : mission.scheduledEndTime;
+    const targetStart = scheduledStartTime || mission.scheduledStartTime;
+    const targetEnd = scheduledEndTime || mission.scheduledEndTime;
     const isTimeScheduled = scheduledStartTime || scheduledEndTime;
 
     if (droneId || isTimeScheduled) {
@@ -159,7 +156,7 @@ export class MissionService implements IMissionService {
     return this.mapper.map(updatedMission, Mission, UpdateMissionResponseDto);
   }
 
-  public async startPreFlightMissionAsync(id: string): Promise<UpdateMissionResponseDto> {
+  public async preFlightCheckMissionAsync(id: string): Promise<UpdateMissionResponseDto> {
     return this.processMissionChangeAsync(id, MissionStatus.PRE_FLIGHT_CHECK);
   }
 
@@ -170,7 +167,7 @@ export class MissionService implements IMissionService {
     this.eventEmitter.emit(MissionEvent.MISSION_STARTED, {
       missionId,
       droneId,
-    });
+    } as MissionStartedEvent);
 
     return updatedMission;
   }
@@ -182,8 +179,8 @@ export class MissionService implements IMissionService {
     this.eventEmitter.emit(MissionEvent.MISSION_COMPLETED, {
       missionId,
       droneId,
-      flightHoursLogged: Number(flightHoursAtCompletion),
-    });
+      flightHours: Number(flightHoursAtCompletion),
+    } as MissionCompletedEvent);
     
     return updatedMission;
   }
@@ -198,7 +195,7 @@ export class MissionService implements IMissionService {
       droneId,
       abortReason,
       flightHoursAtAborting,
-    });
+    } as MissionAbortedEvent);
 
     return updatedMission;
   }

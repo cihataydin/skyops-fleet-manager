@@ -20,14 +20,16 @@ export class DroneLogic {
     drone: Drone, 
     performedAt: Date,
   ): void {
-    drone.lastMaintenanceDate = new Date(performedAt);
+    drone.lastMaintenanceDate = performedAt;
     drone.nextMaintenanceDueDate = new Date(
       drone.lastMaintenanceDate.getTime() + MAINTENANCE_INTERVAL_MS,
     );
+    drone.flightHoursAtLastMaintenance = Number(drone.totalFlightHours);
   }
 
-  public static isFlightHoursExceeded(drone: Drone): boolean {
-    return Number(drone.totalFlightHours) > MAINTENANCE_INTERVAL_FLIGHT_HOURS;
+  public static isFlightHoursExceeded(totalFlightHours: number, flightHoursAtLastMaintenance: number): boolean {
+    const hoursSinceLastMaintenance = Number(totalFlightHours) - Number(flightHoursAtLastMaintenance || 0);
+    return hoursSinceLastMaintenance >= MAINTENANCE_INTERVAL_FLIGHT_HOURS;
   }
 
   public static calculateStatusBreakdown(drones: Drone[]): Record<string, number> {

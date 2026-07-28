@@ -44,6 +44,16 @@ export class Drone extends BaseEntity {
   })
   totalFlightHours: number;
 
+  @AutoMap()
+  @Column({ 
+    type: 'decimal', 
+    name: 'flight_hours_at_last_maintenance', 
+    precision: 10, 
+    scale: 2, 
+    default: 0 
+  })
+  flightHoursAtLastMaintenance: number;
+
   // TODO: how to get this?
   @AutoMap()
   @Column({ 
