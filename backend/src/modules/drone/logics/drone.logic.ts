@@ -24,7 +24,7 @@ export class DroneLogic {
       );
     }
 
-    if (hasUpcomingMissions) {
+    if (hasUpcomingMissions && targetStatus === DroneStatus.RETIRED) {
       throw new DomainException(
         `Drone '${droneId}' cannot be set to ${targetStatus} because it has upcoming scheduled missions. Please reassign or abort them first.`,
       );
