@@ -1,4 +1,9 @@
-import { Inject, Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DroneStatus } from '@/modules/drone/enums';
 import { Repository } from 'typeorm';
@@ -46,15 +51,16 @@ export class MaintenanceService implements IMaintenanceService {
       ...(droneId ? { droneId } : {}),
       ...(type ? { type } : {}),
     };
-    const [logEntities, count] = await this.maintenanceLogsRepository.findAndCount({
-      where,
-      skip: PaginationUtil.calculateSkip(page, limit),
-      take: limit,
-      order: {
-        [orderBy]: direction,
-        id: 'asc',
-      },
-    });
+    const [logEntities, count] =
+      await this.maintenanceLogsRepository.findAndCount({
+        where,
+        skip: PaginationUtil.calculateSkip(page, limit),
+        take: limit,
+        order: {
+          [orderBy]: direction,
+          id: 'asc',
+        },
+      });
     const logDtos = this.mapper.mapArray(
       logEntities,
       MaintenanceLog,
@@ -64,11 +70,19 @@ export class MaintenanceService implements IMaintenanceService {
     return new GetMaintenanceLogsResponseDto(logDtos, { count, page });
   }
 
-  public async getMaintenanceLogAsync(id: string): Promise<GetMaintenanceLogResponseDto> {
-    const logCache = await this.cacheService.getAsync<MaintenanceLog>(`maintenance_${id}`);
+  public async getMaintenanceLogAsync(
+    id: string,
+  ): Promise<GetMaintenanceLogResponseDto> {
+    const logCache = await this.cacheService.getAsync<MaintenanceLog>(
+      `maintenance_${id}`,
+    );
 
     if (logCache) {
-      return this.mapper.map(logCache, MaintenanceLog, GetMaintenanceLogResponseDto);
+      return this.mapper.map(
+        logCache,
+        MaintenanceLog,
+        GetMaintenanceLogResponseDto,
+      );
     }
     const log = await this.maintenanceLogsRepository.findOne({ where: { id } });
 
@@ -92,7 +106,9 @@ export class MaintenanceService implements IMaintenanceService {
     }
 
     if (drone.status !== DroneStatus.MAINTENANCE) {
-      throw new BadRequestException(`Drone with ID '${droneId}' must be in MAINTENANCE status to create a maintenance log. Send it to maintenance first.`);
+      throw new BadRequestException(
+        `Drone with ID '${droneId}' must be in MAINTENANCE status to create a maintenance log. Send it to maintenance first.`,
+      );
     }
 
     const { totalFlightHours } = drone;
@@ -102,7 +118,11 @@ export class MaintenanceService implements IMaintenanceService {
       totalFlightHours,
     );
 
-    const log = this.mapper.map(requestDto, CreateMaintenanceLogRequestDto, MaintenanceLog);
+    const log = this.mapper.map(
+      requestDto,
+      CreateMaintenanceLogRequestDto,
+      MaintenanceLog,
+    );
     const createdLog = this.maintenanceLogsRepository.create(log);
 
     await this.maintenanceLogsRepository.save(createdLog);
@@ -115,6 +135,10 @@ export class MaintenanceService implements IMaintenanceService {
       flightHoursAtMaintenance,
     } as MaintenanceCreatedEvent);
 
-    return this.mapper.map(createdLog, MaintenanceLog, CreateMaintenanceLogResponseDto);
+    return this.mapper.map(
+      createdLog,
+      MaintenanceLog,
+      CreateMaintenanceLogResponseDto,
+    );
   }
 }

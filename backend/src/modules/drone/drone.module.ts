@@ -9,7 +9,10 @@ import { CacheModule } from '@/infra/cache';
 import { LoggerModule } from '@/infra/logger';
 import { Mission } from '@/modules/mission/entities';
 import { MaintenanceLog } from '@/modules/maintenance/entities';
-import { MaintenanceListener, MissionListener } from '@/modules/drone/listeners';
+import {
+  MaintenanceListener,
+  MissionListener,
+} from '@/modules/drone/listeners';
 import { MissionModule } from '@/modules/mission';
 
 @Module({

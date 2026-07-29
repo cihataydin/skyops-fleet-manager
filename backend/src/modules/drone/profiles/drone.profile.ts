@@ -1,5 +1,11 @@
 import { AutomapperProfile, InjectMapper } from '@automapper/nestjs';
-import { createMap, forMember, mapFrom, Mapper, MappingProfile } from '@automapper/core';
+import {
+  createMap,
+  forMember,
+  mapFrom,
+  Mapper,
+  MappingProfile,
+} from '@automapper/core';
 import { Injectable } from '@nestjs/common';
 import { Drone } from '@/modules/drone/entities';
 import {
@@ -21,7 +27,10 @@ export class DroneProfile extends AutomapperProfile {
 
   public override get profile(): MappingProfile {
     return (mapper) => {
-      createMap(mapper, Drone, GetDroneResponseDto,
+      createMap(
+        mapper,
+        Drone,
+        GetDroneResponseDto,
         forMember(
           (d) => d.model,
           mapFrom((s) => s.model),
@@ -31,7 +40,10 @@ export class DroneProfile extends AutomapperProfile {
           mapFrom((s) => s.status),
         ),
       );
-      createMap(mapper, Drone, CreateDroneResponseDto,
+      createMap(
+        mapper,
+        Drone,
+        CreateDroneResponseDto,
         forMember(
           (d) => d.model,
           mapFrom((s) => s.model),
@@ -41,7 +53,10 @@ export class DroneProfile extends AutomapperProfile {
           mapFrom((s) => s.status),
         ),
       );
-      createMap(mapper, Drone, UpdateDroneResponseDto,
+      createMap(
+        mapper,
+        Drone,
+        UpdateDroneResponseDto,
         forMember(
           (d) => d.model,
           mapFrom((s) => s.model),
@@ -51,13 +66,19 @@ export class DroneProfile extends AutomapperProfile {
           mapFrom((s) => s.status),
         ),
       );
-      createMap(mapper, CreateDroneRequestDto, Drone,
+      createMap(
+        mapper,
+        CreateDroneRequestDto,
+        Drone,
         forMember(
           (d) => d.model,
           mapFrom((s) => s.model),
         ),
       );
-      createMap(mapper, UpdateDroneRequestDto, UpdateDroneRequestModel,
+      createMap(
+        mapper,
+        UpdateDroneRequestDto,
+        UpdateDroneRequestModel,
         forMember(
           (d) => d.model,
           mapFrom((s) => s.model),
@@ -67,7 +88,10 @@ export class DroneProfile extends AutomapperProfile {
           mapFrom((s) => s.status),
         ),
       );
-      createMap(mapper, UpdateDroneRequestModel, Drone,
+      createMap(
+        mapper,
+        UpdateDroneRequestModel,
+        Drone,
         forMember(
           (d) => d.model,
           mapFrom((s) => s.model),

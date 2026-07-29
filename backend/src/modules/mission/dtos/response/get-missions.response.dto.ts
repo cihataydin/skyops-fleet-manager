@@ -1,5 +1,5 @@
-import { TotalResponseDto } from "@/shared/dtos/total-response.dto";
-import { GetMissionResponseDto } from "./get-mission.response.dto";
+import { TotalResponseDto } from '@/shared/dtos/total-response.dto';
+import { GetMissionResponseDto } from './get-mission.response.dto';
 
 export class GetMissionsResponseDto {
   constructor(missions: GetMissionResponseDto[], total: TotalResponseDto) {

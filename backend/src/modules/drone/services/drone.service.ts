@@ -1,11 +1,19 @@
-import { Inject, Injectable, NotFoundException, forwardRef } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  NotFoundException,
+  forwardRef,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, LessThan } from 'typeorm';
 import { Mapper } from '@automapper/core';
 import { InjectMapper } from '@automapper/nestjs';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Drone } from '@/modules/drone/entities';
-import { CreateDroneRequestDto, GetDronesRequestDto, UpdateDroneRequestDto } from '@/modules/drone/dtos/request';
+import {
+  CreateDroneRequestDto,
+  GetDronesRequestDto,
+} from '@/modules/drone/dtos/request';
 import { DroneEvent, DroneStatus } from '@/modules/drone/enums';
 import { DroneLogic } from '../logics';
 import { CACHE_TOKEN } from '@/shared/di';
@@ -104,11 +112,17 @@ export class DroneService implements IDroneService {
     }
 
     const { status } = requestModel;
-    const hasUpcomingMission = status === DroneStatus.RETIRED 
-      ? await this.missionService.hasUpcomingMissionAsync(id)
-      : false;
+    const hasUpcomingMission =
+      status === DroneStatus.RETIRED
+        ? await this.missionService.hasUpcomingMissionAsync(id)
+        : false;
 
-    DroneLogic.validateManualStatusUpdate(drone.status, status, hasUpcomingMission, id);
+    DroneLogic.validateManualStatusUpdate(
+      drone.status,
+      status,
+      hasUpcomingMission,
+      id,
+    );
 
     const filteredDto = _.omitBy(requestModel, _.isUndefined);
     Object.assign(drone, filteredDto);
@@ -120,19 +134,22 @@ export class DroneService implements IDroneService {
     return this.mapper.map(updatedDrone, Drone, UpdateDroneResponseDto);
   }
 
-  public async recordFlightHoursAsync(droneId: string, addedHours: number): Promise<void> {
+  public async recordFlightHoursAsync(
+    droneId: string,
+    addedHours: number,
+  ): Promise<void> {
     if (addedHours <= 0) return;
 
     const result = await this.dronesRepository
       .createQueryBuilder()
       .update(Drone)
       .set({
-        totalFlightHours: () => `"total_flight_hours" + ${addedHours}`
+        totalFlightHours: () => `"total_flight_hours" + ${addedHours}`,
       })
-      .where("id = :id", { id: droneId })
+      .where('id = :id', { id: droneId })
       .returning('*')
       .execute();
-      
+
     await this.cacheService.deleteAsync(`drone_${droneId}`);
 
     const rawDrone = result.raw[0];
@@ -140,7 +157,7 @@ export class DroneService implements IDroneService {
       rawDrone &&
       DroneLogic.isFlightHoursExceeded(
         Number(rawDrone.total_flight_hours),
-        Number(rawDrone.flight_hours_at_last_maintenance)
+        Number(rawDrone.flight_hours_at_last_maintenance),
       )
     ) {
       this.eventEmitter.emit(DroneEvent.FLIGHT_HOURS_EXCEEDED, {
@@ -154,7 +171,9 @@ export class DroneService implements IDroneService {
     droneId: string,
     performedAt: Date,
   ): Promise<void> {
-    const drone = await this.dronesRepository.findOne({ where: { id: droneId } });
+    const drone = await this.dronesRepository.findOne({
+      where: { id: droneId },
+    });
 
     if (!drone) {
       throw new NotFoundException(`Drone with ID '${droneId}' not found`);
@@ -167,13 +186,18 @@ export class DroneService implements IDroneService {
     await this.cacheService.deleteAsync(`drone_${droneId}`);
   }
 
-  public async getDroneStatusBreakdownAsync(): Promise<{ total: number; breakdown: Record<string, number> }> {
+  public async getDroneStatusBreakdownAsync(): Promise<{
+    total: number;
+    breakdown: Record<string, number>;
+  }> {
     const drones = await this.dronesRepository.find();
     const breakdown = DroneLogic.calculateStatusBreakdown(drones);
     return { total: drones.length, breakdown };
   }
 
-  public async getMaintenanceAlertDronesAsync(daysThreshold: number): Promise<GetDroneResponseDto[]> {
+  public async getMaintenanceAlertDronesAsync(
+    daysThreshold: number,
+  ): Promise<GetDroneResponseDto[]> {
     const alertThreshold = new Date(Date.now() + daysThreshold * MS_PER_DAY);
     const overdueDrones = await this.dronesRepository.find({
       where: {

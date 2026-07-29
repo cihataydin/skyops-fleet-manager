@@ -4,7 +4,10 @@ import {
   ValidationArguments,
 } from 'class-validator';
 
-export function IsAfterDate(property: string, validationOptions?: ValidationOptions) {
+export function IsAfterDate(
+  property: string,
+  validationOptions?: ValidationOptions,
+) {
   return function (object: Object, propertyName: string) {
     registerDecorator({
       name: 'isAfterDate',
@@ -16,15 +19,15 @@ export function IsAfterDate(property: string, validationOptions?: ValidationOpti
         validate(value: any, args: ValidationArguments) {
           const relatedPropertyName = args.constraints[0];
           const relatedValue = (args.object as any)[relatedPropertyName];
-          
+
           if (!value || !relatedValue) return false;
-          
+
           return new Date(value) > new Date(relatedValue);
         },
         defaultMessage(args: ValidationArguments) {
           const relatedPropertyName = args.constraints[0];
           return `${args.property} must be a future date strictly after ${relatedPropertyName}.`;
-        }
+        },
       },
     });
   };

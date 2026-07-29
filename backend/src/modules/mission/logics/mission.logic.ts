@@ -5,15 +5,30 @@ import { DomainException } from '@/shared/exceptions';
 import { MS_PER_HOUR } from '@/shared/constants';
 
 export class MissionLogic {
-  private static readonly ALLOWED_TRANSITIONS: Record<MissionStatus, MissionStatus[]> = {
-    [MissionStatus.PLANNED]: [MissionStatus.PRE_FLIGHT_CHECK, MissionStatus.ABORTED],
-    [MissionStatus.PRE_FLIGHT_CHECK]: [MissionStatus.IN_PROGRESS, MissionStatus.ABORTED],
-    [MissionStatus.IN_PROGRESS]: [MissionStatus.COMPLETED, MissionStatus.ABORTED],
+  private static readonly ALLOWED_TRANSITIONS: Record<
+    MissionStatus,
+    MissionStatus[]
+  > = {
+    [MissionStatus.PLANNED]: [
+      MissionStatus.PRE_FLIGHT_CHECK,
+      MissionStatus.ABORTED,
+    ],
+    [MissionStatus.PRE_FLIGHT_CHECK]: [
+      MissionStatus.IN_PROGRESS,
+      MissionStatus.ABORTED,
+    ],
+    [MissionStatus.IN_PROGRESS]: [
+      MissionStatus.COMPLETED,
+      MissionStatus.ABORTED,
+    ],
     [MissionStatus.COMPLETED]: [],
     [MissionStatus.ABORTED]: [],
   };
 
-  public static validateDroneAvailability(droneStatus: DroneStatus | string, droneId: string): void {
+  public static validateDroneAvailability(
+    droneStatus: DroneStatus | string,
+    droneId: string,
+  ): void {
     if (droneStatus !== DroneStatus.AVAILABLE) {
       throw new DomainException(
         `Drone '${droneId}' cannot be assigned to a mission because its current status is '${droneStatus}'. Only drones with 'AVAILABLE' status can be assigned.`,
@@ -32,9 +47,10 @@ export class MissionLogic {
     const allowedNextStatuses = this.ALLOWED_TRANSITIONS[currentStatus] || [];
 
     if (!allowedNextStatuses.includes(targetStatus)) {
-      const allowedStr = allowedNextStatuses.length > 0 
-        ? allowedNextStatuses.join(', ') 
-        : 'none (terminal state)';
+      const allowedStr =
+        allowedNextStatuses.length > 0
+          ? allowedNextStatuses.join(', ')
+          : 'none (terminal state)';
 
       throw new DomainException(
         `Invalid status transition from '${currentStatus}' to '${targetStatus}'. Allowed transitions from '${currentStatus}': [${allowedStr}].`,
@@ -48,14 +64,19 @@ export class MissionLogic {
         `Mission with ID '${mission.id}' already has an actual start time set.`,
       );
     }
-    
+
     mission.actualStartTime = new Date();
-    mission.status = MissionStatus.IN_PROGRESS
+    mission.status = MissionStatus.IN_PROGRESS;
   }
 
-  public static completeMission(mission: Mission, flightHoursAtCompletion?: number): void {
+  public static completeMission(
+    mission: Mission,
+    flightHoursAtCompletion?: number,
+  ): void {
     if (!flightHoursAtCompletion || Number(flightHoursAtCompletion) <= 0) {
-      throw new DomainException('Completing a mission requires valid flight hours to be logged.');
+      throw new DomainException(
+        'Completing a mission requires valid flight hours to be logged.',
+      );
     }
 
     mission.actualEndTime = new Date();
@@ -73,8 +94,7 @@ export class MissionLogic {
     mission.status = MissionStatus.ABORTED;
   }
 
-  public static preFlightCheckMission(mission: Mission)
-  {
+  public static preFlightCheckMission(mission: Mission) {
     mission.status = MissionStatus.PRE_FLIGHT_CHECK;
   }
 
@@ -105,7 +125,10 @@ export class MissionLogic {
     }
   }
 
-  public static isStatusChanged(status: MissionStatus, newStatus?: MissionStatus): boolean {
+  public static isStatusChanged(
+    status: MissionStatus,
+    newStatus?: MissionStatus,
+  ): boolean {
     return Boolean(status && newStatus && newStatus !== status);
   }
 

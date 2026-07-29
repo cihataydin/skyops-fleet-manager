@@ -19,7 +19,7 @@ describe('Mission Lifecycle (Integration)', () => {
 
     app = moduleFixture.createNestApplication();
     await app.init();
-    
+
     dataSource = moduleFixture.get<DataSource>(getDataSourceToken());
   });
 
@@ -70,14 +70,16 @@ describe('Mission Lifecycle (Integration)', () => {
     expect(createMissionRes.body.data.status).toBe(MissionStatus.PLANNED);
 
     // 3. Pre-Flight Check
-    const preFlightRes = await request(app.getHttpServer())
-      .patch(`/missions/${missionId}/pre-flight`);
+    const preFlightRes = await request(app.getHttpServer()).patch(
+      `/missions/${missionId}/pre-flight`,
+    );
     expect(preFlightRes.status).toBe(200);
     expect(preFlightRes.body.data.status).toBe(MissionStatus.PRE_FLIGHT_CHECK);
 
     // 4. Start Mission
-    const startMissionRes = await request(app.getHttpServer())
-      .patch(`/missions/${missionId}/start`);
+    const startMissionRes = await request(app.getHttpServer()).patch(
+      `/missions/${missionId}/start`,
+    );
     expect(startMissionRes.status).toBe(200);
     expect(startMissionRes.body.data.status).toBe(MissionStatus.IN_PROGRESS);
 
@@ -89,20 +91,22 @@ describe('Mission Lifecycle (Integration)', () => {
     expect(completeMissionRes.body.data.status).toBe(MissionStatus.COMPLETED);
 
     // 6. Verify State (Drone should have 10 flight hours)
-    const getDroneRes = await request(app.getHttpServer())
-      .get(`/drones/${droneId}`);
+    const getDroneRes = await request(app.getHttpServer()).get(
+      `/drones/${droneId}`,
+    );
     expect(getDroneRes.status).toBe(200);
     // Note: Due to async event emitting, we might need a small delay or just wait a bit,
     // but in integration tests with event emitter, it usually runs in the same tick or next.
     // Let's add a small delay to ensure the event handler processes the totalFlightHours update.
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    const finalDroneRes = await request(app.getHttpServer())
-      .get(`/drones/${droneId}`);
-    
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    const finalDroneRes = await request(app.getHttpServer()).get(
+      `/drones/${droneId}`,
+    );
+
     // Total flight hours might be updated if the event listener is wired up.
     // Let's check if the event emitted properly.
-    // Depending on logic, drone's totalFlightHours gets updated when? 
+    // Depending on logic, drone's totalFlightHours gets updated when?
     // Ah, wait, completing mission emits MISSION_COMPLETED event, which should trigger a listener
     // to call droneService.recordFlightHoursAsync.
     // Let's just verify it was successful.

@@ -1,4 +1,14 @@
-import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, Min, MaxLength, IsDate } from 'class-validator';
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsUUID,
+  Min,
+  MaxLength,
+  IsDate,
+} from 'class-validator';
 import { MaintenanceType } from '@/modules/maintenance/enums';
 import { ApiProperty } from '@nestjs/swagger';
 import { AutoMap } from '@automapper/classes';
@@ -26,7 +36,9 @@ export class CreateMaintenanceLogRequestDto {
   })
   @AutoMap()
   @IsNotEmpty()
-  @IsEnum(MaintenanceType, { message: `Invalid maintenance type provided. It must be one of the allowed values: ${Object.values(MaintenanceType).join(', ')}` })
+  @IsEnum(MaintenanceType, {
+    message: `Invalid maintenance type provided. It must be one of the allowed values: ${Object.values(MaintenanceType).join(', ')}`,
+  })
   type: MaintenanceType;
 
   @ApiProperty({
@@ -38,7 +50,9 @@ export class CreateMaintenanceLogRequestDto {
   @AutoMap()
   @IsNotEmpty()
   @IsString()
-  @MaxLength(255, { message: 'Technician name must not exceed 255 characters.' })
+  @MaxLength(255, {
+    message: 'Technician name must not exceed 255 characters.',
+  })
   technicianName: string;
 
   @ApiProperty({

@@ -22,7 +22,9 @@ export class DroneScheduleService {
 
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   public async checkMaintenanceDueDatesAsync(): Promise<void> {
-    this.loggerService.log('Running daily cron job to check drone maintenance due dates...');
+    this.loggerService.log(
+      'Running daily cron job to check drone maintenance due dates...',
+    );
 
     const dueDrones = await this.dronesRepository.find({
       where: {
@@ -32,11 +34,15 @@ export class DroneScheduleService {
     });
 
     if (dueDrones.length === 0) {
-      this.loggerService.log('No drones due for 90-day calendar maintenance today.');
+      this.loggerService.log(
+        'No drones due for 90-day calendar maintenance today.',
+      );
       return;
     }
 
-    this.loggerService.log(`Found ${dueDrones.length} drone(s) due for 90-day calendar maintenance.`);
+    this.loggerService.log(
+      `Found ${dueDrones.length} drone(s) due for 90-day calendar maintenance.`,
+    );
 
     for (const drone of dueDrones) {
       this.eventEmitter.emit(DroneEvent.MAINTENANCE_DUE, {

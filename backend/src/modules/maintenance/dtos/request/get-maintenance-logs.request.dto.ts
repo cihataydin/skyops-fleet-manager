@@ -24,6 +24,8 @@ export class GetMaintenanceLogsRequestDto extends BaseFilterRequestDto {
   })
   @AutoMap()
   @IsOptional()
-  @IsEnum(MaintenanceType, { message: `Invalid maintenance type provided. It must be one of the allowed values: ${Object.values(MaintenanceType).join(', ')}` })
+  @IsEnum(MaintenanceType, {
+    message: `Invalid maintenance type provided. It must be one of the allowed values: ${Object.values(MaintenanceType).join(', ')}`,
+  })
   type?: MaintenanceType;
 }

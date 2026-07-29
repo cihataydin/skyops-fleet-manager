@@ -1,4 +1,10 @@
-import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus, Inject } from '@nestjs/common';
+import {
+  ArgumentsHost,
+  Catch,
+  ExceptionFilter,
+  HttpStatus,
+  Inject,
+} from '@nestjs/common';
 import { QueryFailedError, OptimisticLockVersionMismatchError } from 'typeorm';
 import { LOGGER_TOKEN } from '@/shared/di';
 import { ILoggerService } from '@/infra/logger';
@@ -21,14 +27,20 @@ export class TypeOrmExceptionFilter implements ExceptionFilter {
       const err = exception as any;
       if (err.code === '23505') {
         status = HttpStatus.CONFLICT;
-        message = 'The resource you are trying to create or update already exists (Duplicate record).';
+        message =
+          'The resource you are trying to create or update already exists (Duplicate record).';
       }
     } else if (exception instanceof OptimisticLockVersionMismatchError) {
       status = HttpStatus.CONFLICT;
-      message = 'This record was modified by another user/process. Please refresh and try again.';
+      message =
+        'This record was modified by another user/process. Please refresh and try again.';
     }
 
-    this.logger.error(`[${status}] ${message} - ${exception.message}`, undefined, exception.stack);
+    this.logger.error(
+      `[${status}] ${message} - ${exception.message}`,
+      undefined,
+      exception.stack,
+    );
 
     response.status(status).json({
       success: false,

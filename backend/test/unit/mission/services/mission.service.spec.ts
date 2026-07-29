@@ -32,7 +32,9 @@ describe('MissionService - Overlap Detection', () => {
         {
           provide: DRONE_SERVICE_TOKEN,
           useValue: {
-            getDroneAsync: jest.fn().mockResolvedValue({ status: DroneStatus.AVAILABLE }),
+            getDroneAsync: jest
+              .fn()
+              .mockResolvedValue({ status: DroneStatus.AVAILABLE }),
           },
         },
         {
@@ -41,7 +43,11 @@ describe('MissionService - Overlap Detection', () => {
         },
         {
           provide: CACHE_TOKEN,
-          useValue: { getAsync: jest.fn(), setAsync: jest.fn(), deleteAsync: jest.fn() },
+          useValue: {
+            getAsync: jest.fn(),
+            setAsync: jest.fn(),
+            deleteAsync: jest.fn(),
+          },
         },
         {
           provide: getMapperToken(),
@@ -56,7 +62,9 @@ describe('MissionService - Overlap Detection', () => {
   describe('createMissionAsync', () => {
     it('should throw DomainException if there is an overlapping mission', async () => {
       // Mock findOne to return an existing mission (overlap)
-      missionRepository.findOne.mockResolvedValueOnce({ id: 'existing-mission' });
+      missionRepository.findOne.mockResolvedValueOnce({
+        id: 'existing-mission',
+      });
 
       const requestDto: any = {
         droneId: 'drone-1',
@@ -64,7 +72,9 @@ describe('MissionService - Overlap Detection', () => {
         scheduledEndTime: new Date('2026-07-28T12:00:00Z'),
       };
 
-      await expect(service.createMissionAsync(requestDto)).rejects.toThrow(DomainException);
+      await expect(service.createMissionAsync(requestDto)).rejects.toThrow(
+        DomainException,
+      );
       expect(missionRepository.findOne).toHaveBeenCalled();
     });
 

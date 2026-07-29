@@ -30,7 +30,11 @@ import {
 } from '@/modules/mission/dtos/request';
 import { MISSION_SERVICE_TOKEN } from '@/modules/mission/di';
 import { formatResponse } from '@/shared/utils';
-import { CreateMissionResponseDto, GetMissionResponseDto, UpdateMissionResponseDto } from '@/modules/mission/dtos/response';
+import {
+  CreateMissionResponseDto,
+  GetMissionResponseDto,
+  UpdateMissionResponseDto,
+} from '@/modules/mission/dtos/response';
 
 @ApiTags('missions')
 @Controller('missions')
@@ -104,9 +108,8 @@ export class MissionController {
   public async createMissionAsync(
     @Body() createMissionDto: CreateMissionRequestDto,
   ) {
-    const responseDto = await this.missionsService.createMissionAsync(
-      createMissionDto,
-    );
+    const responseDto =
+      await this.missionsService.createMissionAsync(createMissionDto);
 
     return formatResponse(responseDto);
   }
@@ -152,11 +155,13 @@ export class MissionController {
   @Patch(':id/pre-flight')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Starts pre-flight check for a mission' })
-  public async preFlightCheckMissionAsync(@Param('id', ParseUUIDPipe) id: string) {
-    const responseDto = await this.missionsService.preFlightCheckMissionAsync(id);
+  public async preFlightCheckMissionAsync(
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    const responseDto =
+      await this.missionsService.preFlightCheckMissionAsync(id);
     return formatResponse(responseDto);
   }
-  
 
   @Patch(':id/start')
   @HttpCode(HttpStatus.OK)
@@ -173,7 +178,10 @@ export class MissionController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() completeMissionDto: CompleteMissionRequestDto,
   ) {
-    const responseDto = await this.missionsService.completeMissionAsync(id, completeMissionDto);
+    const responseDto = await this.missionsService.completeMissionAsync(
+      id,
+      completeMissionDto,
+    );
     return formatResponse(responseDto);
   }
 
@@ -184,7 +192,10 @@ export class MissionController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() abortMissionDto: AbortMissionRequestDto,
   ) {
-    const responseDto = await this.missionsService.abortMissionAsync(id, abortMissionDto);
+    const responseDto = await this.missionsService.abortMissionAsync(
+      id,
+      abortMissionDto,
+    );
     return formatResponse(responseDto);
   }
 

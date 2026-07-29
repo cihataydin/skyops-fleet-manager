@@ -11,10 +11,7 @@ const port = configService.get<number>('DATABASE_PORT', 5432);
 const schema = configService.get<string>('DATABASE_SCHEMA', 'public');
 const username = configService.get<string>('DATABASE_USERNAME', 'admin');
 const password = configService.get<string>('DATABASE_PASSWORD', 'admin');
-const database = configService.get<string>(
-  'DATABASE_NAME',
-  'fleetManagerDB',
-);
+const database = configService.get<string>('DATABASE_NAME', 'fleetManagerDB');
 const logging = configService.get<boolean>('DATABASE_LOGGING', true);
 
 // TODO: make sure it works also for /src source path

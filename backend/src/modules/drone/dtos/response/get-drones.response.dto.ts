@@ -1,5 +1,5 @@
-import { TotalResponseDto } from "@/shared/dtos/total-response.dto";
-import { GetDroneResponseDto } from "./get-drone.response.dto";
+import { TotalResponseDto } from '@/shared/dtos/total-response.dto';
+import { GetDroneResponseDto } from './get-drone.response.dto';
 
 export class GetDronesResponseDto {
   constructor(drones: GetDroneResponseDto[], total: TotalResponseDto) {

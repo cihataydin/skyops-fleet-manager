@@ -1,7 +1,10 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { DroneEvent, DroneStatus } from '@/modules/drone/enums';
-import { DroneFlightHoursExceededEvent, DroneMaintenanceDueEvent } from '@/modules/drone/events';
+import {
+  DroneFlightHoursExceededEvent,
+  DroneMaintenanceDueEvent,
+} from '@/modules/drone/events';
 import { DRONE_SERVICE_TOKEN } from '@/modules/drone/di';
 import { IDroneService } from '@/modules/drone/interfaces';
 import { LOGGER_TOKEN } from '@/shared/di';
@@ -23,10 +26,18 @@ export class DroneMaintenanceListener {
   ): Promise<void> {
     try {
       const { droneId, totalFlightHours } = event;
-      this.loggerService.log(`Drone '${droneId}' exceeded flight hours (${totalFlightHours}h). Putting to maintenance.`);
-      await this.droneService.updateDroneAsync(droneId, { status: DroneStatus.MAINTENANCE });
+      this.loggerService.log(
+        `Drone '${droneId}' exceeded flight hours (${totalFlightHours}h). Putting to maintenance.`,
+      );
+      await this.droneService.updateDroneAsync(droneId, {
+        status: DroneStatus.MAINTENANCE,
+      });
     } catch (error) {
-      this.loggerService.error(`Failed to handle FLIGHT_HOURS_EXCEEDED for drone '${event.droneId}'`, undefined, (error as Error).stack);
+      this.loggerService.error(
+        `Failed to handle FLIGHT_HOURS_EXCEEDED for drone '${event.droneId}'`,
+        undefined,
+        (error as Error).stack,
+      );
     }
   }
 
@@ -36,10 +47,18 @@ export class DroneMaintenanceListener {
   ): Promise<void> {
     try {
       const { droneId, reason } = event;
-      this.loggerService.log(`Drone '${droneId}' is due for maintenance (${reason}). Putting to maintenance.`);
-      await this.droneService.updateDroneAsync(droneId, { status: DroneStatus.MAINTENANCE });
+      this.loggerService.log(
+        `Drone '${droneId}' is due for maintenance (${reason}). Putting to maintenance.`,
+      );
+      await this.droneService.updateDroneAsync(droneId, {
+        status: DroneStatus.MAINTENANCE,
+      });
     } catch (error) {
-      this.loggerService.error(`Failed to handle MAINTENANCE_DUE for drone '${event.droneId}'`, undefined, (error as Error).stack);
+      this.loggerService.error(
+        `Failed to handle MAINTENANCE_DUE for drone '${event.droneId}'`,
+        undefined,
+        (error as Error).stack,
+      );
     }
   }
 }

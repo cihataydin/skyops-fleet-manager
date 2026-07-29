@@ -11,7 +11,10 @@ import { MissionModule } from '@/modules/mission';
 import { MaintenanceModule } from '@/modules/maintenance';
 import { ReportModule } from '@/modules/report';
 import { APP_FILTER } from '@nestjs/core';
-import { GlobalExceptionFilter, TypeOrmExceptionFilter } from '@/shared/filters';
+import {
+  GlobalExceptionFilter,
+  TypeOrmExceptionFilter,
+} from '@/shared/filters';
 
 @Module({
   imports: [

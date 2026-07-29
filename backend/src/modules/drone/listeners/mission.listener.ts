@@ -1,7 +1,11 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { MissionEvent } from '@/modules/mission/enums';
-import { MissionStartedEvent, MissionCompletedEvent, MissionAbortedEvent } from '@/modules/mission/events';
+import {
+  MissionStartedEvent,
+  MissionCompletedEvent,
+  MissionAbortedEvent,
+} from '@/modules/mission/events';
 import { DRONE_SERVICE_TOKEN } from '@/modules/drone/di';
 import { IDroneService } from '@/modules/drone/interfaces';
 import { DroneStatus } from '@/modules/drone/enums';
@@ -19,7 +23,9 @@ export class MissionListener {
   }
 
   @OnEvent(MissionEvent.MISSION_STARTED, { async: true })
-  public async handleMissionStartedEvent(event: MissionStartedEvent): Promise<void> {
+  public async handleMissionStartedEvent(
+    event: MissionStartedEvent,
+  ): Promise<void> {
     try {
       const { droneId, missionId } = event;
 
@@ -27,18 +33,26 @@ export class MissionListener {
         `Received '${MissionEvent.MISSION_STARTED}' event for mission '${missionId}' (Drone '${droneId}').`,
       );
 
-      await this.droneService.updateDroneAsync(droneId, { status: DroneStatus.IN_MISSION });
+      await this.droneService.updateDroneAsync(droneId, {
+        status: DroneStatus.IN_MISSION,
+      });
 
       this.loggerService.log(
         `Drone '${droneId}' status updated to '${DroneStatus.IN_MISSION}'`,
       );
     } catch (error) {
-      this.loggerService.error(`Failed to handle MISSION_STARTED for mission '${event.missionId}'`, undefined, (error as Error).stack);
+      this.loggerService.error(
+        `Failed to handle MISSION_STARTED for mission '${event.missionId}'`,
+        undefined,
+        (error as Error).stack,
+      );
     }
   }
 
   @OnEvent(MissionEvent.MISSION_COMPLETED, { async: true })
-  public async handleMissionCompletedEvent(event: MissionCompletedEvent): Promise<void> {
+  public async handleMissionCompletedEvent(
+    event: MissionCompletedEvent,
+  ): Promise<void> {
     try {
       const { droneId, missionId, flightHours } = event;
 
@@ -48,12 +62,18 @@ export class MissionListener {
 
       await this.processMissionEndAsync(droneId, flightHours);
     } catch (error) {
-      this.loggerService.error(`Failed to handle MISSION_COMPLETED for mission '${event.missionId}'`, undefined, (error as Error).stack);
+      this.loggerService.error(
+        `Failed to handle MISSION_COMPLETED for mission '${event.missionId}'`,
+        undefined,
+        (error as Error).stack,
+      );
     }
   }
 
   @OnEvent(MissionEvent.MISSION_ABORTED, { async: true })
-  public async handleMissionAbortedEvent(event: MissionAbortedEvent): Promise<void> {
+  public async handleMissionAbortedEvent(
+    event: MissionAbortedEvent,
+  ): Promise<void> {
     try {
       const { droneId, missionId, abortReason, flightHoursAtAborting } = event;
 
@@ -63,12 +83,19 @@ export class MissionListener {
 
       await this.processMissionEndAsync(droneId, flightHoursAtAborting);
     } catch (error) {
-      this.loggerService.error(`Failed to handle MISSION_ABORTED for mission '${event.missionId}'`, undefined, (error as Error).stack);
+      this.loggerService.error(
+        `Failed to handle MISSION_ABORTED for mission '${event.missionId}'`,
+        undefined,
+        (error as Error).stack,
+      );
     }
   }
 
-  private async processMissionEndAsync(droneId: string, addedFlightHours: number = 0): Promise<void> {
-    await this.droneService.recordFlightHoursAsync(droneId, addedFlightHours);   
+  private async processMissionEndAsync(
+    droneId: string,
+    addedFlightHours: number = 0,
+  ): Promise<void> {
+    await this.droneService.recordFlightHoursAsync(droneId, addedFlightHours);
 
     await this.droneService.updateDroneAsync(droneId, {
       status: DroneStatus.AVAILABLE,

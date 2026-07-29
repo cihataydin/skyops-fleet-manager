@@ -9,9 +9,13 @@ import {
 } from '@/modules/maintenance/dtos/response';
 
 export interface IMaintenanceService {
-  getMaintenanceLogsAsync(requestDto: GetMaintenanceLogsRequestDto): Promise<GetMaintenanceLogsResponseDto>;
+  getMaintenanceLogsAsync(
+    requestDto: GetMaintenanceLogsRequestDto,
+  ): Promise<GetMaintenanceLogsResponseDto>;
 
   getMaintenanceLogAsync(id: string): Promise<GetMaintenanceLogResponseDto>;
 
-  createMaintenanceLogAsync(requestDto: CreateMaintenanceLogRequestDto): Promise<CreateMaintenanceLogResponseDto>;
+  createMaintenanceLogAsync(
+    requestDto: CreateMaintenanceLogRequestDto,
+  ): Promise<CreateMaintenanceLogResponseDto>;
 }

@@ -7,25 +7,37 @@ describe('MissionLogic', () => {
   describe('validateStatusTransition', () => {
     it('should allow transition from PLANNED to PRE_FLIGHT_CHECK', () => {
       expect(() =>
-        MissionLogic.validateStatusTransition(MissionStatus.PLANNED, MissionStatus.PRE_FLIGHT_CHECK),
+        MissionLogic.validateStatusTransition(
+          MissionStatus.PLANNED,
+          MissionStatus.PRE_FLIGHT_CHECK,
+        ),
       ).not.toThrow();
     });
 
     it('should allow transition from PLANNED to ABORTED', () => {
       expect(() =>
-        MissionLogic.validateStatusTransition(MissionStatus.PLANNED, MissionStatus.ABORTED),
+        MissionLogic.validateStatusTransition(
+          MissionStatus.PLANNED,
+          MissionStatus.ABORTED,
+        ),
       ).not.toThrow();
     });
 
     it('should throw DomainException for invalid transition from PLANNED to COMPLETED', () => {
       expect(() =>
-        MissionLogic.validateStatusTransition(MissionStatus.PLANNED, MissionStatus.COMPLETED),
+        MissionLogic.validateStatusTransition(
+          MissionStatus.PLANNED,
+          MissionStatus.COMPLETED,
+        ),
       ).toThrow(DomainException);
     });
 
     it('should throw DomainException for transition from terminal state COMPLETED', () => {
       expect(() =>
-        MissionLogic.validateStatusTransition(MissionStatus.COMPLETED, MissionStatus.IN_PROGRESS),
+        MissionLogic.validateStatusTransition(
+          MissionStatus.COMPLETED,
+          MissionStatus.IN_PROGRESS,
+        ),
       ).toThrow(DomainException);
     });
   });
@@ -49,12 +61,16 @@ describe('MissionLogic', () => {
     it('should throw if starting a mission that already has actualStartTime', () => {
       mission.status = MissionStatus.PRE_FLIGHT_CHECK;
       mission.actualStartTime = new Date();
-      expect(() => MissionLogic.handleStatusChange(mission, MissionStatus.IN_PROGRESS)).toThrow(DomainException);
+      expect(() =>
+        MissionLogic.handleStatusChange(mission, MissionStatus.IN_PROGRESS),
+      ).toThrow(DomainException);
     });
 
     it('should complete mission and require flight hours', () => {
       mission.status = MissionStatus.IN_PROGRESS;
-      expect(() => MissionLogic.handleStatusChange(mission, MissionStatus.COMPLETED)).toThrow(DomainException);
+      expect(() =>
+        MissionLogic.handleStatusChange(mission, MissionStatus.COMPLETED),
+      ).toThrow(DomainException);
       MissionLogic.handleStatusChange(mission, MissionStatus.COMPLETED, 5);
       expect(mission.status).toBe(MissionStatus.COMPLETED);
       expect(mission.actualEndTime).toBeInstanceOf(Date);
@@ -63,8 +79,15 @@ describe('MissionLogic', () => {
 
     it('should abort mission and require abort reason', () => {
       mission.status = MissionStatus.IN_PROGRESS;
-      expect(() => MissionLogic.handleStatusChange(mission, MissionStatus.ABORTED)).toThrow(DomainException);
-      MissionLogic.handleStatusChange(mission, MissionStatus.ABORTED, undefined, 'Weather conditions');
+      expect(() =>
+        MissionLogic.handleStatusChange(mission, MissionStatus.ABORTED),
+      ).toThrow(DomainException);
+      MissionLogic.handleStatusChange(
+        mission,
+        MissionStatus.ABORTED,
+        undefined,
+        'Weather conditions',
+      );
       expect(mission.status).toBe(MissionStatus.ABORTED);
       expect(mission.actualEndTime).toBeInstanceOf(Date);
       expect(mission.abortReason).toBe('Weather conditions');

@@ -18,7 +18,7 @@ export function IsFutureDate(validationOptions?: ValidationOptions) {
         },
         defaultMessage(args: ValidationArguments) {
           return `${args.property} must be a date in the future.`;
-        }
+        },
       },
     });
   };

@@ -1,7 +1,6 @@
 import { AutoMap } from '@automapper/classes';
 
-export class TotalResponseDto
-{
+export class TotalResponseDto {
   @AutoMap()
   public count: number;
 

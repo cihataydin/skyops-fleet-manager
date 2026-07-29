@@ -24,7 +24,10 @@ import {
 } from '@/modules/maintenance/dtos/request';
 import { MAINTENANCE_SERVICE_TOKEN } from '@/modules/maintenance/di';
 import { formatResponse } from '@/shared/utils';
-import { CreateMaintenanceLogResponseDto, GetMaintenanceLogResponseDto } from '@/modules/maintenance/dtos';
+import {
+  CreateMaintenanceLogResponseDto,
+  GetMaintenanceLogResponseDto,
+} from '@/modules/maintenance/dtos';
 
 @ApiTags('maintenance')
 @Controller('maintenance')
@@ -39,9 +42,12 @@ export class MaintenanceController {
   @ApiOperation({ summary: 'Lists maintenance logs' })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'The list of maintenance logs has been successfully retrieved.',
+    description:
+      'The list of maintenance logs has been successfully retrieved.',
   })
-  public async getMaintenanceLogsAsync(@Query() requestDto: GetMaintenanceLogsRequestDto) {
+  public async getMaintenanceLogsAsync(
+    @Query() requestDto: GetMaintenanceLogsRequestDto,
+  ) {
     const { limit } = requestDto;
     const {
       logs,
@@ -57,7 +63,9 @@ export class MaintenanceController {
 
   @Get(':id')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Retrieves information about a specific maintenance log' })
+  @ApiOperation({
+    summary: 'Retrieves information about a specific maintenance log',
+  })
   @ApiParam({
     name: 'id',
     description: 'The unique ID of the maintenance log',
@@ -66,14 +74,16 @@ export class MaintenanceController {
   @ApiResponse({
     status: HttpStatus.OK,
     type: GetMaintenanceLogResponseDto,
-    description: 'The maintenance log information has been successfully retrieved.',
+    description:
+      'The maintenance log information has been successfully retrieved.',
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
     description: 'Maintenance log not found.',
   })
   public async getMaintenanceLogAsync(@Param('id', ParseUUIDPipe) id: string) {
-    const responseDto = await this.maintenanceService.getMaintenanceLogAsync(id);
+    const responseDto =
+      await this.maintenanceService.getMaintenanceLogAsync(id);
 
     return formatResponse(responseDto);
   }

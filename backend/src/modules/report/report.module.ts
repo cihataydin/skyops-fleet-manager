@@ -6,10 +6,7 @@ import { DroneModule } from '@/modules/drone';
 import { MissionModule } from '@/modules/mission';
 
 @Module({
-  imports: [
-    DroneModule,
-    MissionModule,
-  ],
+  imports: [DroneModule, MissionModule],
   controllers: [ReportController],
   providers: [
     {

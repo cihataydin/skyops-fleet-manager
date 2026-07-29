@@ -18,7 +18,6 @@ import {
   ApiResponse,
   ApiBody,
   ApiParam,
-  ApiQuery,
 } from '@nestjs/swagger';
 import { IDroneService } from '@/modules/drone/interfaces';
 import {
@@ -28,7 +27,11 @@ import {
 } from '@/modules/drone/dtos/request';
 import { DRONE_SERVICE_TOKEN } from '@/modules/drone/di';
 import { formatResponse } from '@/shared/utils';
-import { CreateDroneResponseDto, GetDroneResponseDto, UpdateDroneResponseDto } from '@/modules/drone/dtos/response';
+import {
+  CreateDroneResponseDto,
+  GetDroneResponseDto,
+  UpdateDroneResponseDto,
+} from '@/modules/drone/dtos/response';
 import { InjectMapper } from '@automapper/nestjs';
 import { Mapper } from '@automapper/core';
 import { UpdateDroneRequestModel } from '@/modules/drone/models/request';
@@ -104,12 +107,9 @@ export class DroneController {
     status: HttpStatus.BAD_REQUEST,
     description: 'Invalid request body or missing data.',
   })
-  public async createDroneAsync(
-    @Body() createDroneDto: CreateDroneRequestDto,
-  ) {
-    const responseDto = await this.dronesService.createDroneAsync(
-      createDroneDto,
-    );
+  public async createDroneAsync(@Body() createDroneDto: CreateDroneRequestDto) {
+    const responseDto =
+      await this.dronesService.createDroneAsync(createDroneDto);
 
     return formatResponse(responseDto);
   }
@@ -144,11 +144,12 @@ export class DroneController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateDroneDto: UpdateDroneRequestDto,
   ) {
-    const model = this.mapper.map(updateDroneDto, UpdateDroneRequestDto, UpdateDroneRequestModel);
-    const responseDto = await this.dronesService.updateDroneAsync(
-      id,
-      model,
+    const model = this.mapper.map(
+      updateDroneDto,
+      UpdateDroneRequestDto,
+      UpdateDroneRequestModel,
     );
+    const responseDto = await this.dronesService.updateDroneAsync(id, model);
 
     return formatResponse(responseDto);
   }

@@ -7,7 +7,9 @@ export class MaintenanceLogic {
     droneTotalFlightHours: number,
     toleranceHours: number = MAINTENANCE_FLIGHT_HOURS_TOLERANCE,
   ): void {
-    const difference = Math.abs(Number(flightHoursAtMaintenance) - Number(droneTotalFlightHours));
+    const difference = Math.abs(
+      Number(flightHoursAtMaintenance) - Number(droneTotalFlightHours),
+    );
 
     if (difference > toleranceHours) {
       throw new DomainException(

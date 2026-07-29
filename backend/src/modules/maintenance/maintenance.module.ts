@@ -15,7 +15,7 @@ import { LoggerModule } from '@/infra/logger';
     TypeOrmModule.forFeature([MaintenanceLog]),
     CacheModule,
     LoggerModule,
-    DroneModule
+    DroneModule,
   ],
   controllers: [MaintenanceController],
   providers: [

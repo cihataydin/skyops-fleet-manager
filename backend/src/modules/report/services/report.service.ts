@@ -11,14 +11,21 @@ import { HOURS_PER_DAY } from '@/shared/constants';
 export class ReportService implements IReportService {
   public constructor(
     @Inject(DRONE_SERVICE_TOKEN) private readonly droneService: IDroneService,
-    @Inject(MISSION_SERVICE_TOKEN) private readonly missionService: IMissionService,
+    @Inject(MISSION_SERVICE_TOKEN)
+    private readonly missionService: IMissionService,
   ) {}
 
-  public async getFleetHealthReportAsync(daysThreshold: number): Promise<FleetHealthReportResponseDto> {
-    const statusBreakdownData = await this.droneService.getDroneStatusBreakdownAsync();
-    const overdueDrones = await this.droneService.getMaintenanceAlertDronesAsync(daysThreshold);
-    const averageFlightHours = await this.droneService.getAverageFlightHoursAsync();
-    const missionsNext24Hours = await this.missionService.getUpcomingMissionsCountAsync(HOURS_PER_DAY);
+  public async getFleetHealthReportAsync(
+    daysThreshold: number,
+  ): Promise<FleetHealthReportResponseDto> {
+    const statusBreakdownData =
+      await this.droneService.getDroneStatusBreakdownAsync();
+    const overdueDrones =
+      await this.droneService.getMaintenanceAlertDronesAsync(daysThreshold);
+    const averageFlightHours =
+      await this.droneService.getAverageFlightHoursAsync();
+    const missionsNext24Hours =
+      await this.missionService.getUpcomingMissionsCountAsync(HOURS_PER_DAY);
 
     return {
       totalDroneCount: statusBreakdownData.total,
