@@ -137,8 +137,8 @@ export class DroneService implements IDroneService {
   public async recordFlightHoursAsync(
     droneId: string,
     addedHours: number,
-  ): Promise<void> {
-    if (addedHours <= 0) return;
+  ): Promise<{ maintenanceTriggered: boolean }> {
+    if (addedHours <= 0) return { maintenanceTriggered: false };
 
     const result = await this.dronesRepository
       .createQueryBuilder()
@@ -153,8 +153,11 @@ export class DroneService implements IDroneService {
     await this.cacheService.deleteAsync(`drone_${droneId}`);
 
     const rawDrone = result.raw[0];
+    if (!rawDrone) return { maintenanceTriggered: false };
+
+    let isMaintenanceDue = false;
+
     if (
-      rawDrone &&
       DroneLogic.isFlightHoursExceeded(
         Number(rawDrone.total_flight_hours),
         Number(rawDrone.flight_hours_at_last_maintenance),
@@ -164,7 +167,10 @@ export class DroneService implements IDroneService {
         droneId: rawDrone.id,
         totalFlightHours: Number(rawDrone.total_flight_hours),
       } as DroneFlightHoursExceededEvent);
+      isMaintenanceDue = true;
     }
+
+    return { maintenanceTriggered: isMaintenanceDue };
   }
 
   public async updateMaintenanceTrackingDatesAsync(

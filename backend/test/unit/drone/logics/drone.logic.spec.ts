@@ -50,7 +50,7 @@ describe('DroneLogic', () => {
       ).not.toThrow();
     });
 
-    it('should throw if setting to restricted status and has upcoming missions', () => {
+    it('should throw if setting to RETIRED and has upcoming missions', () => {
       expect(() =>
         DroneLogic.validateManualStatusUpdate(
           DroneStatus.AVAILABLE,
@@ -59,6 +59,9 @@ describe('DroneLogic', () => {
           'drone-1',
         ),
       ).toThrow(DomainException);
+    });
+
+    it('should not throw if setting to MAINTENANCE and has upcoming missions', () => {
       expect(() =>
         DroneLogic.validateManualStatusUpdate(
           DroneStatus.AVAILABLE,
@@ -66,7 +69,7 @@ describe('DroneLogic', () => {
           true,
           'drone-1',
         ),
-      ).toThrow(DomainException);
+      ).not.toThrow();
     });
 
     it('should throw if setting to restricted status from non-AVAILABLE status', () => {

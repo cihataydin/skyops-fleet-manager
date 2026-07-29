@@ -61,7 +61,6 @@ describe('MissionService - Overlap Detection', () => {
 
   describe('createMissionAsync', () => {
     it('should throw DomainException if there is an overlapping mission', async () => {
-      // Mock findOne to return an existing mission (overlap)
       missionRepository.findOne.mockResolvedValueOnce({
         id: 'existing-mission',
       });
@@ -79,8 +78,6 @@ describe('MissionService - Overlap Detection', () => {
     });
 
     it('should create mission if no overlapping mission is found', async () => {
-      // First findOne inside getDroneAsync mock resolved in setup.
-      // Second findOne inside checkOverlappingMissionAsync mock returns null
       missionRepository.findOne.mockResolvedValueOnce(null);
       missionRepository.create.mockReturnValue({ id: 'new-mission' });
       missionRepository.save.mockResolvedValue({ id: 'new-mission' });

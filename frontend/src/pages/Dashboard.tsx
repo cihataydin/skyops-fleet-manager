@@ -16,7 +16,7 @@ export const Dashboard: React.FC = () => {
       try {
         const [healthRes, missionsRes] = await Promise.all([
           api.get('/reports/fleet-health'),
-          api.get('/missions?limit=5') // Recent 5 missions
+          api.get('/missions?limit=5&orderBy=scheduledStartTime&direction=DESC')
         ]);
         setHealth(healthRes.data.data);
         setMissions(missionsRes.data.data.missions || missionsRes.data.data);

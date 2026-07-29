@@ -26,7 +26,10 @@ export interface IDroneService {
     requestDto: UpdateDroneRequestModel,
   ): Promise<UpdateDroneResponseDto>;
 
-  recordFlightHoursAsync(droneId: string, addedHours: number): Promise<void>;
+  recordFlightHoursAsync(
+    droneId: string,
+    addedHours: number,
+  ): Promise<{ maintenanceTriggered: boolean }>;
 
   updateMaintenanceTrackingDatesAsync(
     droneId: string,

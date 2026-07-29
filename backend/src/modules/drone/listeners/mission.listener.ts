@@ -95,14 +95,21 @@ export class MissionListener {
     droneId: string,
     addedFlightHours: number = 0,
   ): Promise<void> {
-    await this.droneService.recordFlightHoursAsync(droneId, addedFlightHours);
+    const { maintenanceTriggered } =
+      await this.droneService.recordFlightHoursAsync(droneId, addedFlightHours);
 
-    await this.droneService.updateDroneAsync(droneId, {
-      status: DroneStatus.AVAILABLE,
-    });
+    if (!maintenanceTriggered) {
+      await this.droneService.updateDroneAsync(droneId, {
+        status: DroneStatus.AVAILABLE,
+      });
 
-    this.loggerService.log(
-      `Drone '${droneId}' updated with ${addedFlightHours}h flight hours and status set to '${DroneStatus.AVAILABLE}'.`,
-    );
+      this.loggerService.log(
+        `Drone '${droneId}' updated with ${addedFlightHours}h flight hours and status set to '${DroneStatus.AVAILABLE}'.`,
+      );
+    } else {
+      this.loggerService.log(
+        `Drone '${droneId}' updated with ${addedFlightHours}h flight hours, but requires maintenance. Skipping status update to '${DroneStatus.AVAILABLE}'.`,
+      );
+    }
   }
 }

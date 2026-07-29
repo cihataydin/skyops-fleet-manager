@@ -32,11 +32,65 @@ describe('MissionLogic', () => {
       ).toThrow(DomainException);
     });
 
+    it('should allow transition from PRE_FLIGHT_CHECK to IN_PROGRESS', () => {
+      expect(() =>
+        MissionLogic.validateStatusTransition(
+          MissionStatus.PRE_FLIGHT_CHECK,
+          MissionStatus.IN_PROGRESS,
+        ),
+      ).not.toThrow();
+    });
+
+    it('should allow transition from PRE_FLIGHT_CHECK to ABORTED', () => {
+      expect(() =>
+        MissionLogic.validateStatusTransition(
+          MissionStatus.PRE_FLIGHT_CHECK,
+          MissionStatus.ABORTED,
+        ),
+      ).not.toThrow();
+    });
+
+    it('should throw DomainException for invalid transition from PRE_FLIGHT_CHECK to COMPLETED', () => {
+      expect(() =>
+        MissionLogic.validateStatusTransition(
+          MissionStatus.PRE_FLIGHT_CHECK,
+          MissionStatus.COMPLETED,
+        ),
+      ).toThrow(DomainException);
+    });
+
+    it('should allow transition from IN_PROGRESS to ABORTED', () => {
+      expect(() =>
+        MissionLogic.validateStatusTransition(
+          MissionStatus.IN_PROGRESS,
+          MissionStatus.ABORTED,
+        ),
+      ).not.toThrow();
+    });
+
+    it('should allow transition from IN_PROGRESS to COMPLETED', () => {
+      expect(() =>
+        MissionLogic.validateStatusTransition(
+          MissionStatus.IN_PROGRESS,
+          MissionStatus.COMPLETED,
+        ),
+      ).not.toThrow();
+    });
+
     it('should throw DomainException for transition from terminal state COMPLETED', () => {
       expect(() =>
         MissionLogic.validateStatusTransition(
           MissionStatus.COMPLETED,
           MissionStatus.IN_PROGRESS,
+        ),
+      ).toThrow(DomainException);
+    });
+
+    it('should throw DomainException for transition from terminal state ABORTED', () => {
+      expect(() =>
+        MissionLogic.validateStatusTransition(
+          MissionStatus.ABORTED,
+          MissionStatus.PRE_FLIGHT_CHECK,
         ),
       ).toThrow(DomainException);
     });

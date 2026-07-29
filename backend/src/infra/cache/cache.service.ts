@@ -1,10 +1,4 @@
-import {
-  Inject,
-  Injectable,
-  OnApplicationShutdown,
-  OnModuleDestroy,
-  Optional,
-} from '@nestjs/common';
+import { Inject, Injectable, Optional } from '@nestjs/common';
 import { RedisService } from '@songkeys/nestjs-redis';
 import { Redis } from 'ioredis';
 
@@ -14,9 +8,7 @@ import { ILoggerService } from '../logger';
 import { ICacheService } from './cache.interface';
 
 @Injectable()
-export class CacheService
-  implements ICacheService, OnModuleDestroy, OnApplicationShutdown
-{
+export class CacheService implements ICacheService {
   private readonly cacheProvider: Redis;
 
   constructor(
@@ -56,23 +48,5 @@ export class CacheService
 
   public async deleteAsync(key: string): Promise<void> {
     await this.cacheProvider?.del(key);
-  }
-
-  public async disconect(): Promise<void> {
-    if (this.cacheProvider?.status === 'ready') {
-      await this.cacheProvider.quit();
-    }
-  }
-
-  public async onModuleDestroy() {
-    this.logger.info('[onModuleDestroy] shutting down CacheService...');
-    await this.disconect();
-  }
-
-  public async onApplicationShutdown(signal?: string) {
-    this.logger.info(
-      `[onApplicationShutdown] shutting down CacheService with signal: ${signal}`,
-    );
-    await this.disconect();
   }
 }
