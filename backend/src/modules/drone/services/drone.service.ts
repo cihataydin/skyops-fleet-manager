@@ -134,6 +134,26 @@ export class DroneService implements IDroneService {
     return this.mapper.map(updatedDrone, Drone, UpdateDroneResponseDto);
   }
 
+  public async changeStatusAsync(
+    id: string,
+    status: DroneStatus,
+    flightHoursAtLastMaintenance?: number,
+  ): Promise<void> {
+    const drone = await this.dronesRepository.findOne({ where: { id } });
+
+    if (!drone) {
+      throw new NotFoundException(`Drone with ID '${id}' not found`);
+    }
+
+    drone.status = status;
+    if (flightHoursAtLastMaintenance !== undefined) {
+      drone.flightHoursAtLastMaintenance = flightHoursAtLastMaintenance;
+    }
+
+    await this.dronesRepository.save(drone);
+    await this.cacheService.deleteAsync(`drone_${id}`);
+  }
+
   public async recordFlightHoursAsync(
     droneId: string,
     addedHours: number,

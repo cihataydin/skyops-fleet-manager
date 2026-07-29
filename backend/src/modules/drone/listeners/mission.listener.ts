@@ -33,9 +33,7 @@ export class MissionListener {
         `Received '${MissionEvent.MISSION_STARTED}' event for mission '${missionId}' (Drone '${droneId}').`,
       );
 
-      await this.droneService.updateDroneAsync(droneId, {
-        status: DroneStatus.IN_MISSION,
-      });
+      await this.droneService.changeStatusAsync(droneId, DroneStatus.IN_MISSION);
 
       this.loggerService.log(
         `Drone '${droneId}' status updated to '${DroneStatus.IN_MISSION}'`,
@@ -99,9 +97,7 @@ export class MissionListener {
       await this.droneService.recordFlightHoursAsync(droneId, addedFlightHours);
 
     if (!maintenanceTriggered) {
-      await this.droneService.updateDroneAsync(droneId, {
-        status: DroneStatus.AVAILABLE,
-      });
+      await this.droneService.changeStatusAsync(droneId, DroneStatus.AVAILABLE);
 
       this.loggerService.log(
         `Drone '${droneId}' updated with ${addedFlightHours}h flight hours and status set to '${DroneStatus.AVAILABLE}'.`,

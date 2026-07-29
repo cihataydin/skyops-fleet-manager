@@ -1,3 +1,4 @@
+import { DroneStatus } from '@/modules/drone/enums';
 import {
   CreateDroneRequestDto,
   GetDronesRequestDto,
@@ -25,6 +26,13 @@ export interface IDroneService {
     id: string,
     requestDto: UpdateDroneRequestModel,
   ): Promise<UpdateDroneResponseDto>;
+
+  changeStatusAsync(
+    id: string,
+    status: DroneStatus,
+    flightHoursAtLastMaintenance?: number,
+  ): Promise<void>;
+
 
   recordFlightHoursAsync(
     droneId: string,
