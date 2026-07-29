@@ -63,7 +63,7 @@
             "in": "query",
             "description": "Filter by drone status",
             "schema": {
-              "$ref": "#/components/schemas/DroneStatus"
+              "$ref": "#/components/schemas/GetDroneStatus"
             }
           }
         ],
@@ -806,12 +806,13 @@
           "MAVIC_3_ENTERPRISE"
         ]
       },
-      "DroneStatus": {
+      "GetDroneStatus": {
         "type": "string",
-        "description": "Status of the drone (Manual update is restricted to RETIRED and MAINTENANCE)",
         "enum": [
-          "RETIRED",
-          "MAINTENANCE"
+          "AVAILABLE",
+          "IN_MISSION",
+          "MAINTENANCE",
+          "RETIRED"
         ]
       },
       "GetDroneResponseDto": {
@@ -962,6 +963,14 @@
           "flightHoursAtLastMaintenance",
           "lastMaintenanceDate",
           "nextMaintenanceDueDate"
+        ]
+      },
+      "DroneStatus": {
+        "type": "string",
+        "description": "Status of the drone (Manual update is restricted to RETIRED and MAINTENANCE)",
+        "enum": [
+          "RETIRED",
+          "MAINTENANCE"
         ]
       },
       "UpdateDroneRequestDto": {

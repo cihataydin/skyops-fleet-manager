@@ -23,7 +23,7 @@ export class GetDronesRequestDto extends BaseFilterRequestDto {
     type: DroneStatus,
     required: false,
     enum: DroneStatus,
-    enumName: 'DroneStatus',
+    enumName: 'GetDroneStatus',
     description: 'Filter by drone status',
   })
   @AutoMap()

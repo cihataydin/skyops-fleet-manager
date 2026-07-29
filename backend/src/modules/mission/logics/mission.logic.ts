@@ -136,4 +136,21 @@ export class MissionLogic {
     const now = new Date();
     return new Date(now.getTime() + hoursToAdd * MS_PER_HOUR);
   }
+
+  public static validateDroneStateForMissionStart(
+    targetMissionStatus: MissionStatus,
+    droneStatus: DroneStatus,
+  ): void {
+    const isStartingMission =
+      targetMissionStatus === MissionStatus.PRE_FLIGHT_CHECK ||
+      targetMissionStatus === MissionStatus.IN_PROGRESS;
+    if (
+      isStartingMission &&
+      (droneStatus === DroneStatus.MAINTENANCE || droneStatus === DroneStatus.RETIRED)
+    ) {
+      throw new DomainException(
+        `A mission cannot be started. The assigned drone is in an invalid state. Current status: ${droneStatus}`,
+      );
+    }
+  }
 }

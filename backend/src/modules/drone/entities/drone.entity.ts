@@ -8,7 +8,6 @@ import { MAINTENANCE_INTERVAL_MS } from '@/shared/constants';
 
 @Entity('drones')
 export class Drone extends BaseEntity {
-  // TODO: Domain bussiness; SKY-XXXX-XXXX where X is alphanumeric
   @AutoMap()
   @Column({
     unique: true,
@@ -32,7 +31,6 @@ export class Drone extends BaseEntity {
   })
   status: DroneStatus;
 
-  // TODO: transformation of minutes to hours ?
   @AutoMap()
   @Column({
     type: 'decimal',
@@ -53,7 +51,6 @@ export class Drone extends BaseEntity {
   })
   flightHoursAtLastMaintenance: number;
 
-  // TODO: how to get this?
   @AutoMap()
   @Column({
     type: 'timestamptz',
@@ -68,8 +65,6 @@ export class Drone extends BaseEntity {
     name: 'next_maintenance_due_date',
   })
   nextMaintenanceDueDate: Date;
-
-  // TODO: registration timestamp should be included or just use createdAt from BaseEntity?
 
   @OneToMany(() => Mission, (mission) => mission.drone)
   missions: Mission[];

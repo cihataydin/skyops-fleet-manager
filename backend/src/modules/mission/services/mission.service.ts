@@ -16,6 +16,7 @@ import {
   LessThanOrEqual,
   MoreThanOrEqual,
   FindOptionsWhere,
+  ILike,
 } from 'typeorm';
 import { Mapper } from '@automapper/core';
 import { InjectMapper } from '@automapper/nestjs';
@@ -49,6 +50,7 @@ import {
   MissionCompletedEvent,
   MissionStartedEvent,
 } from '@/modules/mission/events';
+import { DroneStatus } from '@/modules/drone/enums';
 
 @Injectable()
 export class MissionService implements IMissionService {
@@ -80,11 +82,11 @@ export class MissionService implements IMissionService {
       endDate,
     } = requestDto;
     const where: FindOptionsWhere<Mission> = {
-      ...(name ? { name } : {}),
+      ...(name ? { name: ILike(`%${name}%`) } : {}),
       ...(type ? { type } : {}),
       ...(status ? { status } : {}),
       ...(droneId ? { droneId } : {}),
-      ...(pilotName ? { pilotName } : {}),
+      ...(pilotName ? { pilotName: ILike(`%${pilotName}%`) } : {}),
     };
 
     if (startDate && endDate) {
@@ -180,21 +182,19 @@ export class MissionService implements IMissionService {
     }
 
     const { droneId, scheduledStartTime, scheduledEndTime } = requestDto;
-
-    if (droneId && droneId !== mission.droneId) {
-      const drone = await this.droneService.getDroneAsync(droneId);
-      if (!drone) {
-        throw new NotFoundException(`Drone with ID '${droneId}' not found`);
-      }
-      MissionLogic.validateDroneAvailability(drone.status, droneId);
-    }
-
+    const isScheduleChanged = scheduledStartTime || scheduledEndTime;
+    const isDroneChanged = droneId && droneId !== mission.droneId;
     const targetDroneId = droneId || mission.droneId;
     const targetStart = scheduledStartTime || mission.scheduledStartTime;
     const targetEnd = scheduledEndTime || mission.scheduledEndTime;
-    const isTimeScheduled = scheduledStartTime || scheduledEndTime;
 
-    if (droneId || isTimeScheduled) {
+    if (isDroneChanged || isScheduleChanged) {
+      const drone = await this.droneService.getDroneAsync(targetDroneId);
+      if (!drone) {
+        throw new NotFoundException(`Drone with ID '${targetDroneId}' not found`);
+      }
+      MissionLogic.validateDroneAvailability(drone.status, targetDroneId);
+
       await this.checkOverlappingMissionAsync(
         targetDroneId,
         targetStart,
@@ -341,6 +341,12 @@ export class MissionService implements IMissionService {
     const mission = await this.missionsRepository.findOne({ where: { id } });
     if (!mission)
       throw new NotFoundException(`Mission with ID '${id}' not found`);
+
+    const { droneId } = mission;
+    const drone = await this.droneService.getDroneAsync(droneId);
+    const { status } = drone;
+
+    MissionLogic.validateDroneStateForMissionStart(targetStatus, status);
 
     MissionLogic.handleStatusChange(
       mission,

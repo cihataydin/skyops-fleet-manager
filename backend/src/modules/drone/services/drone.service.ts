@@ -113,7 +113,7 @@ export class DroneService implements IDroneService {
 
     const { status } = requestModel;
     const hasUpcomingMission =
-      status === DroneStatus.RETIRED
+      status === DroneStatus.RETIRED || status === DroneStatus.MAINTENANCE
         ? await this.missionService.hasUpcomingMissionAsync(id)
         : false;
 

@@ -21,10 +21,11 @@ export class DroneLogic {
       );
     }
 
-    const isRestrictedTarget = targetStatus === DroneStatus.RETIRED || targetStatus === DroneStatus.MAINTENANCE;
-    if (isRestrictedTarget && currentStatus !== DroneStatus.AVAILABLE) {
+    const allowedStatuses = [DroneStatus.AVAILABLE, DroneStatus.MAINTENANCE];
+
+    if (!allowedStatuses.includes(currentStatus)) {
       throw new DomainException(
-        `Drone '${droneId}' cannot be manually set to ${targetStatus} unless its current status is ${DroneStatus.AVAILABLE}. Current status is ${currentStatus}.`,
+        `Drone '${droneId}' cannot be manually set to ${targetStatus} unless its current status is ${DroneStatus.AVAILABLE} or ${DroneStatus.MAINTENANCE}. Current status is ${currentStatus}.`,
       );
     }
 
