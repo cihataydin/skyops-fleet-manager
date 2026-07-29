@@ -70,7 +70,7 @@ export const Dashboard: React.FC = () => {
               rowKey="id" 
               pagination={false}
               columns={[
-                { title: 'Drone', dataIndex: 'serialNumber', key: 'sn', render: (text, record) => <Link to={`/drones/${record.id}`}>{text}</Link> },
+                { title: 'Drone', dataIndex: 'serialNumber', key: 'sn', render: (text: string, record: any) => <Link to={`/drones/${record.id}`}>{text}</Link> },
                 { title: 'Status', dataIndex: 'status', key: 'status' },
                 { 
                   title: 'Due Date', 
