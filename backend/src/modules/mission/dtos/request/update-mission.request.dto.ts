@@ -117,15 +117,4 @@ export class UpdateMissionRequestDto {
   @Type(() => Date)
   scheduledEndTime?: Date;
 
-  @ApiProperty({
-    type: Number,
-    required: true,
-    description: 'Current row version for optimistic locking',
-    example: 1,
-  })
-  @AutoMap()
-  @IsNotEmpty()
-  @IsNumber()
-  @Min(1)
-  version?: number;
 }

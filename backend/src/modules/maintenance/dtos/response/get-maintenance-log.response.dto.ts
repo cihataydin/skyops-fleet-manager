@@ -57,10 +57,4 @@ export class GetMaintenanceLogResponseDto {
   })
   @AutoMap()
   updatedAt: Date;
-
-  @ApiProperty({
-    description: 'Row version for optimistic locking',
-  })
-  @AutoMap()
-  version: number;
 }

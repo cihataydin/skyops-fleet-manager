@@ -6,7 +6,6 @@ import {
   UpdateDateColumn,
   BeforeInsert,
   BeforeUpdate,
-  VersionColumn,
 } from 'typeorm';
 
 export class BaseEntity {
@@ -35,10 +34,6 @@ export class BaseEntity {
     precision: 3,
   })
   public deletedAt: Date;
-
-  @AutoMap()
-  @VersionColumn({ name: 'version' })
-  public version: number;
 
   @BeforeInsert()
   public beforeInsertEntity() {

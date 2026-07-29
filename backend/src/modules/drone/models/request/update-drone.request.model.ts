@@ -13,7 +13,4 @@ export class UpdateDroneRequestModel {
 
   @AutoMap()
   flightHoursAtLastMaintenance?: number;
-
-  @AutoMap()
-  version?: number;
 }

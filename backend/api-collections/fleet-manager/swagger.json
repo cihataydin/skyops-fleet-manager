@@ -871,10 +871,6 @@
             "format": "date-time",
             "type": "string",
             "description": "Record update timestamp"
-          },
-          "version": {
-            "type": "number",
-            "description": "Row version for optimistic locking"
           }
         },
         "required": [
@@ -887,8 +883,7 @@
           "lastMaintenanceDate",
           "nextMaintenanceDueDate",
           "createdAt",
-          "updatedAt",
-          "version"
+          "updatedAt"
         ]
       },
       "CreateDroneRequestDto": {
@@ -956,15 +951,6 @@
             "format": "date-time",
             "type": "string",
             "description": "Due date for the next maintenance"
-          },
-          "createdAt": {
-            "format": "date-time",
-            "type": "string",
-            "description": "Record creation timestamp"
-          },
-          "version": {
-            "type": "number",
-            "description": "Row version for optimistic locking"
           }
         },
         "required": [
@@ -975,9 +961,7 @@
           "totalFlightHours",
           "flightHoursAtLastMaintenance",
           "lastMaintenanceDate",
-          "nextMaintenanceDueDate",
-          "createdAt",
-          "version"
+          "nextMaintenanceDueDate"
         ]
       },
       "UpdateDroneRequestDto": {
@@ -990,16 +974,8 @@
           "status": {
             "example": "RETIRED",
             "$ref": "#/components/schemas/DroneStatus"
-          },
-          "version": {
-            "type": "number",
-            "description": "Current row version for optimistic locking",
-            "example": 1
           }
-        },
-        "required": [
-          "version"
-        ]
+        }
       },
       "UpdateDroneResponseDto": {
         "type": "object",
@@ -1058,10 +1034,6 @@
             "format": "date-time",
             "type": "string",
             "description": "Record update timestamp"
-          },
-          "version": {
-            "type": "number",
-            "description": "Row version for optimistic locking"
           }
         },
         "required": [
@@ -1074,8 +1046,7 @@
           "lastMaintenanceDate",
           "nextMaintenanceDueDate",
           "createdAt",
-          "updatedAt",
-          "version"
+          "updatedAt"
         ]
       },
       "MissionType": {
@@ -1177,10 +1148,6 @@
             "format": "date-time",
             "type": "string",
             "description": "Record update timestamp"
-          },
-          "version": {
-            "type": "number",
-            "description": "Row version for optimistic locking"
           }
         },
         "required": [
@@ -1198,8 +1165,7 @@
           "flightHoursAtCompletion",
           "abortReason",
           "createdAt",
-          "updatedAt",
-          "version"
+          "updatedAt"
         ]
       },
       "CreateMissionRequestDto": {
@@ -1330,10 +1296,6 @@
             "format": "date-time",
             "type": "string",
             "description": "Record creation timestamp"
-          },
-          "version": {
-            "type": "number",
-            "description": "Row version for optimistic locking"
           }
         },
         "required": [
@@ -1350,8 +1312,7 @@
           "status",
           "flightHoursAtCompletion",
           "abortReason",
-          "createdAt",
-          "version"
+          "createdAt"
         ]
       },
       "UpdateMissionRequestDto": {
@@ -1395,16 +1356,8 @@
             "type": "string",
             "description": "Scheduled end time of the mission (ISO 8601). Required if scheduledStartTime is provided.",
             "example": "2026-08-01T12:00:00Z"
-          },
-          "version": {
-            "type": "number",
-            "description": "Current row version for optimistic locking",
-            "example": 1
           }
-        },
-        "required": [
-          "version"
-        ]
+        }
       },
       "UpdateMissionResponseDto": {
         "type": "object",
@@ -1486,10 +1439,6 @@
             "format": "date-time",
             "type": "string",
             "description": "Record update timestamp"
-          },
-          "version": {
-            "type": "number",
-            "description": "Row version for optimistic locking"
           }
         },
         "required": [
@@ -1507,8 +1456,7 @@
           "flightHoursAtCompletion",
           "abortReason",
           "createdAt",
-          "updatedAt",
-          "version"
+          "updatedAt"
         ]
       },
       "CompleteMissionRequestDto": {
@@ -1518,16 +1466,10 @@
             "type": "number",
             "description": "Flight hours logged upon completion of the mission",
             "example": 3.5
-          },
-          "version": {
-            "type": "number",
-            "description": "Current row version for optimistic locking",
-            "example": 1
           }
         },
         "required": [
-          "flightHoursAtCompletion",
-          "version"
+          "flightHoursAtCompletion"
         ]
       },
       "AbortMissionRequestDto": {
@@ -1542,17 +1484,11 @@
             "type": "number",
             "description": "Flight hours logged upon aborting the mission",
             "example": 3.5
-          },
-          "version": {
-            "type": "number",
-            "description": "Current row version for optimistic locking",
-            "example": 1
           }
         },
         "required": [
           "abortReason",
-          "flightHoursAtAborting",
-          "version"
+          "flightHoursAtAborting"
         ]
       },
       "MaintenanceType": {
@@ -1614,10 +1550,6 @@
             "format": "date-time",
             "type": "string",
             "description": "Record update timestamp"
-          },
-          "version": {
-            "type": "number",
-            "description": "Row version for optimistic locking"
           }
         },
         "required": [
@@ -1629,8 +1561,7 @@
           "performedAt",
           "flightHoursAtMaintenance",
           "createdAt",
-          "updatedAt",
-          "version"
+          "updatedAt"
         ]
       },
       "CreateMaintenanceLogRequestDto": {
@@ -1718,10 +1649,6 @@
             "format": "date-time",
             "type": "string",
             "description": "Record creation timestamp"
-          },
-          "version": {
-            "type": "number",
-            "description": "Row version for optimistic locking"
           }
         },
         "required": [
@@ -1732,8 +1659,7 @@
           "notes",
           "performedAt",
           "flightHoursAtMaintenance",
-          "createdAt",
-          "version"
+          "createdAt"
         ]
       },
       "FleetHealthReportResponseDto": {

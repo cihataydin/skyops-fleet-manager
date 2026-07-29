@@ -52,16 +52,4 @@ export class CreateDroneResponseDto {
   })
   @AutoMap()
   nextMaintenanceDueDate: Date;
-
-  @ApiProperty({
-    description: 'Record creation timestamp',
-  })
-  @AutoMap()
-  createdAt: Date;
-
-  @ApiProperty({
-    description: 'Row version for optimistic locking',
-  })
-  @AutoMap()
-  version: number;
 }

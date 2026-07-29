@@ -42,16 +42,4 @@ export class UpdateDroneRequestDto {
   })
   @ValidateIf((_, value) => value !== undefined)
   status?: DroneStatus;
-
-  @ApiProperty({
-    type: Number,
-    required: true,
-    description: 'Current row version for optimistic locking',
-    example: 1,
-  })
-  @AutoMap()
-  @IsNotEmpty()
-  @IsNumber()
-  @Min(1, { message: 'Version must be at least 1.' })
-  version?: number;
 }

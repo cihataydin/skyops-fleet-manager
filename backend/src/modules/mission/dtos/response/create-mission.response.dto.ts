@@ -88,10 +88,4 @@ export class CreateMissionResponseDto {
   })
   @AutoMap()
   createdAt: Date;
-
-  @ApiProperty({
-    description: 'Row version for optimistic locking',
-  })
-  @AutoMap()
-  version: number;
 }

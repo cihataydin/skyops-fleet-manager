@@ -37,7 +37,6 @@ async function bootstrap() {
       status: statuses[i % Object.keys(DroneStatus).length],
       totalFlightHours: Math.floor(Math.random() * 200),
       lastMaintenanceDate: new Date(Date.now() - Math.random() * 10000000000),
-      version: 1,
     });
 
     // Naive next maintenance date logic for seed
@@ -88,7 +87,6 @@ async function bootstrap() {
         actualEndTime: status === MissionStatus.COMPLETED ? end : undefined,
         abortReason:
           status === MissionStatus.ABORTED ? 'Bad Weather' : undefined,
-        version: 1,
       }),
     );
   }
@@ -110,7 +108,6 @@ async function bootstrap() {
         flightHoursAtMaintenance:
           Number(drone.totalFlightHours) - Math.floor(Math.random() * 10),
         notes: 'Routine check ' + i,
-        version: 1,
       }),
     );
   }

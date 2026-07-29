@@ -31,14 +31,4 @@ export class AbortMissionRequestDto {
   @Min(0)
   flightHoursAtAborting: number;
 
-  @ApiProperty({
-    type: Number,
-    required: true,
-    description: 'Current row version for optimistic locking',
-    example: 1,
-  })
-  @IsNotEmpty()
-  @IsNumber()
-  @Min(1)
-  version?: number;
 }
