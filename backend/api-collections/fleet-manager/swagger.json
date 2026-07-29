@@ -808,9 +808,10 @@
       },
       "DroneStatus": {
         "type": "string",
-        "description": "Status of the drone (Manual update is restricted to RETIRED only)",
+        "description": "Status of the drone (Manual update is restricted to RETIRED and MAINTENANCE)",
         "enum": [
-          "RETIRED"
+          "RETIRED",
+          "MAINTENANCE"
         ]
       },
       "GetDroneResponseDto": {

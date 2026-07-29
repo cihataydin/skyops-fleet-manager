@@ -208,7 +208,7 @@ export class MissionService implements IMissionService {
     await this.cacheService.deleteAsync(`mission_${id}`);
   }
 
-  public async hasUpcomingMissionsAsync(droneId: string): Promise<boolean> {
+  public async hasUpcomingMissionAsync(droneId: string): Promise<boolean> {
     const upcomingMission = await this.missionsRepository.findOne({
       where: {
         droneId,

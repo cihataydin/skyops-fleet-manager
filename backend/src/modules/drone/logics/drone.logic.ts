@@ -4,14 +4,29 @@ import { MAINTENANCE_INTERVAL_FLIGHT_HOURS, MAINTENANCE_INTERVAL_MS } from '@/sh
 import { DomainException } from '@/shared/exceptions';
 
 export class DroneLogic {
-  public static validateRetirement(
+  public static validateManualStatusUpdate(
+    currentStatus: DroneStatus,
     targetStatus: DroneStatus | undefined,
     hasUpcomingMissions: boolean,
     droneId: string,
   ): void {
-    if (targetStatus === DroneStatus.RETIRED && hasUpcomingMissions) {
+    if (!targetStatus) return;
+
+    if (currentStatus === targetStatus) {
       throw new DomainException(
-        `Drone '${droneId}' cannot be retired because it has upcoming scheduled missions. Please reassign or abort them first.`,
+        `Drone '${droneId}' is already in '${currentStatus}' status.`,
+      );
+    }
+
+    if (currentStatus !== DroneStatus.AVAILABLE) {
+      throw new DomainException(
+        `Drone '${droneId}' cannot be manually set to ${targetStatus} unless its current status is ${DroneStatus.AVAILABLE}. Current status is ${currentStatus}.`,
+      );
+    }
+
+    if (hasUpcomingMissions) {
+      throw new DomainException(
+        `Drone '${droneId}' cannot be set to ${targetStatus} because it has upcoming scheduled missions. Please reassign or abort them first.`,
       );
     }
   }

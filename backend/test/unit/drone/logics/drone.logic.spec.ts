@@ -5,17 +5,28 @@ import { DomainException } from '@/shared/exceptions';
 import { MAINTENANCE_INTERVAL_FLIGHT_HOURS, MAINTENANCE_INTERVAL_MS } from '@/shared/constants';
 
 describe('DroneLogic', () => {
-  describe('validateRetirement', () => {
-    it('should not throw if not retiring', () => {
-      expect(() => DroneLogic.validateRetirement(DroneStatus.AVAILABLE, true, 'drone-1')).not.toThrow();
+  describe('validateManualStatusUpdate', () => {
+    it('should not throw if target status is undefined', () => {
+      expect(() => DroneLogic.validateManualStatusUpdate(DroneStatus.AVAILABLE, undefined, true, 'drone-1')).not.toThrow();
     });
 
-    it('should not throw if retiring and has no upcoming missions', () => {
-      expect(() => DroneLogic.validateRetirement(DroneStatus.RETIRED, false, 'drone-1')).not.toThrow();
+    it('should throw if target status is same as current', () => {
+      expect(() => DroneLogic.validateManualStatusUpdate(DroneStatus.AVAILABLE, DroneStatus.AVAILABLE, true, 'drone-1')).toThrow(DomainException);
     });
 
-    it('should throw if retiring and has upcoming missions', () => {
-      expect(() => DroneLogic.validateRetirement(DroneStatus.RETIRED, true, 'drone-1')).toThrow(DomainException);
+    it('should not throw if setting to restricted status from AVAILABLE with no upcoming missions', () => {
+      expect(() => DroneLogic.validateManualStatusUpdate(DroneStatus.AVAILABLE, DroneStatus.RETIRED, false, 'drone-1')).not.toThrow();
+      expect(() => DroneLogic.validateManualStatusUpdate(DroneStatus.AVAILABLE, DroneStatus.MAINTENANCE, false, 'drone-1')).not.toThrow();
+    });
+
+    it('should throw if setting to restricted status and has upcoming missions', () => {
+      expect(() => DroneLogic.validateManualStatusUpdate(DroneStatus.AVAILABLE, DroneStatus.RETIRED, true, 'drone-1')).toThrow(DomainException);
+      expect(() => DroneLogic.validateManualStatusUpdate(DroneStatus.AVAILABLE, DroneStatus.MAINTENANCE, true, 'drone-1')).toThrow(DomainException);
+    });
+
+    it('should throw if setting to restricted status from non-AVAILABLE status', () => {
+      expect(() => DroneLogic.validateManualStatusUpdate(DroneStatus.IN_MISSION, DroneStatus.RETIRED, false, 'drone-1')).toThrow(DomainException);
+      expect(() => DroneLogic.validateManualStatusUpdate(DroneStatus.IN_MISSION, DroneStatus.MAINTENANCE, false, 'drone-1')).toThrow(DomainException);
     });
   });
 

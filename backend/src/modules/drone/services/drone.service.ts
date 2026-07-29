@@ -104,11 +104,9 @@ export class DroneService implements IDroneService {
     }
 
     const { status } = requestModel;
-    const hasUpcomingMissions = status === DroneStatus.RETIRED
-      ? await this.missionService.hasUpcomingMissionsAsync(id)
-      : false;
+    const hasUpcomingMission = await this.missionService.hasUpcomingMissionAsync(id);
 
-    DroneLogic.validateRetirement(status, hasUpcomingMissions, id);
+    DroneLogic.validateManualStatusUpdate(drone.status, status, hasUpcomingMission, id);
 
     const filteredDto = _.omitBy(requestModel, _.isUndefined);
     Object.assign(drone, filteredDto);

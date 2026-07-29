@@ -20,14 +20,14 @@ export class UpdateDroneRequestDto {
   @ApiProperty({ 
     type: DroneStatus,
     required: false, 
-    enum: [DroneStatus.RETIRED],
-    description: 'Status of the drone (Manual update is restricted to RETIRED only)',
+    enum: [DroneStatus.RETIRED, DroneStatus.MAINTENANCE],
+    description: 'Status of the drone (Manual update is restricted to RETIRED and MAINTENANCE)',
     enumName: 'DroneStatus',  
     example: DroneStatus.RETIRED 
   })
   @AutoMap()
-  @IsIn([DroneStatus.RETIRED], { 
-    message: 'Manual status updates are restricted. Drones can only be manually marked as RETIRED. Other statuses are managed automatically by system events.' 
+  @IsIn([DroneStatus.RETIRED, DroneStatus.MAINTENANCE], { 
+    message: 'Manual status updates are restricted. Drones can be manually marked as RETIRED or MAINTENANCE. Other statuses are managed automatically by system events.' 
   })
   @ValidateIf((_, value) => value !== undefined)
   status?: DroneStatus;
