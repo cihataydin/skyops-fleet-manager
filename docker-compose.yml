@@ -13,6 +13,7 @@ services:
       - "5432:5432"
     volumes:
       - skyops-db-data:/var/lib/postgresql/data
+      - ./dump-fleetManagerDB-30-07-26.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - skyops-network
   
@@ -21,6 +22,41 @@ services:
     container_name: skyops-redis
     ports:
       - "6379:6379"
+    networks:
+      - skyops-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: skyops-backend
+    restart: always
+    profiles: ["apps"]
+    depends_on:
+      - db
+      - redis
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_HOST=skyops-postgres
+      - DATABASE_PORT=5432
+      - DATABASE_USERNAME=admin
+      - DATABASE_PASSWORD=admin
+      - DATABASE_NAME=fleetManagerDB
+      - CACHE_HOST=skyops-redis
+      - CACHE_PORT=6379
+    networks:
+      - skyops-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: skyops-frontend
+    restart: always
+    profiles: ["apps"]
+    ports:
+      - "5173:80"
     networks:
       - skyops-network
 

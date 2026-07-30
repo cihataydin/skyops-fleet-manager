@@ -41,31 +41,41 @@ An enterprise-grade **Modular Monolith** application designed to manage a fleet 
 
 ## 🛠️ Setup & Run Instructions
 
-### 1. Start the Infrastructure (Database)
-The project relies on PostgreSQL. Start it via Docker Compose:
+This project is fully Dockerized for a production-like environment using **Docker Compose Profiles**. The PostgreSQL database is automatically initialized and seeded via an SQL dump on startup.
+
+> 💡 **Note on Database Initialization:** 
+> For your convenience, the PostgreSQL database is automatically migrated and seeded using the `dump-fleetManagerDB-30-07-26.sql` file upon the first container initialization. 
+> *If you prefer to run migrations and seeds manually via the NestJS CLI (`npm run migration:run` & `npm run seed` inside the `backend/` directory), please comment out the `init.sql` volume mapping in `docker-compose.yml` before starting the containers.*
+
+### Option A: Run Everything via Docker (Production-Like)
+To start the entire stack (Database, Redis, Backend, Frontend):
+```bash
+docker-compose --profile apps up -d --build
+```
+- **Frontend**: `http://localhost:5173`
+- **Backend API**: `http://localhost:3000` (Swagger UI at `/swagger`)
+
+### Option B: Local Development (Run Apps Locally)
+If you want to run the backend/frontend locally for development but use Docker for infrastructure (DB & Redis):
+
+**1. Start Infrastructure Only:**
 ```bash
 docker-compose up -d
 ```
 
-### 2. Backend Setup
-Navigate to the backend, install dependencies, run TypeORM migrations, and seed the database with realistic test data:
+**2. Start Backend Locally:**
 ```bash
 cd backend
 npm install
-npm run migration:run
-npm run seed
 npm run start:dev
 ```
-*The backend API will be running on `http://localhost:3000` (Swagger UI at `/swagger`).*
 
-### 3. Frontend Setup
-In a new terminal window, start the React application:
+**3. Start Frontend Locally:**
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
-*The frontend application will be running on `http://localhost:5173`.*
 
 ---
 
