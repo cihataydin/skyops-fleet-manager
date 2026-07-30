@@ -1,34 +1,54 @@
-# SkyOps Mission Control
+# 🚁 SkyOps Fleet Mission Control & Maintenance Tracker
 
-SkyOps Mission Control is a modular monolith application designed to manage a fleet of industrial drones, their missions, and maintenance schedules. 
+[![NestJS](https://img.shields.io/badge/NestJS-E0234E?style=for-the-badge&logo=nestjs&logoColor=white)](https://nestjs.com/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
 
-## Features
-- **Fleet Management**: Register and manage drones with real-time status tracking.
-- **Mission Planning**: State-machine driven mission scheduling with automated status progression.
-- **Maintenance Tracking**: Automated tracking of flight hours and maintenance due dates.
-- **Dashboard**: Real-time fleet health report, maintenance alerts, and mission view.
-- **Pagination & Filtering**: Built-in capabilities to handle large datasets efficiently.
+An enterprise-grade **Modular Monolith** application designed to manage a fleet of industrial drones, schedule aerial inspection missions, and automate maintenance tracking. This project was built to replace spreadsheets and manual operations, ensuring compliance with aviation regulations and robust mission state-machine tracking.
 
-## Tech Stack
-- **Backend**: NestJS, TypeORM, PostgreSQL
-- **Frontend**: React, Vite, Ant Design
+📖 **[Read the System Design & Architecture Deep-Dive](./system-design.md)**
+
+---
+
+## ✨ Features & Requirements Met
+
+1. **Drone Registry**
+   - Full CRUD operations for drone fleet.
+   - Strict `SKY-XXXX-XXXX` serial number validation.
+   - Automated maintenance scheduling (every 50 flight hours or 90 days).
+   - Drone state transitions (`AVAILABLE`, `IN_MISSION`, `MAINTENANCE`, `RETIRED`).
+2. **Mission Management**
+   - Strict State-Machine tracking: `PLANNED -> PRE_FLIGHT_CHECK -> IN_PROGRESS -> COMPLETED / ABORTED`.
+   - Automated flight hour logging upon mission completion.
+   - Overlapping mission prevention mechanism.
+3. **Maintenance Tracker**
+   - Maintenance log creation triggering drone status updates.
+   - Decoupled, event-driven module updates.
+4. **Dashboard & Fleet Health**
+   - Real-time fleet health aggregation, overdue maintenance alerts, and upcoming mission counts.
+
+---
+
+## 🚀 Tech Stack
+
+- **Backend**: NestJS, TypeORM, PostgreSQL, Event Emitter, Automapper, Class-Validator
+- **Frontend**: React, Vite, Ant Design (TypeScript)
 - **Infrastructure**: Docker, Docker Compose
-- **Testing**: Jest, Supertest
+- **Testing**: Jest, Supertest, **Testcontainers** (for true isolated DB integration tests)
 
-## Prerequisites
-- Docker & Docker Compose
-- Node.js (v18+)
+---
 
-## Setup & Run Instructions
+## 🛠️ Setup & Run Instructions
 
-### 1. Start the Database
-The project uses PostgreSQL. Start the database container:
+### 1. Start the Infrastructure (Database)
+The project relies on PostgreSQL. Start it via Docker Compose:
 ```bash
 docker-compose up -d
 ```
 
 ### 2. Backend Setup
-Navigate to the backend directory, install dependencies, run migrations, and seed the database:
+Navigate to the backend, install dependencies, run TypeORM migrations, and seed the database with realistic test data:
 ```bash
 cd backend
 npm install
@@ -36,26 +56,30 @@ npm run migration:run
 npm run seed
 npm run start:dev
 ```
-The backend API will be running on `http://localhost:3000`.
+*The backend API will be running on `http://localhost:3000` (Swagger UI at `/swagger`).*
 
 ### 3. Frontend Setup
-Open a new terminal, navigate to the frontend directory, install dependencies, and start the app:
+In a new terminal window, start the React application:
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
-The frontend application will be running on `http://localhost:5173`.
+*The frontend application will be running on `http://localhost:5173`.*
 
-## Architecture Decisions
-- **Modular Monolith**: We chose a modular monolith architecture using NestJS modules (`Drones`, `Missions`, `Maintenance`, `Fleet`) to ensure separation of concerns while keeping deployment simple.
-- **State Machine**: Mission statuses are strictly controlled via business rules to prevent invalid transitions (e.g., cannot skip `PRE_FLIGHT_CHECK`).
-- **Migrations**: TypeORM migrations are used instead of `synchronize: true` to ensure production-readiness.
+---
 
-## Testing
-To run the backend unit and E2E tests:
+## 🧪 Testing
+
+This project takes testing seriously, utilizing **Testcontainers** to spin up isolated PostgreSQL instances for integration tests, preventing test pollution and flaky assertions.
+
+To run the backend tests:
 ```bash
 cd backend
+
+# Run Unit Tests
 npm run test
+
+# Run Integration & E2E Tests (Requires Docker daemon to be running)
 npm run test:e2e
 ```
