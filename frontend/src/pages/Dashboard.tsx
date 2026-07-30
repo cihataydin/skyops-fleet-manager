@@ -51,7 +51,7 @@ export const Dashboard: React.FC = () => {
         </Col>
         <Col span={6}>
           <Card>
-            <Statistic title="In Maintenance" value={health?.statusBreakdown?.IN_MAINTENANCE || 0} valueStyle={{ color: '#cf1322' }} />
+            <Statistic title="In Maintenance" value={health?.statusBreakdown?.MAINTENANCE || 0} valueStyle={{ color: '#cf1322' }} />
           </Card>
         </Col>
         <Col span={6}>

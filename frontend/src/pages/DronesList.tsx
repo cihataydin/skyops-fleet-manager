@@ -18,9 +18,9 @@ export const DronesList: React.FC = () => {
       const res = await api.get(`/drones?page=${page}&limit=${limit}`);
       setDrones(res.data.data.drones || res.data.data);
       setPagination({
-        current: Number(res.data.data.total?.page || res.data.meta?.page || 1),
-        pageSize: Number(res.data.data.total?.limit || res.data.meta?.limit || 10),
-        total: Number(res.data.data.total?.count || res.data.meta?.total || 0),
+        current: Number(res.data.pagination?.page || 1),
+        pageSize: Number(res.data.pagination?.limit || 10),
+        total: Number(res.data.pagination?.total || 0),
       });
     } catch (error) {
       console.error('Failed to fetch drones', error);

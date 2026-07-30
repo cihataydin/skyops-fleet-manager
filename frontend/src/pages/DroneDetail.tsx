@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Card, Typography, Descriptions, Table, Tabs, Button, Space, message } from 'antd';
+import { Card, Typography, Descriptions, Table, Tabs, Button, Space, message, Modal, Input } from 'antd';
 import { api } from '../api/axios';
 import { format } from 'date-fns';
 import { ScheduleMissionModal } from '../components/ScheduleMissionModal';
@@ -16,6 +16,9 @@ export const DroneDetail: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isMaintModalVisible, setIsMaintModalVisible] = useState(false);
+  const [isAbortModalVisible, setIsAbortModalVisible] = useState(false);
+  const [abortMissionId, setAbortMissionId] = useState<string | null>(null);
+  const [abortReason, setAbortReason] = useState('');
 
   const fetchDetails = async () => {
     try {
@@ -47,12 +50,30 @@ export const DroneDetail: React.FC = () => {
       } else if (status === 'COMPLETE') {
         await api.patch(`/missions/${missionId}/complete`, { flightHoursAtCompletion: loggedHours || 1 });
       } else if (status === 'ABORTED') {
-        await api.patch(`/missions/${missionId}/abort`, { abortReason: 'Aborted manually from UI' });
+        setAbortMissionId(missionId);
+        setAbortReason('');
+        setIsAbortModalVisible(true);
+        return; // Early return to avoid triggering success message here
       }
       message.success(`Mission status updated`);
       fetchDetails();
     } catch (error: any) {
       message.error(error.response?.data?.message || 'Failed to update mission');
+    }
+  };
+
+  const handleAbortSubmit = async () => {
+    if (!abortReason.trim()) {
+      message.warning('Abort reason is required.');
+      return;
+    }
+    try {
+      await api.patch(`/missions/${abortMissionId}/abort`, { abortReason });
+      message.success(`Mission aborted successfully`);
+      setIsAbortModalVisible(false);
+      fetchDetails();
+    } catch (error: any) {
+      message.error(error.response?.data?.message || 'Failed to abort mission');
     }
   };
 
@@ -154,6 +175,23 @@ export const DroneDetail: React.FC = () => {
         onClose={() => setIsMaintModalVisible(false)}
         onSuccess={fetchDetails}
       />
+      
+      <Modal
+        title="Abort Mission"
+        open={isAbortModalVisible}
+        onOk={handleAbortSubmit}
+        onCancel={() => setIsAbortModalVisible(false)}
+        okText="Confirm Abort"
+        okButtonProps={{ danger: true }}
+      >
+        <p>Please enter the reason for aborting this mission:</p>
+        <Input.TextArea 
+          rows={3}
+          value={abortReason} 
+          onChange={(e) => setAbortReason(e.target.value)} 
+          placeholder="e.g. Bad weather condition, battery low..." 
+        />
+      </Modal>
     </div>
   );
 };
