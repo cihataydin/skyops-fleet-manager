@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { IReportService } from '../interfaces/report.service.interface';
-import { FleetHealthReportResponseDto } from '../dtos/response/fleet-health-report.response.dto';
+import { FleetHealthReportResponseDto } from '@/modules/report/dtos/response/fleet-health-report.response.dto';
 import { DRONE_SERVICE_TOKEN } from '@/modules/drone/di';
 import { IDroneService } from '@/modules/drone/interfaces';
 import { MISSION_SERVICE_TOKEN } from '@/modules/mission/di';
@@ -33,6 +33,6 @@ export class ReportService implements IReportService {
       overdueMaintenanceDrones: overdueDrones,
       averageFlightHours: Number(averageFlightHours.toFixed(2)),
       missionsNext24Hours,
-    } as FleetHealthReportResponseDto;
+    };
   }
 }

@@ -12,6 +12,7 @@ import { MaintenanceLog } from '@/modules/maintenance/entities';
 import {
   MaintenanceListener,
   MissionListener,
+  DroneInternalListener,
 } from '@/modules/drone/listeners';
 import { MissionModule } from '@/modules/mission';
 
@@ -27,6 +28,7 @@ import { MissionModule } from '@/modules/mission';
     DroneProfile,
     MaintenanceListener,
     MissionListener,
+    DroneInternalListener,
     DroneScheduleService,
     {
       provide: DRONE_SERVICE_TOKEN,

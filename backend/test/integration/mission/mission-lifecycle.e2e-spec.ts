@@ -8,6 +8,19 @@ import { getDataSourceToken } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { PostgreSqlContainer, StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 
+const waitForCondition = async (
+  checkFn: () => Promise<boolean>,
+  maxWaitMs: number = 2000,
+  intervalMs: number = 50,
+): Promise<void> => {
+  const startTime = Date.now();
+  while (Date.now() - startTime < maxWaitMs) {
+    if (await checkFn()) return;
+    await new Promise((resolve) => setTimeout(resolve, intervalMs));
+  }
+  throw new Error('Timeout waiting for condition');
+};
+
 describe('Mission Lifecycle (Integration)', () => {
   let app: INestApplication;
   let dataSource: DataSource;
@@ -75,7 +88,6 @@ describe('Mission Lifecycle (Integration)', () => {
         scheduledEndTime: dayAfter.toISOString(),
       });
 
-    console.log(createMissionRes.body);
     expect(createMissionRes.status).toBe(201);
     const missionId = createMissionRes.body.data.id;
     expect(createMissionRes.body.data.status).toBe(MissionStatus.PLANNED);
@@ -107,7 +119,10 @@ describe('Mission Lifecycle (Integration)', () => {
     );
     expect(getDroneRes.status).toBe(200);
     
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await waitForCondition(async () => {
+      const res = await request(app.getHttpServer()).get(`/drones/${droneId}`);
+      return res.body?.data?.status === DroneStatus.AVAILABLE;
+    });
 
     const finalDroneRes = await request(app.getHttpServer()).get(
       `/drones/${droneId}`,
@@ -165,7 +180,10 @@ describe('Mission Lifecycle (Integration)', () => {
     expect(abortMissionRes.body.data.status).toBe(MissionStatus.ABORTED);
 
     // 5. Verify State (Wait for async event)
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await waitForCondition(async () => {
+      const res = await request(app.getHttpServer()).get(`/drones/${droneId}`);
+      return res.body?.data?.status === DroneStatus.AVAILABLE;
+    });
 
     const finalDroneRes = await request(app.getHttpServer()).get(`/drones/${droneId}`);
     expect(Number(finalDroneRes.body.data.totalFlightHours)).toBe(2);

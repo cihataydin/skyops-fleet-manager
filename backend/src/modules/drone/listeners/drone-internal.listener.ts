@@ -11,13 +11,13 @@ import { LOGGER_TOKEN } from '@/shared/di';
 import { ILoggerService } from '@/infra/logger';
 
 @Injectable()
-export class DroneMaintenanceListener {
+export class DroneInternalListener {
   constructor(
     @Inject(DRONE_SERVICE_TOKEN)
     private readonly droneService: IDroneService,
     @Inject(LOGGER_TOKEN) private readonly loggerService: ILoggerService,
   ) {
-    this.loggerService.setContext(DroneMaintenanceListener.name);
+    this.loggerService.setContext(DroneInternalListener.name);
   }
 
   @OnEvent(DroneEvent.FLIGHT_HOURS_EXCEEDED, { async: true })

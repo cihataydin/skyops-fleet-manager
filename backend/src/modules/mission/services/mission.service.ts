@@ -45,12 +45,6 @@ import { MissionEvent, MissionStatus } from '@/modules/mission/enums';
 import { DRONE_SERVICE_TOKEN } from '@/modules/drone/di';
 import { IDroneService } from '@/modules/drone/interfaces';
 import { MissionLogic } from '@/modules/mission/logics';
-import {
-  MissionAbortedEvent,
-  MissionCompletedEvent,
-  MissionStartedEvent,
-} from '@/modules/mission/events';
-import { DroneStatus } from '@/modules/drone/enums';
 
 @Injectable()
 export class MissionService implements IMissionService {
@@ -230,7 +224,7 @@ export class MissionService implements IMissionService {
     this.eventEmitter.emit(MissionEvent.MISSION_STARTED, {
       missionId,
       droneId,
-    } as MissionStartedEvent);
+    });
 
     return updatedMission;
   }
@@ -250,7 +244,7 @@ export class MissionService implements IMissionService {
       missionId,
       droneId,
       flightHours: Number(flightHoursAtCompletion),
-    } as MissionCompletedEvent);
+    });
 
     return updatedMission;
   }
@@ -273,7 +267,7 @@ export class MissionService implements IMissionService {
       droneId,
       abortReason,
       flightHoursAtAborting,
-    } as MissionAbortedEvent);
+    });
 
     return updatedMission;
   }

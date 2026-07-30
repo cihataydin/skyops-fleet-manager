@@ -7,7 +7,6 @@ import { DroneStatus, DroneEvent } from '@/modules/drone/enums';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { LOGGER_TOKEN } from '@/shared/di';
 import { ILoggerService } from '@/infra/logger';
-import { DroneMaintenanceDueEvent } from '@/modules/drone/events';
 
 @Injectable()
 export class DroneScheduleService {
@@ -50,7 +49,7 @@ export class DroneScheduleService {
         totalFlightHours: Number(drone.totalFlightHours || 0),
         reason: 'CALENDAR_90_DAYS',
         nextMaintenanceDueDate: drone.nextMaintenanceDueDate,
-      } as DroneMaintenanceDueEvent);
+      });
     }
   }
 }

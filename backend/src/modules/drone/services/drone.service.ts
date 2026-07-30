@@ -31,7 +31,6 @@ import { IMissionService } from '@/modules/mission/interfaces';
 import * as _ from 'lodash';
 
 import { MS_PER_DAY } from '@/shared/constants';
-import { DroneFlightHoursExceededEvent } from '@/modules/drone/events';
 import { UpdateDroneRequestModel } from '@/modules/drone/models/request';
 
 @Injectable()
@@ -186,7 +185,7 @@ export class DroneService implements IDroneService {
       this.eventEmitter.emit(DroneEvent.FLIGHT_HOURS_EXCEEDED, {
         droneId: rawDrone.id,
         totalFlightHours: Number(rawDrone.total_flight_hours),
-      } as DroneFlightHoursExceededEvent);
+      });
       isMaintenanceDue = true;
     }
 

@@ -2,7 +2,6 @@ import {
   Inject,
   Injectable,
   NotFoundException,
-  BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DroneStatus } from '@/modules/drone/enums';
@@ -29,7 +28,6 @@ import { IDroneService } from '@/modules/drone/interfaces';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { MaintenanceEvent } from '@/modules/maintenance/enums';
 import { MaintenanceLogic } from '@/modules/maintenance/logics';
-import { MaintenanceCreatedEvent } from '@/modules/maintenance/events';
 import { DomainException } from '@/shared/exceptions';
 
 @Injectable()
@@ -134,7 +132,7 @@ export class MaintenanceService implements IMaintenanceService {
       droneId: createdLogDroneId,
       performedAt,
       flightHoursAtMaintenance,
-    } as MaintenanceCreatedEvent);
+    });
 
     return this.mapper.map(
       createdLog,
