@@ -30,6 +30,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { MaintenanceEvent } from '@/modules/maintenance/enums';
 import { MaintenanceLogic } from '@/modules/maintenance/logics';
 import { MaintenanceCreatedEvent } from '@/modules/maintenance/events';
+import { DomainException } from '@/shared/exceptions';
 
 @Injectable()
 export class MaintenanceService implements IMaintenanceService {
@@ -106,7 +107,7 @@ export class MaintenanceService implements IMaintenanceService {
     }
 
     if (drone.status !== DroneStatus.MAINTENANCE) {
-      throw new BadRequestException(
+      throw new DomainException(
         `Drone with ID '${droneId}' must be in MAINTENANCE status to create a maintenance log. Send it to maintenance first.`,
       );
     }

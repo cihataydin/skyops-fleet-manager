@@ -1,4 +1,4 @@
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
 import { DroneModel } from '@/modules/drone/enums';
@@ -29,6 +29,7 @@ describe('Mission Lifecycle (Integration)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
     await app.init();
 
     dataSource = moduleFixture.get<DataSource>(getDataSourceToken());
@@ -114,6 +115,60 @@ describe('Mission Lifecycle (Integration)', () => {
 
     expect(finalDroneRes.body.data).toBeDefined();
     expect(Number(finalDroneRes.body.data.totalFlightHours)).toBe(10);
+    expect(finalDroneRes.body.data.status).toBe(DroneStatus.AVAILABLE);
+  });
+
+  it('should successfully abort a mission and restore drone state', async () => {
+    // 1. Create a Drone
+    const droneSerialNumber = `SKY-ABRT-0001`;
+    const createDroneRes = await request(app.getHttpServer())
+      .post('/drones')
+      .send({
+        serialNumber: droneSerialNumber,
+        model: DroneModel.MATRICE_300,
+      });
+
+    expect(createDroneRes.status).toBe(201);
+    const droneId = createDroneRes.body.data.id;
+
+    // 2. Schedule a Mission
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const dayAfter = new Date();
+    dayAfter.setDate(dayAfter.getDate() + 2);
+
+    const createMissionRes = await request(app.getHttpServer())
+      .post('/missions')
+      .send({
+        droneId,
+        name: 'Abort Test Mission',
+        type: 'WIND_TURBINE_INSPECTION',
+        pilotName: 'Jane Doe',
+        siteLocation: 'Test Site 2',
+        scheduledStartTime: tomorrow.toISOString(),
+        scheduledEndTime: dayAfter.toISOString(),
+      });
+
+    expect(createMissionRes.status).toBe(201);
+    const missionId = createMissionRes.body.data.id;
+
+    // 3. Start Mission
+    await request(app.getHttpServer()).patch(`/missions/${missionId}/pre-flight`);
+    await request(app.getHttpServer()).patch(`/missions/${missionId}/start`);
+
+    // 4. Abort Mission
+    const abortMissionRes = await request(app.getHttpServer())
+      .patch(`/missions/${missionId}/abort`)
+      .send({ flightHoursAtAborting: 2, abortReason: 'Bad weather condition' });
+    
+    expect(abortMissionRes.status).toBe(200);
+    expect(abortMissionRes.body.data.status).toBe(MissionStatus.ABORTED);
+
+    // 5. Verify State (Wait for async event)
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    const finalDroneRes = await request(app.getHttpServer()).get(`/drones/${droneId}`);
+    expect(Number(finalDroneRes.body.data.totalFlightHours)).toBe(2);
     expect(finalDroneRes.body.data.status).toBe(DroneStatus.AVAILABLE);
   });
 });

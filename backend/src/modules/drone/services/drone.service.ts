@@ -197,9 +197,10 @@ export class DroneService implements IDroneService {
     droneId: string,
     performedAt: Date,
   ): Promise<void> {
-    const drone = await this.dronesRepository.findOne({
-      where: { id: droneId },
-    });
+    const droneCache = await this.cacheService.getAsync<Drone>(`drone_${droneId}`);
+
+    const drone = droneCache 
+    ? droneCache : await this.dronesRepository.findOne({ where: { id: droneId } });
 
     if (!drone) {
       throw new NotFoundException(`Drone with ID '${droneId}' not found`);
