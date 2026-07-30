@@ -33,7 +33,6 @@ export interface IDroneService {
     flightHoursAtLastMaintenance?: number,
   ): Promise<void>;
 
-
   recordFlightHoursAsync(
     droneId: string,
     addedHours: number,

@@ -1,11 +1,4 @@
-import {
-  IsEnum,
-  IsNumber,
-  Min,
-  IsNotEmpty,
-  IsIn,
-  ValidateIf,
-} from 'class-validator';
+import { IsEnum, IsIn, ValidateIf } from 'class-validator';
 import { DroneModel, DroneStatus } from '@/modules/drone/enums';
 import { ApiProperty } from '@nestjs/swagger';
 import { AutoMap } from '@automapper/classes';

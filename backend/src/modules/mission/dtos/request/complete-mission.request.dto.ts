@@ -12,5 +12,4 @@ export class CompleteMissionRequestDto {
   @IsNumber()
   @Min(0)
   flightHoursAtCompletion: number;
-
 }

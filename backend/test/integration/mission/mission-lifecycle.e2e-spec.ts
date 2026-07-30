@@ -6,7 +6,10 @@ import { DroneStatus } from '@/modules/drone/enums';
 import { MissionStatus } from '@/modules/mission/enums';
 import { getDataSourceToken } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
-import { PostgreSqlContainer, StartedPostgreSqlContainer } from '@testcontainers/postgresql';
+import {
+  PostgreSqlContainer,
+  StartedPostgreSqlContainer,
+} from '@testcontainers/postgresql';
 
 const waitForCondition = async (
   checkFn: () => Promise<boolean>,
@@ -42,7 +45,9 @@ describe('Mission Lifecycle (Integration)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
-    app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+    app.useGlobalPipes(
+      new ValidationPipe({ whitelist: true, transform: true }),
+    );
     await app.init();
 
     dataSource = moduleFixture.get<DataSource>(getDataSourceToken());
@@ -58,7 +63,10 @@ describe('Mission Lifecycle (Integration)', () => {
 
   it('should successfully complete a full mission lifecycle', async () => {
     // 1. Create a Drone
-    const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
+    const randomSuffix = Math.random()
+      .toString(36)
+      .substring(2, 6)
+      .toUpperCase();
     const droneSerialNumber = `SKY-INT1-${randomSuffix}`;
     const createDroneRes = await request(app.getHttpServer())
       .post('/drones')
@@ -119,7 +127,7 @@ describe('Mission Lifecycle (Integration)', () => {
       `/drones/${droneId}`,
     );
     expect(getDroneRes.status).toBe(200);
-    
+
     await waitForCondition(async () => {
       const res = await request(app.getHttpServer()).get(`/drones/${droneId}`);
       return res.body?.data?.status === DroneStatus.AVAILABLE;
@@ -136,7 +144,10 @@ describe('Mission Lifecycle (Integration)', () => {
 
   it('should successfully abort a mission and restore drone state', async () => {
     // 1. Create a Drone
-    const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
+    const randomSuffix = Math.random()
+      .toString(36)
+      .substring(2, 6)
+      .toUpperCase();
     const droneSerialNumber = `SKY-ABRT-${randomSuffix}`;
     const createDroneRes = await request(app.getHttpServer())
       .post('/drones')
@@ -170,14 +181,16 @@ describe('Mission Lifecycle (Integration)', () => {
     const missionId = createMissionRes.body.data.id;
 
     // 3. Start Mission
-    await request(app.getHttpServer()).patch(`/missions/${missionId}/pre-flight`);
+    await request(app.getHttpServer()).patch(
+      `/missions/${missionId}/pre-flight`,
+    );
     await request(app.getHttpServer()).patch(`/missions/${missionId}/start`);
 
     // 4. Abort Mission
     const abortMissionRes = await request(app.getHttpServer())
       .patch(`/missions/${missionId}/abort`)
       .send({ flightHoursAtAborting: 2, abortReason: 'Bad weather condition' });
-    
+
     expect(abortMissionRes.status).toBe(200);
     expect(abortMissionRes.body.data.status).toBe(MissionStatus.ABORTED);
 
@@ -187,7 +200,9 @@ describe('Mission Lifecycle (Integration)', () => {
       return res.body?.data?.status === DroneStatus.AVAILABLE;
     });
 
-    const finalDroneRes = await request(app.getHttpServer()).get(`/drones/${droneId}`);
+    const finalDroneRes = await request(app.getHttpServer()).get(
+      `/drones/${droneId}`,
+    );
     expect(Number(finalDroneRes.body.data.totalFlightHours)).toBe(2);
     expect(finalDroneRes.body.data.status).toBe(DroneStatus.AVAILABLE);
   });

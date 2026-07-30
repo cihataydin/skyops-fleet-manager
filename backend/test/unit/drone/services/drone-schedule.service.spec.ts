@@ -52,8 +52,16 @@ describe('DroneScheduleService', () => {
 
     it('should emit MAINTENANCE_DUE event for each drone that is due', async () => {
       const dueDrones = [
-        { id: 'drone-1', totalFlightHours: '10', nextMaintenanceDueDate: new Date() },
-        { id: 'drone-2', totalFlightHours: '20', nextMaintenanceDueDate: new Date() },
+        {
+          id: 'drone-1',
+          totalFlightHours: '10',
+          nextMaintenanceDueDate: new Date(),
+        },
+        {
+          id: 'drone-2',
+          totalFlightHours: '20',
+          nextMaintenanceDueDate: new Date(),
+        },
       ];
       dronesRepository.find.mockResolvedValue(dueDrones);
 
@@ -66,11 +74,17 @@ describe('DroneScheduleService', () => {
       expect(eventEmitter.emit).toHaveBeenCalledTimes(2);
       expect(eventEmitter.emit).toHaveBeenCalledWith(
         DroneEvent.MAINTENANCE_DUE,
-        expect.objectContaining({ droneId: 'drone-1', reason: 'CALENDAR_90_DAYS' }),
+        expect.objectContaining({
+          droneId: 'drone-1',
+          reason: 'CALENDAR_90_DAYS',
+        }),
       );
       expect(eventEmitter.emit).toHaveBeenCalledWith(
         DroneEvent.MAINTENANCE_DUE,
-        expect.objectContaining({ droneId: 'drone-2', reason: 'CALENDAR_90_DAYS' }),
+        expect.objectContaining({
+          droneId: 'drone-2',
+          reason: 'CALENDAR_90_DAYS',
+        }),
       );
     });
   });

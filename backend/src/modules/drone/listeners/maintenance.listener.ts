@@ -29,7 +29,6 @@ export class MaintenanceListener {
         `Received '${MaintenanceEvent.MAINTENANCE_CREATED}' event for drone '${droneId}'.`,
       );
 
-      // TODO: should we merge this two service methods?
       await this.droneService.changeStatusAsync(
         droneId,
         DroneStatus.AVAILABLE,

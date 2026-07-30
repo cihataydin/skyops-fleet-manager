@@ -9,8 +9,11 @@ import { getMapperToken } from '@automapper/nestjs';
 import { MaintenanceLogic } from '@/modules/maintenance/logics';
 import { DroneStatus } from '@/modules/drone/enums';
 import { MaintenanceEvent } from '@/modules/maintenance/enums';
-import { NotFoundException, BadRequestException } from '@nestjs/common';
-import { CreateMaintenanceLogRequestDto, GetMaintenanceLogsRequestDto } from '@/modules/maintenance/dtos/request';
+import { NotFoundException } from '@nestjs/common';
+import {
+  CreateMaintenanceLogRequestDto,
+  GetMaintenanceLogsRequestDto,
+} from '@/modules/maintenance/dtos/request';
 import { DomainException } from '@/shared/exceptions';
 
 jest.mock('@/modules/maintenance/logics', () => ({
@@ -48,7 +51,10 @@ describe('MaintenanceService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         MaintenanceService,
-        { provide: getRepositoryToken(MaintenanceLog), useValue: maintenanceLogsRepository },
+        {
+          provide: getRepositoryToken(MaintenanceLog),
+          useValue: maintenanceLogsRepository,
+        },
         { provide: getMapperToken(), useValue: mapper },
         { provide: CACHE_TOKEN, useValue: cacheService },
         { provide: EventEmitter2, useValue: eventEmitter },
@@ -62,16 +68,29 @@ describe('MaintenanceService', () => {
 
   describe('getMaintenanceLogsAsync', () => {
     it('should return paginated logs', async () => {
-      const requestDto: GetMaintenanceLogsRequestDto = { limit: 10, page: 1, direction: 'DESC', orderBy: 'performedAt', droneId: 'd1' } as any;
-      maintenanceLogsRepository.findAndCount.mockResolvedValue([[{ id: '1' }], 1]);
+      const requestDto: GetMaintenanceLogsRequestDto = {
+        limit: 10,
+        page: 1,
+        direction: 'DESC',
+        orderBy: 'performedAt',
+        droneId: 'd1',
+      } as any;
+      maintenanceLogsRepository.findAndCount.mockResolvedValue([
+        [{ id: '1' }],
+        1,
+      ]);
       mapper.mapArray.mockReturnValue([{ id: '1' }]);
 
       const result = await service.getMaintenanceLogsAsync(requestDto);
 
       expect(result).toBeDefined();
-      expect(maintenanceLogsRepository.findAndCount).toHaveBeenCalledWith(expect.objectContaining({
-        take: 10, skip: 0, order: { performedAt: 'DESC', id: 'asc' }
-      }));
+      expect(maintenanceLogsRepository.findAndCount).toHaveBeenCalledWith(
+        expect.objectContaining({
+          take: 10,
+          skip: 0,
+          order: { performedAt: 'DESC', id: 'asc' },
+        }),
+      );
     });
   });
 
@@ -81,7 +100,7 @@ describe('MaintenanceService', () => {
       mapper.map.mockReturnValue({ id: '1' });
 
       const result = await service.getMaintenanceLogAsync('1');
-      
+
       expect(result).toEqual({ id: '1' });
       expect(maintenanceLogsRepository.findOne).not.toHaveBeenCalled();
     });
@@ -92,7 +111,7 @@ describe('MaintenanceService', () => {
       mapper.map.mockReturnValue({ id: '1' });
 
       const result = await service.getMaintenanceLogAsync('1');
-      
+
       expect(maintenanceLogsRepository.findOne).toHaveBeenCalled();
       expect(cacheService.setAsync).toHaveBeenCalled();
       expect(result).toEqual({ id: '1' });
@@ -102,7 +121,9 @@ describe('MaintenanceService', () => {
       cacheService.getAsync.mockResolvedValue(null);
       maintenanceLogsRepository.findOne.mockResolvedValue(null);
 
-      await expect(service.getMaintenanceLogAsync('1')).rejects.toThrow(NotFoundException);
+      await expect(service.getMaintenanceLogAsync('1')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -116,33 +137,49 @@ describe('MaintenanceService', () => {
 
     it('should throw NotFoundException if drone not found', async () => {
       droneService.getDroneAsync.mockResolvedValue(null);
-      await expect(service.createMaintenanceLogAsync(requestDto)).rejects.toThrow(NotFoundException);
+      await expect(
+        service.createMaintenanceLogAsync(requestDto),
+      ).rejects.toThrow(NotFoundException);
     });
 
     it('should throw DomainException if drone is not in MAINTENANCE status', async () => {
-      droneService.getDroneAsync.mockResolvedValue({ status: DroneStatus.AVAILABLE });
-      await expect(service.createMaintenanceLogAsync(requestDto)).rejects.toThrow(DomainException);
+      droneService.getDroneAsync.mockResolvedValue({
+        status: DroneStatus.AVAILABLE,
+      });
+      await expect(
+        service.createMaintenanceLogAsync(requestDto),
+      ).rejects.toThrow(DomainException);
     });
 
     it('should create log and emit event if valid', async () => {
-      droneService.getDroneAsync.mockResolvedValue({ status: DroneStatus.MAINTENANCE, totalFlightHours: 100 });
-      mapper.map.mockReturnValueOnce(new MaintenanceLog()).mockReturnValueOnce({ id: '1' });
-      
+      droneService.getDroneAsync.mockResolvedValue({
+        status: DroneStatus.MAINTENANCE,
+        totalFlightHours: 100,
+      });
+      mapper.map
+        .mockReturnValueOnce(new MaintenanceLog())
+        .mockReturnValueOnce({ id: '1' });
+
       const createdLog = new MaintenanceLog();
       createdLog.performedAt = new Date();
       createdLog.droneId = '1';
-      
+
       maintenanceLogsRepository.create.mockReturnValue(createdLog);
       maintenanceLogsRepository.save.mockResolvedValue(createdLog);
 
       const result = await service.createMaintenanceLogAsync(requestDto);
 
-      expect(MaintenanceLogic.validateFlightHoursAtMaintenance).toHaveBeenCalledWith(100, 100);
+      expect(
+        MaintenanceLogic.validateFlightHoursAtMaintenance,
+      ).toHaveBeenCalledWith(100, 100);
       expect(maintenanceLogsRepository.save).toHaveBeenCalled();
-      expect(eventEmitter.emit).toHaveBeenCalledWith(MaintenanceEvent.MAINTENANCE_CREATED, expect.objectContaining({
-        droneId: '1',
-        flightHoursAtMaintenance: 100,
-      }));
+      expect(eventEmitter.emit).toHaveBeenCalledWith(
+        MaintenanceEvent.MAINTENANCE_CREATED,
+        expect.objectContaining({
+          droneId: '1',
+          flightHoursAtMaintenance: 100,
+        }),
+      );
       expect(result).toEqual({ id: '1' });
     });
   });

@@ -57,13 +57,4 @@ export class MaintenanceLog extends BaseEntity {
   })
   @JoinColumn({ name: 'drone_id' })
   drone: Drone;
-
-  /* TODO:
-  • Creating a maintenance log should update the drone's
-    maintenance tracking dates.
-  • The drone's status should reflect when it is under maintenance.
-  • The recorded flight hours at maintenance should be consistent
-    with the drone's actual total flight hours (within a reasonable
-    tolerance).
-  */
 }

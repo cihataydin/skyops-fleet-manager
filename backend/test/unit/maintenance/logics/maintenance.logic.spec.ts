@@ -14,7 +14,10 @@ describe('MaintenanceLogic', () => {
       const droneHours = 100;
       const recordedHours = droneHours + MAINTENANCE_FLIGHT_HOURS_TOLERANCE;
       expect(() =>
-        MaintenanceLogic.validateFlightHoursAtMaintenance(recordedHours, droneHours),
+        MaintenanceLogic.validateFlightHoursAtMaintenance(
+          recordedHours,
+          droneHours,
+        ),
       ).not.toThrow();
     });
 
@@ -22,23 +25,34 @@ describe('MaintenanceLogic', () => {
       const droneHours = 100;
       const recordedHours = droneHours - MAINTENANCE_FLIGHT_HOURS_TOLERANCE;
       expect(() =>
-        MaintenanceLogic.validateFlightHoursAtMaintenance(recordedHours, droneHours),
+        MaintenanceLogic.validateFlightHoursAtMaintenance(
+          recordedHours,
+          droneHours,
+        ),
       ).not.toThrow();
     });
 
     it('should throw DomainException if the recorded hours exceed the positive tolerance limit', () => {
       const droneHours = 100;
-      const recordedHours = droneHours + MAINTENANCE_FLIGHT_HOURS_TOLERANCE + 0.1;
+      const recordedHours =
+        droneHours + MAINTENANCE_FLIGHT_HOURS_TOLERANCE + 0.1;
       expect(() =>
-        MaintenanceLogic.validateFlightHoursAtMaintenance(recordedHours, droneHours),
+        MaintenanceLogic.validateFlightHoursAtMaintenance(
+          recordedHours,
+          droneHours,
+        ),
       ).toThrow(DomainException);
     });
 
     it('should throw DomainException if the recorded hours exceed the negative tolerance limit', () => {
       const droneHours = 100;
-      const recordedHours = droneHours - MAINTENANCE_FLIGHT_HOURS_TOLERANCE - 0.1;
+      const recordedHours =
+        droneHours - MAINTENANCE_FLIGHT_HOURS_TOLERANCE - 0.1;
       expect(() =>
-        MaintenanceLogic.validateFlightHoursAtMaintenance(recordedHours, droneHours),
+        MaintenanceLogic.validateFlightHoursAtMaintenance(
+          recordedHours,
+          droneHours,
+        ),
       ).toThrow(DomainException);
     });
 
@@ -46,13 +60,21 @@ describe('MaintenanceLogic', () => {
       const droneHours = 100;
       const recordedHours = 110;
       const customTolerance = 15;
-      
+
       expect(() =>
-        MaintenanceLogic.validateFlightHoursAtMaintenance(recordedHours, droneHours, customTolerance),
+        MaintenanceLogic.validateFlightHoursAtMaintenance(
+          recordedHours,
+          droneHours,
+          customTolerance,
+        ),
       ).not.toThrow();
 
       expect(() =>
-        MaintenanceLogic.validateFlightHoursAtMaintenance(120, droneHours, customTolerance),
+        MaintenanceLogic.validateFlightHoursAtMaintenance(
+          120,
+          droneHours,
+          customTolerance,
+        ),
       ).toThrow(DomainException);
     });
   });

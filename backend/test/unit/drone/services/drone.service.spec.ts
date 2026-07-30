@@ -9,7 +9,10 @@ import { getMapperToken } from '@automapper/nestjs';
 import { DroneLogic } from '@/modules/drone/logics';
 import { DroneEvent, DroneStatus } from '@/modules/drone/enums';
 import { NotFoundException } from '@nestjs/common';
-import { GetDronesRequestDto, CreateDroneRequestDto } from '@/modules/drone/dtos/request';
+import {
+  GetDronesRequestDto,
+  CreateDroneRequestDto,
+} from '@/modules/drone/dtos/request';
 import { LessThan } from 'typeorm';
 
 jest.mock('@/modules/drone/logics', () => ({
@@ -47,7 +50,11 @@ describe('DroneService', () => {
       createQueryBuilder: jest.fn(),
     };
     eventEmitter = { emit: jest.fn() };
-    cacheService = { deleteAsync: jest.fn(), getAsync: jest.fn(), setAsync: jest.fn() };
+    cacheService = {
+      deleteAsync: jest.fn(),
+      getAsync: jest.fn(),
+      setAsync: jest.fn(),
+    };
     mapper = { map: jest.fn(), mapArray: jest.fn() };
     missionService = { hasUpcomingMissionAsync: jest.fn() };
 
@@ -68,7 +75,12 @@ describe('DroneService', () => {
 
   describe('getDronesAsync', () => {
     it('should return paginated drones', async () => {
-      const requestDto: GetDronesRequestDto = { limit: 10, page: 1, direction: 'DESC', orderBy: 'model' };
+      const requestDto: GetDronesRequestDto = {
+        limit: 10,
+        page: 1,
+        direction: 'DESC',
+        orderBy: 'model',
+      };
       const drones = [{ id: '1' }];
       dronesRepository.findAndCount.mockResolvedValue([drones, 1]);
       mapper.mapArray.mockReturnValue([{ id: '1' }]);
@@ -77,9 +89,13 @@ describe('DroneService', () => {
 
       expect(result.drones).toBeDefined();
       expect(result.total.count).toBe(1);
-      expect(dronesRepository.findAndCount).toHaveBeenCalledWith(expect.objectContaining({
-        take: 10, skip: 0, order: { model: 'DESC', id: 'asc' }
-      }));
+      expect(dronesRepository.findAndCount).toHaveBeenCalledWith(
+        expect.objectContaining({
+          take: 10,
+          skip: 0,
+          order: { model: 'DESC', id: 'asc' },
+        }),
+      );
     });
   });
 
@@ -103,8 +119,13 @@ describe('DroneService', () => {
 
       const result = await service.getDroneAsync('1');
 
-      expect(dronesRepository.findOne).toHaveBeenCalledWith({ where: { id: '1' } });
-      expect(cacheService.setAsync).toHaveBeenCalledWith('drone_1', JSON.stringify(dbDrone));
+      expect(dronesRepository.findOne).toHaveBeenCalledWith({
+        where: { id: '1' },
+      });
+      expect(cacheService.setAsync).toHaveBeenCalledWith(
+        'drone_1',
+        JSON.stringify(dbDrone),
+      );
       expect(result).toEqual(dbDrone);
     });
 
@@ -112,7 +133,9 @@ describe('DroneService', () => {
       cacheService.getAsync.mockResolvedValue(null);
       dronesRepository.findOne.mockResolvedValue(null);
 
-      await expect(service.getDroneAsync('1')).rejects.toThrow(NotFoundException);
+      await expect(service.getDroneAsync('1')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -120,7 +143,9 @@ describe('DroneService', () => {
     it('should create and return a drone', async () => {
       const dto = new CreateDroneRequestDto();
       const mappedDrone = new Drone();
-      mapper.map.mockReturnValueOnce(mappedDrone).mockReturnValueOnce({ id: '1' });
+      mapper.map
+        .mockReturnValueOnce(mappedDrone)
+        .mockReturnValueOnce({ id: '1' });
       dronesRepository.create.mockReturnValue(mappedDrone);
       dronesRepository.save.mockResolvedValue(mappedDrone);
 
@@ -135,7 +160,9 @@ describe('DroneService', () => {
   describe('updateDroneAsync', () => {
     it('should throw NotFoundException if drone not found', async () => {
       dronesRepository.findOne.mockResolvedValue(null);
-      await expect(service.updateDroneAsync('1', {} as any)).rejects.toThrow(NotFoundException);
+      await expect(service.updateDroneAsync('1', {} as any)).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('should update drone, clear cache and return updated drone', async () => {
@@ -145,7 +172,9 @@ describe('DroneService', () => {
       dronesRepository.save.mockResolvedValue(dbDrone);
       mapper.map.mockReturnValue(dbDrone);
 
-      const result = await service.updateDroneAsync('1', { status: DroneStatus.MAINTENANCE });
+      const result = await service.updateDroneAsync('1', {
+        status: DroneStatus.MAINTENANCE,
+      });
 
       expect(DroneLogic.validateManualStatusUpdate).toHaveBeenCalled();
       expect(dronesRepository.save).toHaveBeenCalled();
@@ -156,7 +185,11 @@ describe('DroneService', () => {
 
   describe('changeStatusAsync', () => {
     it('should change status, clear cache and update flightHours if provided', async () => {
-      const drone = { id: '1', status: DroneStatus.AVAILABLE, flightHoursAtLastMaintenance: 0 };
+      const drone = {
+        id: '1',
+        status: DroneStatus.AVAILABLE,
+        flightHoursAtLastMaintenance: 0,
+      };
       dronesRepository.findOne.mockResolvedValue(drone);
 
       await service.changeStatusAsync('1', DroneStatus.MAINTENANCE, 50);
@@ -169,7 +202,9 @@ describe('DroneService', () => {
 
     it('should throw NotFoundException if drone not found', async () => {
       dronesRepository.findOne.mockResolvedValue(null);
-      await expect(service.changeStatusAsync('1', DroneStatus.MAINTENANCE)).rejects.toThrow(NotFoundException);
+      await expect(
+        service.changeStatusAsync('1', DroneStatus.MAINTENANCE),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -186,7 +221,13 @@ describe('DroneService', () => {
         where: jest.fn().mockReturnThis(),
         returning: jest.fn().mockReturnThis(),
         execute: jest.fn().mockResolvedValue({
-          raw: [{ id: '1', total_flight_hours: '60', flight_hours_at_last_maintenance: '0' }],
+          raw: [
+            {
+              id: '1',
+              total_flight_hours: '60',
+              flight_hours_at_last_maintenance: '0',
+            },
+          ],
         }),
       };
       dronesRepository.createQueryBuilder.mockReturnValue(mockQueryBuilder);
@@ -196,7 +237,7 @@ describe('DroneService', () => {
 
       expect(result).toEqual({ maintenanceTriggered: true });
       expect(eventEmitter.emit).toHaveBeenCalledWith(
-        DroneEvent.FLIGHT_HOURS_EXCEEDED, 
+        DroneEvent.FLIGHT_HOURS_EXCEEDED,
         expect.objectContaining({ droneId: '1', totalFlightHours: 60 }),
       );
       expect(cacheService.deleteAsync).toHaveBeenCalledWith('drone_1');
@@ -209,7 +250,13 @@ describe('DroneService', () => {
         where: jest.fn().mockReturnThis(),
         returning: jest.fn().mockReturnThis(),
         execute: jest.fn().mockResolvedValue({
-          raw: [{ id: '1', total_flight_hours: '40', flight_hours_at_last_maintenance: '0' }],
+          raw: [
+            {
+              id: '1',
+              total_flight_hours: '40',
+              flight_hours_at_last_maintenance: '0',
+            },
+          ],
         }),
       };
       dronesRepository.createQueryBuilder.mockReturnValue(mockQueryBuilder);
@@ -228,11 +275,14 @@ describe('DroneService', () => {
       const drone = { id: '1' };
       cacheService.getAsync.mockResolvedValue(null);
       dronesRepository.findOne.mockResolvedValue(drone);
-      
+
       const date = new Date();
       await service.updateMaintenanceTrackingDatesAsync('1', date);
 
-      expect(DroneLogic.updateMaintenanceTrackingDates).toHaveBeenCalledWith(drone, date);
+      expect(DroneLogic.updateMaintenanceTrackingDates).toHaveBeenCalledWith(
+        drone,
+        date,
+      );
       expect(dronesRepository.save).toHaveBeenCalledWith(drone);
       expect(cacheService.deleteAsync).toHaveBeenCalledWith('drone_1');
       expect(cacheService.getAsync).toHaveBeenCalledWith('drone_1');
@@ -240,18 +290,22 @@ describe('DroneService', () => {
 
     it('should throw NotFoundException if not found', async () => {
       dronesRepository.findOne.mockResolvedValue(null);
-      await expect(service.updateMaintenanceTrackingDatesAsync('1', new Date())).rejects.toThrow(NotFoundException);
+      await expect(
+        service.updateMaintenanceTrackingDatesAsync('1', new Date()),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 
   describe('getDroneStatusBreakdownAsync', () => {
     it('should return total and breakdown', async () => {
       dronesRepository.find.mockResolvedValue([{}, {}]);
-      (DroneLogic.calculateStatusBreakdown as jest.Mock).mockReturnValue({ 'AVAILABLE': 2 });
+      (DroneLogic.calculateStatusBreakdown as jest.Mock).mockReturnValue({
+        AVAILABLE: 2,
+      });
 
       const result = await service.getDroneStatusBreakdownAsync();
 
-      expect(result).toEqual({ total: 2, breakdown: { 'AVAILABLE': 2 } });
+      expect(result).toEqual({ total: 2, breakdown: { AVAILABLE: 2 } });
     });
   });
 
@@ -263,9 +317,12 @@ describe('DroneService', () => {
       mapper.mapArray.mockReturnValue([{ id: '1' }]);
 
       const daysThreshold = 5;
-      const expectedThresholdDate = new Date(fixedDate.getTime() + daysThreshold * 24 * 60 * 60 * 1000);
-      const result = await service.getMaintenanceAlertDronesAsync(daysThreshold);
-    
+      const expectedThresholdDate = new Date(
+        fixedDate.getTime() + daysThreshold * 24 * 60 * 60 * 1000,
+      );
+      const result =
+        await service.getMaintenanceAlertDronesAsync(daysThreshold);
+
       expect(result).toEqual([{ id: '1' }]);
       expect(dronesRepository.find).toHaveBeenCalledWith({
         where: {
@@ -300,7 +357,9 @@ describe('DroneService', () => {
     it('should throw NotFoundException if affected is 0', async () => {
       dronesRepository.softDelete.mockResolvedValue({ affected: 0 });
 
-      await expect(service.softDeleteDroneAsync('1')).rejects.toThrow(NotFoundException);
+      await expect(service.softDeleteDroneAsync('1')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 });

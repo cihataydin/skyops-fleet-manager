@@ -30,5 +30,4 @@ export class AbortMissionRequestDto {
   @IsNumber()
   @Min(0)
   flightHoursAtAborting: number;
-
 }

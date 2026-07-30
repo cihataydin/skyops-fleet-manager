@@ -33,7 +33,10 @@ export class MissionListener {
         `Received '${MissionEvent.MISSION_STARTED}' event for mission '${missionId}' (Drone '${droneId}').`,
       );
 
-      await this.droneService.changeStatusAsync(droneId, DroneStatus.IN_MISSION);
+      await this.droneService.changeStatusAsync(
+        droneId,
+        DroneStatus.IN_MISSION,
+      );
 
       this.loggerService.log(
         `Drone '${droneId}' status updated to '${DroneStatus.IN_MISSION}'`,

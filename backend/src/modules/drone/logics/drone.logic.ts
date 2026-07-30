@@ -21,9 +21,13 @@ export class DroneLogic {
       );
     }
 
-    if(currentStatus === DroneStatus.MAINTENANCE && targetStatus === DroneStatus.IN_MISSION)
-    {
-      throw new DomainException(`Drone '${droneId}' cannot be deployed directly to a mission while in maintenance. It must be set to ${DroneStatus.AVAILABLE} first.`);
+    if (
+      currentStatus === DroneStatus.MAINTENANCE &&
+      targetStatus === DroneStatus.IN_MISSION
+    ) {
+      throw new DomainException(
+        `Drone '${droneId}' cannot be deployed directly to a mission while in maintenance. It must be set to ${DroneStatus.AVAILABLE} first.`,
+      );
     }
 
     const allowedStatuses = [DroneStatus.AVAILABLE, DroneStatus.MAINTENANCE];

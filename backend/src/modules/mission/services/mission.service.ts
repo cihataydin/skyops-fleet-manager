@@ -185,7 +185,9 @@ export class MissionService implements IMissionService {
     if (isDroneChanged || isScheduleChanged) {
       const drone = await this.droneService.getDroneAsync(targetDroneId);
       if (!drone) {
-        throw new NotFoundException(`Drone with ID '${targetDroneId}' not found`);
+        throw new NotFoundException(
+          `Drone with ID '${targetDroneId}' not found`,
+        );
       }
       MissionLogic.validateDroneAvailability(drone.status, targetDroneId);
 

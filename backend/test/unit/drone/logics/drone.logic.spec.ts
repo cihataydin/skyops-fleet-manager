@@ -111,20 +111,21 @@ describe('DroneLogic', () => {
     });
 
     it('should not throw if setting to an status from MAINTENANCE or AVAILABLE', () => {
-      expect(() => 
+      expect(() =>
         DroneLogic.validateManualStatusUpdate(
-          DroneStatus.MAINTENANCE, 
-          DroneStatus.AVAILABLE, 
-          false, 'drone-1'
+          DroneStatus.MAINTENANCE,
+          DroneStatus.AVAILABLE,
+          false,
+          'drone-1',
         ),
       ).not.toThrow();
-      expect(() => 
+      expect(() =>
         DroneLogic.validateManualStatusUpdate(
-          DroneStatus.AVAILABLE, 
-          DroneStatus.RETIRED, 
-          false, 
-          'drone-1'
-        )
+          DroneStatus.AVAILABLE,
+          DroneStatus.RETIRED,
+          false,
+          'drone-1',
+        ),
       ).not.toThrow();
     });
   });
@@ -139,28 +140,55 @@ describe('DroneLogic', () => {
       } as Drone;
 
       const performedAt = new Date('2026-06-01T00:00:00Z');
-      
+
       DroneLogic.updateMaintenanceTrackingDates(drone, performedAt);
 
       expect(drone.lastMaintenanceDate).toEqual(performedAt);
       expect(drone.flightHoursAtLastMaintenance).toBe(120);
-      expect(drone.nextMaintenanceDueDate.getTime()).toBe(performedAt.getTime() + MAINTENANCE_INTERVAL_MS);
+      expect(drone.nextMaintenanceDueDate.getTime()).toBe(
+        performedAt.getTime() + MAINTENANCE_INTERVAL_MS,
+      );
     });
   });
 
   describe('isFlightHoursExceeded', () => {
     it('should return true if flight hours since last maintenance exceed or equal the interval', () => {
-      expect(DroneLogic.isFlightHoursExceeded(100, 100 - MAINTENANCE_INTERVAL_FLIGHT_HOURS)).toBe(true);
-      expect(DroneLogic.isFlightHoursExceeded(120, 120 - MAINTENANCE_INTERVAL_FLIGHT_HOURS - 10)).toBe(true);
+      expect(
+        DroneLogic.isFlightHoursExceeded(
+          100,
+          100 - MAINTENANCE_INTERVAL_FLIGHT_HOURS,
+        ),
+      ).toBe(true);
+      expect(
+        DroneLogic.isFlightHoursExceeded(
+          120,
+          120 - MAINTENANCE_INTERVAL_FLIGHT_HOURS - 10,
+        ),
+      ).toBe(true);
     });
 
     it('should return false if flight hours since last maintenance do not exceed the interval', () => {
-      expect(DroneLogic.isFlightHoursExceeded(80, 80 - MAINTENANCE_INTERVAL_FLIGHT_HOURS + 10)).toBe(false);
+      expect(
+        DroneLogic.isFlightHoursExceeded(
+          80,
+          80 - MAINTENANCE_INTERVAL_FLIGHT_HOURS + 10,
+        ),
+      ).toBe(false);
     });
 
     it('should handle undefined or null flightHoursAtLastMaintenance as 0', () => {
-      expect(DroneLogic.isFlightHoursExceeded(MAINTENANCE_INTERVAL_FLIGHT_HOURS + 10, undefined as any)).toBe(true);
-      expect(DroneLogic.isFlightHoursExceeded(MAINTENANCE_INTERVAL_FLIGHT_HOURS - 10, null as any)).toBe(false);
+      expect(
+        DroneLogic.isFlightHoursExceeded(
+          MAINTENANCE_INTERVAL_FLIGHT_HOURS + 10,
+          undefined as any,
+        ),
+      ).toBe(true);
+      expect(
+        DroneLogic.isFlightHoursExceeded(
+          MAINTENANCE_INTERVAL_FLIGHT_HOURS - 10,
+          null as any,
+        ),
+      ).toBe(false);
     });
   });
 

@@ -3,10 +3,7 @@ import {
   IsString,
   IsUUID,
   MaxLength,
-  IsNumber,
-  Min,
   ValidateIf,
-  IsNotEmpty,
   IsDate,
 } from 'class-validator';
 import { MissionType } from '@/modules/mission/enums';
@@ -116,5 +113,4 @@ export class UpdateMissionRequestDto {
   })
   @Type(() => Date)
   scheduledEndTime?: Date;
-
 }

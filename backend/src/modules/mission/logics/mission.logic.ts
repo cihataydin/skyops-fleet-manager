@@ -146,7 +146,8 @@ export class MissionLogic {
       targetMissionStatus === MissionStatus.IN_PROGRESS;
     if (
       isStartingMission &&
-      (droneStatus === DroneStatus.MAINTENANCE || droneStatus === DroneStatus.RETIRED)
+      (droneStatus === DroneStatus.MAINTENANCE ||
+        droneStatus === DroneStatus.RETIRED)
     ) {
       throw new DomainException(
         `A mission cannot be started. The assigned drone is in an invalid state. Current status: ${droneStatus}`,

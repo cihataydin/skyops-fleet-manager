@@ -78,13 +78,4 @@ export class Drone extends BaseEntity {
       Date.now() + MAINTENANCE_INTERVAL_MS,
     );
   }
-
-  /*
-  TODO:
-  Constraints:
-  - Maintenance is required every 50 flight hours OR every 90 days, whichever comes first. 
-    The next maintenance due date should be calculated automatically.
-  - Only drones with AVAILABLE status can be assigned to missions.
-  - A drone with upcoming scheduled missions cannot be retired.
-  */
 }

@@ -29,7 +29,10 @@ export class DroneInternalListener {
       this.loggerService.log(
         `Drone '${droneId}' exceeded flight hours (${totalFlightHours}h). Putting to maintenance.`,
       );
-      await this.droneService.changeStatusAsync(droneId, DroneStatus.MAINTENANCE);
+      await this.droneService.changeStatusAsync(
+        droneId,
+        DroneStatus.MAINTENANCE,
+      );
     } catch (error) {
       if (error instanceof Error) {
         this.loggerService.error(
@@ -50,7 +53,10 @@ export class DroneInternalListener {
       this.loggerService.log(
         `Drone '${droneId}' is due for maintenance (${reason}). Putting to maintenance.`,
       );
-      await this.droneService.changeStatusAsync(droneId, DroneStatus.MAINTENANCE);
+      await this.droneService.changeStatusAsync(
+        droneId,
+        DroneStatus.MAINTENANCE,
+      );
     } catch (error) {
       if (error instanceof Error) {
         this.loggerService.error(

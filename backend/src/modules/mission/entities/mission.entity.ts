@@ -1,12 +1,4 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  ManyToOne,
-  JoinColumn,
-} from 'typeorm';
+import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { Drone } from '@/modules/drone/entities/drone.entity';
 import { MissionType, MissionStatus } from '@/modules/mission/enums';
 import { BaseEntity } from '@/infra/db/entities';
@@ -89,7 +81,6 @@ export class Mission extends BaseEntity {
   })
   status: MissionStatus;
 
-  // TODO: upon completion
   @AutoMap()
   @Column({
     type: 'decimal',
@@ -112,24 +103,4 @@ export class Mission extends BaseEntity {
   @ManyToOne(() => Drone, (drone) => drone.missions, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'drone_id' })
   drone: Drone;
-
-  /*
-  TODO:
-  • Missions must follow the valid state transitions shown above.
-  • When a mission starts (IN_PROGRESS), the drone status should
-    reflect that it is in use.
-  • When a mission is completed, flight hours must be logged and
-    added to the drone's total. The system should check if
-    maintenance is now due.
-  • Aborting a mission requires a reason. The drone should become
-    available again.
-  • A drone cannot have overlapping missions (by scheduled time).
-  • Missions cannot be scheduled in the past.
-
-  Mission Lifecycle
-  PLANNED --> PRE_FLIGHT_CHECK --> IN_PROGRESS --> COMPLETED
-      |             |                   |
-      v             v                   v
-    ABORTED       ABORTED             ABORTED
-  */
 }
