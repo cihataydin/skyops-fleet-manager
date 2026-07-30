@@ -39,11 +39,13 @@ export class MissionListener {
         `Drone '${droneId}' status updated to '${DroneStatus.IN_MISSION}'`,
       );
     } catch (error) {
-      this.loggerService.error(
-        `Failed to handle MISSION_STARTED for mission '${event.missionId}'`,
-        undefined,
-        (error as Error).stack,
-      );
+      if (error instanceof Error) {
+        this.loggerService.error(
+          `Failed to handle MISSION_STARTED for mission '${event.missionId}'`,
+          undefined,
+          error.stack,
+        );
+      }
     }
   }
 
@@ -60,11 +62,13 @@ export class MissionListener {
 
       await this.processMissionEndAsync(droneId, flightHours);
     } catch (error) {
-      this.loggerService.error(
-        `Failed to handle MISSION_COMPLETED for mission '${event.missionId}'`,
-        undefined,
-        (error as Error).stack,
-      );
+      if (error instanceof Error) {
+        this.loggerService.error(
+          `Failed to handle MISSION_COMPLETED for mission '${event.missionId}'`,
+          undefined,
+          error.stack,
+        );
+      }
     }
   }
 
@@ -81,11 +85,13 @@ export class MissionListener {
 
       await this.processMissionEndAsync(droneId, flightHoursAtAborting);
     } catch (error) {
-      this.loggerService.error(
-        `Failed to handle MISSION_ABORTED for mission '${event.missionId}'`,
-        undefined,
-        (error as Error).stack,
-      );
+      if (error instanceof Error) {
+        this.loggerService.error(
+          `Failed to handle MISSION_ABORTED for mission '${event.missionId}'`,
+          undefined,
+          error.stack,
+        );
+      }
     }
   }
 

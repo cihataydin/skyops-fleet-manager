@@ -31,11 +31,13 @@ export class DroneInternalListener {
       );
       await this.droneService.changeStatusAsync(droneId, DroneStatus.MAINTENANCE);
     } catch (error) {
-      this.loggerService.error(
-        `Failed to handle FLIGHT_HOURS_EXCEEDED for drone '${event.droneId}'`,
-        undefined,
-        (error as Error).stack,
-      );
+      if (error instanceof Error) {
+        this.loggerService.error(
+          `Failed to handle FLIGHT_HOURS_EXCEEDED for drone '${event.droneId}'`,
+          undefined,
+          error.stack,
+        );
+      }
     }
   }
 
@@ -50,11 +52,13 @@ export class DroneInternalListener {
       );
       await this.droneService.changeStatusAsync(droneId, DroneStatus.MAINTENANCE);
     } catch (error) {
-      this.loggerService.error(
-        `Failed to handle MAINTENANCE_DUE for drone '${event.droneId}'`,
-        undefined,
-        (error as Error).stack,
-      );
+      if (error instanceof Error) {
+        this.loggerService.error(
+          `Failed to handle MAINTENANCE_DUE for drone '${event.droneId}'`,
+          undefined,
+          error.stack,
+        );
+      }
     }
   }
 }

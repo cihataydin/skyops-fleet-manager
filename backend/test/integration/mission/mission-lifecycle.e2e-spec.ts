@@ -58,7 +58,8 @@ describe('Mission Lifecycle (Integration)', () => {
 
   it('should successfully complete a full mission lifecycle', async () => {
     // 1. Create a Drone
-    const droneSerialNumber = `SKY-INTE-TEST`;
+    const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
+    const droneSerialNumber = `SKY-INT1-${randomSuffix}`;
     const createDroneRes = await request(app.getHttpServer())
       .post('/drones')
       .send({
@@ -135,7 +136,8 @@ describe('Mission Lifecycle (Integration)', () => {
 
   it('should successfully abort a mission and restore drone state', async () => {
     // 1. Create a Drone
-    const droneSerialNumber = `SKY-ABRT-0001`;
+    const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
+    const droneSerialNumber = `SKY-ABRT-${randomSuffix}`;
     const createDroneRes = await request(app.getHttpServer())
       .post('/drones')
       .send({

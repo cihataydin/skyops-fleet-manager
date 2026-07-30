@@ -44,11 +44,13 @@ export class MaintenanceListener {
         `Drone '${droneId}' maintenance tracking dates updated and status set to AVAILABLE.`,
       );
     } catch (error) {
-      this.loggerService.error(
-        `Failed to handle MAINTENANCE_CREATED for drone '${event.droneId}'`,
-        undefined,
-        (error as Error).stack,
-      );
+      if (error instanceof Error) {
+        this.loggerService.error(
+          `Failed to handle MAINTENANCE_CREATED for drone '${event.droneId}'`,
+          undefined,
+          error.stack,
+        );
+      }
     }
   }
 }
