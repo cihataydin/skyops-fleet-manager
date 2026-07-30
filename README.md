@@ -50,7 +50,7 @@ This project is fully Dockerized for a production-like environment using **Docke
 ### Option A: Run Everything via Docker (Production-Like)
 To start the entire stack (Database, Redis, Backend, Frontend):
 ```bash
-docker-compose --profile apps up -d --build
+docker compose --profile apps up -d --build
 ```
 - **Frontend**: `http://localhost:5173`
 - **Backend API**: `http://localhost:3000` (Swagger UI at `/swagger`)
@@ -60,7 +60,7 @@ If you want to run the backend/frontend locally for development but use Docker f
 
 **1. Start Infrastructure Only:**
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 **2. Start Backend Locally:**
